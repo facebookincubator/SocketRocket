@@ -127,12 +127,12 @@ static inline int32_t validate_dispatch_data_partial_string(NSData *data) {
             }
         }
     }
-#endif
 
     if (size != -1 && ![[NSString alloc] initWithBytesNoCopy:(char *)[data bytes] length:size encoding:NSUTF8StringEncoding freeWhenDone:NO]) {
         size = -1;
     }
-    
+#endif
+
     return size;
 }
 
