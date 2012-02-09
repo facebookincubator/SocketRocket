@@ -17,8 +17,13 @@
 
 #import "SRWebSocket.h"
 
-#import <unicode/utf8.h>
+//#import <unicode/utf8.h>
+#ifdef TARGET_OS_MAC
+#import <machine/endian.h>
+#else
 #import <endian.h>
+#endif
+
 #import <CommonCrypto/CommonDigest.h>
 #import "base64.h"
 #import "NSData+SRB64Additions.h"
@@ -87,12 +92,12 @@ static NSString *const SRWebSocketAppendToSecKeyString = @"258EAFA5-E914-47DA-95
 
 static inline int32_t validate_dispatch_data_partial_string(NSData *data) {
     
-    const void * contents = [data bytes];
     long size = [data length];
     
-    const uint8_t *str = (const uint8_t *)contents;
+#ifndef TARGET_OS_MAC    
+    const void * contents = [data bytes];
 
-    
+    const uint8_t *str = (const uint8_t *)contents;
     UChar32 codepoint = 1;
     int32_t offset = 0;
     int32_t lastOffset = 0;
@@ -122,6 +127,7 @@ static inline int32_t validate_dispatch_data_partial_string(NSData *data) {
             }
         }
     }
+#endif
 
     if (size != -1 && ![[NSString alloc] initWithBytesNoCopy:(char *)[data bytes] length:size encoding:NSUTF8StringEncoding freeWhenDone:NO]) {
         size = -1;
@@ -459,7 +465,9 @@ static __strong NSData *CRLFCRLF;
     
     
     NSMutableData *keyBytes = [[NSMutableData alloc] initWithLength:16];
+#ifndef TARGET_OS_MAC    
     SecRandomCopyBytes(kSecRandomDefault, keyBytes.length, keyBytes.mutableBytes);
+#endif
     _secKey = [keyBytes SR_stringByBase64Encoding];
     assert([_secKey length] == 24);
     
@@ -1209,7 +1217,9 @@ static const size_t SRFrameHeaderOverhead = 32;
         }
     } else {
         uint8_t *mask_key = frame_buffer + frame_buffer_size;
+#ifndef TARGET_OS_MAC    
         SecRandomCopyBytes(kSecRandomDefault, sizeof(uint32_t), (uint8_t *)mask_key);
+#endif
         frame_buffer_size += sizeof(uint32_t);
         
         // TODO: could probably optimize this with SIMD

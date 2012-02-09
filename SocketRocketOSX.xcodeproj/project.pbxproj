@@ -1,0 +1,347 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		F6266EC214E3C127007C1A0A /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F6266EC114E3C127007C1A0A /* Cocoa.framework */; };
+		F6266ECC14E3C127007C1A0A /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = F6266ECA14E3C127007C1A0A /* InfoPlist.strings */; };
+		F6266ED014E3C127007C1A0A /* SocketRocket.m in Sources */ = {isa = PBXBuildFile; fileRef = F6266ECF14E3C127007C1A0A /* SocketRocket.m */; };
+		F6266ED414E3C170007C1A0A /* SRWebSocket.h in Headers */ = {isa = PBXBuildFile; fileRef = F6A12CCF145119B700C1D980 /* SRWebSocket.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		F6266ED514E3C178007C1A0A /* SocketRocket.h in Headers */ = {isa = PBXBuildFile; fileRef = F6266ECE14E3C127007C1A0A /* SocketRocket.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		F6266ED614E3C19C007C1A0A /* base64.c in Sources */ = {isa = PBXBuildFile; fileRef = F6016C7B146124B20037BB3D /* base64.c */; };
+		F6266ED714E3C19C007C1A0A /* SRWebSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = F6A12CD0145119B700C1D980 /* SRWebSocket.m */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		F6016C7B146124B20037BB3D /* base64.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = base64.c; sourceTree = "<group>"; };
+		F6016C7E146124ED0037BB3D /* base64.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = base64.h; sourceTree = "<group>"; };
+		F62417E514D52F3C003CE997 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		F62417E814D52F3C003CE997 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
+		F6266EC014E3C127007C1A0A /* SocketRocket.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SocketRocket.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		F6266EC114E3C127007C1A0A /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
+		F6266EC414E3C127007C1A0A /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
+		F6266EC514E3C127007C1A0A /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
+		F6266EC614E3C127007C1A0A /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		F6266EC914E3C127007C1A0A /* SocketRocket-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "SocketRocket-Info.plist"; sourceTree = "<group>"; };
+		F6266ECB14E3C127007C1A0A /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		F6266ECD14E3C127007C1A0A /* SocketRocket-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SocketRocket-Prefix.pch"; sourceTree = "<group>"; };
+		F6266ECE14E3C127007C1A0A /* SocketRocket.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SocketRocket.h; sourceTree = "<group>"; };
+		F6266ECF14E3C127007C1A0A /* SocketRocket.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SocketRocket.m; sourceTree = "<group>"; };
+		F6572123146C7B6A00D6B8A9 /* NSData+SRB64Additions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSData+SRB64Additions.h"; sourceTree = "<group>"; };
+		F6572124146C7B6A00D6B8A9 /* NSData+SRB64Additions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSData+SRB64Additions.m"; sourceTree = "<group>"; };
+		F6A12CCF145119B700C1D980 /* SRWebSocket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SRWebSocket.h; sourceTree = "<group>"; };
+		F6A12CD0145119B700C1D980 /* SRWebSocket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SRWebSocket.m; sourceTree = "<group>"; };
+		F6A12CD3145122FC00C1D980 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
+		F6A12CD51451231B00C1D980 /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
+		F6B208301450F597009315AF /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		F6B208341450F597009315AF /* SocketRocket-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SocketRocket-Prefix.pch"; sourceTree = "<group>"; };
+		F6BDA803145900D200FE3253 /* SenTestingKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SenTestingKit.framework; path = Library/Frameworks/SenTestingKit.framework; sourceTree = DEVELOPER_DIR; };
+		F6C41C95145F7C4700641356 /* libicucore.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libicucore.dylib; path = usr/lib/libicucore.dylib; sourceTree = SDKROOT; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		F6266EBC14E3C127007C1A0A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F6266EC214E3C127007C1A0A /* Cocoa.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		F6266EC314E3C127007C1A0A /* Other Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				F6266EC414E3C127007C1A0A /* AppKit.framework */,
+				F6266EC514E3C127007C1A0A /* CoreData.framework */,
+				F6266EC614E3C127007C1A0A /* Foundation.framework */,
+			);
+			name = "Other Frameworks";
+			sourceTree = "<group>";
+		};
+		F6266EC714E3C127007C1A0A /* SocketRocket */ = {
+			isa = PBXGroup;
+			children = (
+				F6266EC814E3C127007C1A0A /* Supporting Files */,
+			);
+			path = SocketRocket;
+			sourceTree = "<group>";
+		};
+		F6266EC814E3C127007C1A0A /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				F6266EC914E3C127007C1A0A /* SocketRocket-Info.plist */,
+				F6266ECA14E3C127007C1A0A /* InfoPlist.strings */,
+				F6266ECD14E3C127007C1A0A /* SocketRocket-Prefix.pch */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		F6B208221450F597009315AF = {
+			isa = PBXGroup;
+			children = (
+				F6B208321450F597009315AF /* SocketRocket */,
+				F6266EC714E3C127007C1A0A /* SocketRocket */,
+				F6B2082F1450F597009315AF /* Frameworks */,
+				F6B2082E1450F597009315AF /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		F6B2082E1450F597009315AF /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				F6266EC014E3C127007C1A0A /* SocketRocket.framework */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F6B2082F1450F597009315AF /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				F6C41C95145F7C4700641356 /* libicucore.dylib */,
+				F6A12CD51451231B00C1D980 /* CFNetwork.framework */,
+				F6A12CD3145122FC00C1D980 /* Security.framework */,
+				F6B208301450F597009315AF /* Foundation.framework */,
+				F6BDA803145900D200FE3253 /* SenTestingKit.framework */,
+				F62417E514D52F3C003CE997 /* UIKit.framework */,
+				F62417E814D52F3C003CE997 /* CoreGraphics.framework */,
+				F6266EC114E3C127007C1A0A /* Cocoa.framework */,
+				F6266EC314E3C127007C1A0A /* Other Frameworks */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		F6B208321450F597009315AF /* SocketRocket */ = {
+			isa = PBXGroup;
+			children = (
+				F6016C7B146124B20037BB3D /* base64.c */,
+				F6016C7E146124ED0037BB3D /* base64.h */,
+				F6A12CCF145119B700C1D980 /* SRWebSocket.h */,
+				F6A12CD0145119B700C1D980 /* SRWebSocket.m */,
+				F6266ECE14E3C127007C1A0A /* SocketRocket.h */,
+				F6266ECF14E3C127007C1A0A /* SocketRocket.m */,
+				F6B208331450F597009315AF /* Supporting Files */,
+				F6572123146C7B6A00D6B8A9 /* NSData+SRB64Additions.h */,
+				F6572124146C7B6A00D6B8A9 /* NSData+SRB64Additions.m */,
+			);
+			path = SocketRocket;
+			sourceTree = "<group>";
+		};
+		F6B208331450F597009315AF /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				F6B208341450F597009315AF /* SocketRocket-Prefix.pch */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		F6266EBD14E3C127007C1A0A /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F6266ED414E3C170007C1A0A /* SRWebSocket.h in Headers */,
+				F6266ED514E3C178007C1A0A /* SocketRocket.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		F6266EBF14E3C127007C1A0A /* SocketRocket */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F6266ED114E3C127007C1A0A /* Build configuration list for PBXNativeTarget "SocketRocket" */;
+			buildPhases = (
+				F6266EBB14E3C127007C1A0A /* Sources */,
+				F6266EBC14E3C127007C1A0A /* Frameworks */,
+				F6266EBD14E3C127007C1A0A /* Headers */,
+				F6266EBE14E3C127007C1A0A /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = SocketRocket;
+			productName = SocketRocket;
+			productReference = F6266EC014E3C127007C1A0A /* SocketRocket.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		F6B208241450F597009315AF /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0430;
+			};
+			buildConfigurationList = F6B208271450F597009315AF /* Build configuration list for PBXProject "SocketRocketOSX" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = F6B208221450F597009315AF;
+			productRefGroup = F6B2082E1450F597009315AF /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				F6266EBF14E3C127007C1A0A /* SocketRocket */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		F6266EBE14E3C127007C1A0A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F6266ECC14E3C127007C1A0A /* InfoPlist.strings in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		F6266EBB14E3C127007C1A0A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F6266ED014E3C127007C1A0A /* SocketRocket.m in Sources */,
+				F6266ED614E3C19C007C1A0A /* base64.c in Sources */,
+				F6266ED714E3C19C007C1A0A /* SRWebSocket.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		F6266ECA14E3C127007C1A0A /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				F6266ECB14E3C127007C1A0A /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		F6266ED214E3C127007C1A0A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				FRAMEWORK_VERSION = A;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "SocketRocket/SocketRocket-Prefix.pch";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				INFOPLIST_FILE = "SocketRocket/SocketRocket-Info.plist";
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = framework;
+			};
+			name = Debug;
+		};
+		F6266ED314E3C127007C1A0A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				FRAMEWORK_VERSION = A;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "SocketRocket/SocketRocket-Prefix.pch";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				INFOPLIST_FILE = "SocketRocket/SocketRocket-Info.plist";
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = framework;
+			};
+			name = Release;
+		};
+		F6B208381450F597009315AF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = "compiler-default";
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 4.0;
+				RUN_CLANG_STATIC_ANALYZER = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		F6B208391450F597009315AF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = YES;
+				GCC_C_LANGUAGE_STANDARD = "compiler-default";
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 4.0;
+				RUN_CLANG_STATIC_ANALYZER = YES;
+				SDKROOT = macosx;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		F6266ED114E3C127007C1A0A /* Build configuration list for PBXNativeTarget "SocketRocket" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F6266ED214E3C127007C1A0A /* Debug */,
+				F6266ED314E3C127007C1A0A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+		F6B208271450F597009315AF /* Build configuration list for PBXProject "SocketRocketOSX" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F6B208381450F597009315AF /* Debug */,
+				F6B208391450F597009315AF /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = F6B208241450F597009315AF /* Project object */;
+}
