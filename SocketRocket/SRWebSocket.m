@@ -20,7 +20,6 @@
 #import <unicode/utf8.h>
 #import <endian.h>
 #import <CommonCrypto/CommonDigest.h>
-#import "base64.h"
 #import "NSData+SRB64Additions.h"
 
 typedef enum  {
@@ -131,56 +130,15 @@ static inline int32_t validate_dispatch_data_partial_string(NSData *data) {
 }
 
 
-@interface NSData (SRWebSocket)
-
-- (NSString *)stringBySHA1ThenBase64Encoding;
-
-@end
-
-
-@interface NSString (SRWebSocket)
-
-- (NSString *)stringBySHA1ThenBase64Encoding;
-
-@end
-
-
-static NSString *newSHA1String(const char *bytes, size_t length) {
+static NSString *Base64SHA1FromString(NSString *string) {
+    const char *bytes = string.UTF8String;
+    size_t length = strlen(bytes);
     uint8_t md[CC_SHA1_DIGEST_LENGTH];
-    
     CC_SHA1(bytes, length, md);
-    
-    size_t buffer_size = ((sizeof(md) * 3 + 2) / 2);
-    
-    char *buffer =  (char *)malloc(buffer_size);
-    
-    int len = b64_ntop(md, CC_SHA1_DIGEST_LENGTH, buffer, buffer_size);
-    if (len == -1) {
-        free(buffer);
-        return nil;
-    } else{
-        return [[NSString alloc] initWithBytesNoCopy:buffer length:len encoding:NSASCIIStringEncoding freeWhenDone:YES];
-    }
+    NSData *data = [NSData dataWithBytesNoCopy:md length:sizeof(md) freeWhenDone:NO];
+    return [data SR_stringByBase64Encoding];
 }
 
-@implementation NSData (SRWebSocket)
-
-- (NSString *)stringBySHA1ThenBase64Encoding;
-{
-    return newSHA1String(self.bytes, self.length);
-}
-
-@end
-
-
-@implementation NSString (SRWebSocket)
-
-- (NSString *)stringBySHA1ThenBase64Encoding;
-{
-    return newSHA1String(self.UTF8String, self.length);
-}
-
-@end
 
 NSString *const SRWebSocketErrorDomain = @"SRWebSocketErrorDomain";
 
@@ -390,7 +348,7 @@ static __strong NSData *CRLFCRLF;
     }
     
     NSString *concattedString = [_secKey stringByAppendingString:SRWebSocketAppendToSecKeyString];
-    NSString *expectedAccept = [concattedString stringBySHA1ThenBase64Encoding];
+    NSString *expectedAccept = Base64SHA1FromString(concattedString);
     
     return [acceptHeader isEqualToString:expectedAccept];
 }
@@ -532,27 +490,31 @@ static __strong NSData *CRLFCRLF;
             return;
         }
 
-        size_t maxMsgSize = [reason maximumLengthOfBytesUsingEncoding:NSUTF8StringEncoding];
-        NSMutableData *mutablePayload = [[NSMutableData alloc] initWithLength:sizeof(uint16_t) + maxMsgSize];
-        NSData *payload = mutablePayload;
-        
-        ((uint16_t *)mutablePayload.mutableBytes)[0] = EndianU16_BtoN(code);
+        uint16_t header = EndianU16_BtoN(code);
+        size_t msgSize = [reason maximumLengthOfBytesUsingEncoding:NSUTF8StringEncoding];
+        size_t bufSize = sizeof(header) + msgSize;
+        size_t dataSize = bufSize;
+
+        char *buf = malloc(bufSize);
+        assert(buf);
+
+        *(uint16_t*)buf = header;
         
         if (reason) {
-            NSRange remainingRange = {0};
-            
+            char *msgBuf = buf + sizeof(header);
+            NSRange range = NSMakeRange(0, reason.length);
+            NSRange remaining = NSMakeRange(0, 0);
             NSUInteger usedLength = 0;
-            
-            BOOL success = [reason getBytes:(char *)mutablePayload.mutableBytes + sizeof(uint16_t) maxLength:payload.length - sizeof(uint16_t) usedLength:&usedLength encoding:NSUTF8StringEncoding options:NSStringEncodingConversionExternalRepresentation range:NSMakeRange(0, reason.length) remainingRange:&remainingRange];
+
+            BOOL success = [reason getBytes:msgBuf maxLength:msgSize usedLength:&usedLength encoding:NSUTF8StringEncoding options:NSStringEncodingConversionExternalRepresentation range:range remainingRange:&remaining];
             
             assert(success);
-            assert(remainingRange.length == 0);
+            assert(remaining.length == 0);
 
-            if (usedLength != maxMsgSize) {
-                payload = [payload subdataWithRange:NSMakeRange(0, usedLength + sizeof(uint16_t))];
-            }
+            dataSize = sizeof(header) + usedLength;
         }
         
+        NSData *payload = [NSData dataWithBytesNoCopy:buf length:dataSize freeWhenDone:YES];
         
         [self _sendFrameWithOpcode:SROpCodeConnectionClose data:payload];
     });
