@@ -490,27 +490,31 @@ static __strong NSData *CRLFCRLF;
             return;
         }
 
-        size_t maxMsgSize = [reason maximumLengthOfBytesUsingEncoding:NSUTF8StringEncoding];
-        NSMutableData *mutablePayload = [[NSMutableData alloc] initWithLength:sizeof(uint16_t) + maxMsgSize];
-        NSData *payload = mutablePayload;
-        
-        ((uint16_t *)mutablePayload.mutableBytes)[0] = EndianU16_BtoN(code);
+        uint16_t header = EndianU16_BtoN(code);
+        size_t msgSize = [reason maximumLengthOfBytesUsingEncoding:NSUTF8StringEncoding];
+        size_t bufSize = sizeof(header) + msgSize;
+        size_t dataSize = bufSize;
+
+        char *buf = malloc(bufSize);
+        assert(buf);
+
+        *(uint16_t*)buf = header;
         
         if (reason) {
-            NSRange remainingRange = {0};
-            
+            char *msgBuf = buf + sizeof(header);
+            NSRange range = NSMakeRange(0, reason.length);
+            NSRange remaining = NSMakeRange(0, 0);
             NSUInteger usedLength = 0;
-            
-            BOOL success = [reason getBytes:(char *)mutablePayload.mutableBytes + sizeof(uint16_t) maxLength:payload.length - sizeof(uint16_t) usedLength:&usedLength encoding:NSUTF8StringEncoding options:NSStringEncodingConversionExternalRepresentation range:NSMakeRange(0, reason.length) remainingRange:&remainingRange];
+
+            BOOL success = [reason getBytes:msgBuf maxLength:msgSize usedLength:&usedLength encoding:NSUTF8StringEncoding options:NSStringEncodingConversionExternalRepresentation range:range remainingRange:&remaining];
             
             assert(success);
-            assert(remainingRange.length == 0);
+            assert(remaining.length == 0);
 
-            if (usedLength != maxMsgSize) {
-                payload = [payload subdataWithRange:NSMakeRange(0, usedLength + sizeof(uint16_t))];
-            }
+            dataSize = sizeof(header) + usedLength;
         }
         
+        NSData *payload = [NSData dataWithBytesNoCopy:buf length:dataSize freeWhenDone:YES];
         
         [self _sendFrameWithOpcode:SROpCodeConnectionClose data:payload];
     });
