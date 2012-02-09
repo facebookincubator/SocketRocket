@@ -20,7 +20,6 @@
 #import <unicode/utf8.h>
 #import <endian.h>
 #import <CommonCrypto/CommonDigest.h>
-#import "base64.h"
 #import "NSData+SRB64Additions.h"
 
 typedef enum  {
@@ -131,56 +130,15 @@ static inline int32_t validate_dispatch_data_partial_string(NSData *data) {
 }
 
 
-@interface NSData (SRWebSocket)
-
-- (NSString *)stringBySHA1ThenBase64Encoding;
-
-@end
-
-
-@interface NSString (SRWebSocket)
-
-- (NSString *)stringBySHA1ThenBase64Encoding;
-
-@end
-
-
-static NSString *newSHA1String(const char *bytes, size_t length) {
+static NSString *Base64SHA1FromString(NSString *string) {
+    const char *bytes = string.UTF8String;
+    size_t length = strlen(bytes);
     uint8_t md[CC_SHA1_DIGEST_LENGTH];
-    
     CC_SHA1(bytes, length, md);
-    
-    size_t buffer_size = ((sizeof(md) * 3 + 2) / 2);
-    
-    char *buffer =  (char *)malloc(buffer_size);
-    
-    int len = b64_ntop(md, CC_SHA1_DIGEST_LENGTH, buffer, buffer_size);
-    if (len == -1) {
-        free(buffer);
-        return nil;
-    } else{
-        return [[NSString alloc] initWithBytesNoCopy:buffer length:len encoding:NSASCIIStringEncoding freeWhenDone:YES];
-    }
+    NSData *data = [NSData dataWithBytesNoCopy:md length:sizeof(md) freeWhenDone:NO];
+    return [data SR_stringByBase64Encoding];
 }
 
-@implementation NSData (SRWebSocket)
-
-- (NSString *)stringBySHA1ThenBase64Encoding;
-{
-    return newSHA1String(self.bytes, self.length);
-}
-
-@end
-
-
-@implementation NSString (SRWebSocket)
-
-- (NSString *)stringBySHA1ThenBase64Encoding;
-{
-    return newSHA1String(self.UTF8String, self.length);
-}
-
-@end
 
 NSString *const SRWebSocketErrorDomain = @"SRWebSocketErrorDomain";
 
@@ -390,7 +348,7 @@ static __strong NSData *CRLFCRLF;
     }
     
     NSString *concattedString = [_secKey stringByAppendingString:SRWebSocketAppendToSecKeyString];
-    NSString *expectedAccept = [concattedString stringBySHA1ThenBase64Encoding];
+    NSString *expectedAccept = Base64SHA1FromString(concattedString);
     
     return [acceptHeader isEqualToString:expectedAccept];
 }
