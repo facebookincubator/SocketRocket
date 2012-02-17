@@ -383,7 +383,18 @@ static __strong NSData *CRLFCRLF;
 
 - (BOOL)_checkHandshake:(NSDictionary *)headers;
 {
-    NSString *acceptHeader = [headers objectForKey:@"Sec-WebSocket-Accept"];
+    __block NSString *acceptHeader = nil;
+    
+    // On iOS 4.0, CFHTTPMessageCopyAllHeaderFields() seems to capitalize header keys differently
+    NSArray *possibleHeaderKeys = [NSArray arrayWithObjects:@"Sec-WebSocket-Accept", @"Sec-Websocket-Accept", nil];
+    
+    [possibleHeaderKeys enumerateObjectsUsingBlock:^(id key, NSUInteger index, BOOL *stop) {
+        acceptHeader = [headers objectForKey:key];
+        
+        if (acceptHeader) {
+            *stop = YES;
+        }
+    }];
     
     if (acceptHeader == nil) {
         return NO;
