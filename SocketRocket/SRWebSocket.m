@@ -1261,7 +1261,11 @@ static const size_t SRFrameHeaderOverhead = 32;
                 }
                 
                 if (self.readyState != SR_CLOSED) {
-                    self.readyState = SR_CLOSED;
+                    if(aStream == _inputStream) {
+                        [self _failWithError:[NSError errorWithDomain:SRWebSocketErrorDomain code:2155 userInfo:[NSDictionary dictionaryWithObject:[NSString stringWithFormat:@"input stream was closed"] forKey:NSLocalizedDescriptionKey]]];
+                    }else{
+                        self.readyState = SR_CLOSED;
+                    }
                 }
                 break;
             }
