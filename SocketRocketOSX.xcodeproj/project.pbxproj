@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		F37F1D0514F444F600650609 /* NSData+SRB64Additions.m in Sources */ = {isa = PBXBuildFile; fileRef = F6572124146C7B6A00D6B8A9 /* NSData+SRB64Additions.m */; };
 		F6266EC214E3C127007C1A0A /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F6266EC114E3C127007C1A0A /* Cocoa.framework */; };
 		F6266ECC14E3C127007C1A0A /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = F6266ECA14E3C127007C1A0A /* InfoPlist.strings */; };
 		F6266ED014E3C127007C1A0A /* SocketRocket.m in Sources */ = {isa = PBXBuildFile; fileRef = F6266ECF14E3C127007C1A0A /* SocketRocket.m */; };
@@ -215,6 +216,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F37F1D0514F444F600650609 /* NSData+SRB64Additions.m in Sources */,
 				F6266ED014E3C127007C1A0A /* SocketRocket.m in Sources */,
 				F6266ED614E3C19C007C1A0A /* base64.c in Sources */,
 				F6266ED714E3C19C007C1A0A /* SRWebSocket.m in Sources */,
@@ -331,6 +333,7 @@
 				F6266ED314E3C127007C1A0A /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		F6B208271450F597009315AF /* Build configuration list for PBXProject "SocketRocketOSX" */ = {
 			isa = XCConfigurationList;
