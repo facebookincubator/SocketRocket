@@ -202,7 +202,7 @@ pre.wirelog_tcp_closed_by_peer {color: #fff; margin: 0; background-color: #000; 
       <center><img src="http://www.tavendo.de/static/autobahn/ws_protocol_test_report.png" border="0" width="820" height="46" alt="WebSockets Protocol Test Report"></img></a></center>
       <center><a href="http://www.tavendo.de/autobahn" title="Autobahn WebSockets"><img src="http://www.tavendo.de/static/autobahn/ws_protocol_test_report_autobahn.png" border="0" width="300" height="68" alt="Autobahn WebSockets"></img></a></center>
       <br/>
-      <p class="case case_ok">com.squareup.SRWebSocketTests - <span style="font-size: 1.3em;"><b>Case 9.8.4</b></span> : Pass - <span style="font-size: 0.9em;"><b>425</b> ms @ 2012-01-30T05:12:02Z</a></p>
+      <p class="case case_ok">com.squareup.SRWebSocketTests - <span style="font-size: 1.3em;"><b>Case 9.8.4</b></span> : Pass - <span style="font-size: 0.9em;"><b>881</b> ms @ 2012-02-26T02:03:59Z</a></p>
       <p class="case_text_block case_desc"><b>Case Description</b><br/><br/>Send 1000 binary messages of payload size 256 to measure implementation/network RTT (round trip time) / latency.</p>
       <p class="case_text_block case_expect"><b>Case Expectation</b><br/><br/>Receive echo'ed binary messages (with payload as sent). Timeout case after 120 secs.</p>
 
@@ -218,14 +218,14 @@ pre.wirelog_tcp_closed_by_peer {color: #fff; margin: 0; background-color: #000; 
 Host: localhost:9001
 Upgrade: websocket
 Connection: Upgrade
-Sec-WebSocket-Key: 5Sm2DE9j/YTL1ptvfXm7lA==
+Sec-WebSocket-Key: bPCK9bfxGdmiyfDXi27s7w==
 Sec-WebSocket-Version: 13
 Origin: ws://localhost:9001/runCase?case=292&agent=com.squareup.SRWebSocketTests</pre>
       <pre class="http_dump">HTTP/1.1 101 Switching Protocols
 Server: AutobahnWebSocketsTestSuite/0.4.10
 Upgrade: websocket
 Connection: Upgrade
-Sec-WebSocket-Accept: u7BCnodNpRMjar9WCyKY5+u8wjU=</pre>
+Sec-WebSocket-Accept: oK7mKU1THn8P5h7Wdir00aRpyhg=</pre>
       <br/><hr/>
       <h2>Closing Behavior</h2>
       <table>
@@ -280,21 +280,21 @@ Sec-WebSocket-Accept: u7BCnodNpRMjar9WCyKY5+u8wjU=</pre>
          <pre class="wirelog_rx_octets">000 RX OCTETS: 474554202f72756e436173653f636173653d323932266167656e743d636f6d2e73717561726575702e5352576562536f636b</pre>
          <pre class="wirelog_rx_octets">               6574546573747320485454502f312e310d0a486f73743a206c6f63616c686f73743a393030310d0a557067726164653a2077</pre>
          <pre class="wirelog_rx_octets">               6562736f636b65740d0a436f6e6e656374696f6e3a20557067726164650d0a5365632d576562536f636b65742d4b65793a20</pre>
-         <pre class="wirelog_rx_octets">               35536d324445396a2f59544c3170747666586d376c413d3d0d0a5365632d576562536f636b65742d56657273696f6e3a2031</pre>
+         <pre class="wirelog_rx_octets">               6250434b3962667847646d69796644586932377337773d3d0d0a5365632d576562536f636b65742d56657273696f6e3a2031</pre>
          <pre class="wirelog_rx_octets">               330d0a4f726967696e3a2077733a2f2f6c6f63616c686f73743a393030312f72756e436173653f636173653d323932266167</pre>
          <pre class="wirelog_rx_octets">               656e743d636f ...</pre>
          <pre class="wirelog_tx_octets">001 TX OCTETS: 485454502f312e312031303120537769746368696e672050726f746f636f6c730d0a5365727665723a204175746f6261686e</pre>
          <pre class="wirelog_tx_octets">               576562536f636b6574735465737453756974652f302e342e31300d0a557067726164653a20776562736f636b65740d0a436f</pre>
-         <pre class="wirelog_tx_octets">               6e6e656374696f6e3a20557067726164650d0a5365632d576562536f636b65742d4163636570743a20753742436e6f644e70</pre>
-         <pre class="wirelog_tx_octets">               524d6a6172395743794b59352b7538776a553d0d0a0d0a</pre>
+         <pre class="wirelog_tx_octets">               6e6e656374696f6e3a20557067726164650d0a5365632d576562536f636b65742d4163636570743a206f4b376d4b55315448</pre>
+         <pre class="wirelog_tx_octets">               6e38503568375764697230306152707968673d0d0a0d0a</pre>
          <pre class="wirelog_delay">002 WIRELOG DISABLED</pre>
          <pre class="wirelog_kill_after">003 CLOSE CONNECTION AFTER 120.000000 sec</pre>
          <pre class="wirelog_delay">004 WIRELOG ENABLED</pre>
          <pre class="wirelog_tx_frame">005 TX FRAME : OPCODE=8, FIN=True, RSV=0, MASK=None, PAYLOAD-REPEAT-LEN=None, CHOPSIZE=None, SYNC=False</pre>
          <pre class="wirelog_tx_frame">               è</pre>
          <pre class="wirelog_tx_octets">006 TX OCTETS: 880203e8</pre>
-         <pre class="wirelog_rx_octets">007 RX OCTETS: 888205697a010681</pre>
-         <pre class="wirelog_rx_frame">008 RX FRAME : OPCODE=8, FIN=True, RSV=0, MASKED=True, MASK=05697a01</pre>
+         <pre class="wirelog_rx_octets">007 RX OCTETS: 888239bdb3093a55</pre>
+         <pre class="wirelog_rx_frame">008 RX FRAME : OPCODE=8, FIN=True, RSV=0, MASKED=True, MASK=39bdb309</pre>
          <pre class="wirelog_rx_frame">               è</pre>
          <pre class="wirelog_tcp_closed_by_me">009 TCP DROPPED BY ME</pre>
       </div>
