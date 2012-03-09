@@ -47,6 +47,8 @@ extern NSString *const SRWebSocketErrorDomain;
 // Send a UTF8 String or Data
 - (void)send:(id)data;
 
+-(SecCertificateRef) loadCertificate;
+
 @end
 
 @protocol SRWebSocketDelegate <NSObject>
