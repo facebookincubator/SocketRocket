@@ -199,10 +199,10 @@ pre.wirelog_tcp_closed_by_peer {color: #fff; margin: 0; background-color: #000; 
    <body>
       <a name="top"></a>
       <br/>
-      <center><img src="http://www.tavendo.de/static/autobahn/ws_protocol_test_report.png" border="0" width="820" height="46" alt="WebSockets Protocol Test Report"></img></a></center>
-      <center><a href="http://www.tavendo.de/autobahn" title="Autobahn WebSockets"><img src="http://www.tavendo.de/static/autobahn/ws_protocol_test_report_autobahn.png" border="0" width="300" height="68" alt="Autobahn WebSockets"></img></a></center>
+      <center><a href="http://autobahn.ws/testsuite" title="Autobahn WebSockets Testsuite"><img src="http://autobahn.ws/static/img/ws_protocol_test_report.png"          border="0" width="820" height="46" alt="Autobahn WebSockets Testsuite Report"></img></a></center>
+      <center><a href="http://autobahn.ws"           title="Autobahn WebSockets">          <img src="http://autobahn.ws/static/img/ws_protocol_test_report_autobahn.png" border="0" width="300" height="68" alt="Autobahn WebSockets">                 </img></a></center>
       <br/>
-      <p class="case case_non_strict">com.squareup.SRWebSocketTests - <span style="font-size: 1.3em;"><b>Case 6.4.2</b></span> : Non-Strict - <span style="font-size: 0.9em;"><b>2003</b> ms @ 2012-02-26T02:01:14Z</a></p>
+      <p class="case case_failed">com.squareup.SRWebSocketTests - <span style="font-size: 1.3em;"><b>Case 6.4.2</b></span> : Fail - <span style="font-size: 0.9em;"><b>2003</b> ms @ 2012-04-16T23:59:42Z</a></p>
       <p class="case_text_block case_desc"><b>Case Description</b><br/><br/>Same as Case 6.4.1, but in 2nd frame, we send only up to and including the octet making the complete payload invalid.
 <br><br>MESSAGE PARTS:<br>
 PART1 = Îºá½¹ÏƒÎ¼Îµô (cebae1bdb9cf83cebcceb5f4)<br>
@@ -212,7 +212,7 @@ PART3 = €€edited (8080656469746564)<br>
       <p class="case_text_block case_expect"><b>Case Expectation</b><br/><br/>The first frame is accepted, we expect to timeout on the first wait. The 2nd frame should be rejected immediately (fail fast on UTF-8). If we timeout, we expect the connection is failed at least then, since the complete message payload is not valid UTF-8.</p>
 
       <p class="case_text_block case_outcome">
-         <b>Case Outcome</b><br/><br/>Actual events match at least one expected.<br/><br/>
+         <b>Case Outcome</b><br/><br/>Actual events differ from any expected.<br/><br/>
          <i>Expected:</i><br/><span class="case_pickle">{'NON-STRICT': [('timeout', 'A'), ('timeout', 'B')], 'OK': [('timeout', 'A')]}</span><br/><br/>
          <i>Observed:</i><br><span class="case_pickle">[('timeout', 'A'), ('timeout', 'B')]</span>
       </p>
@@ -223,14 +223,14 @@ PART3 = €€edited (8080656469746564)<br>
 Host: localhost:9001
 Upgrade: websocket
 Connection: Upgrade
-Sec-WebSocket-Key: 8cTW7EluBxB35xYkIRvxOg==
+Sec-WebSocket-Key: +UyaqXLgwty1peFYjoW7CA==
 Sec-WebSocket-Version: 13
-Origin: ws://localhost:9001/runCase?case=75&agent=com.squareup.SRWebSocketTests</pre>
+Origin: http://localhost:9001/</pre>
       <pre class="http_dump">HTTP/1.1 101 Switching Protocols
-Server: AutobahnWebSocketsTestSuite/0.4.10
-Upgrade: websocket
+Server: AutobahnTestSuite/0.5.1-0.5.1
+Upgrade: WebSocket
 Connection: Upgrade
-Sec-WebSocket-Accept: UK0RlVv6zgODycpgKUEhvanLsrY=</pre>
+Sec-WebSocket-Accept: o2L/C0jLNrYGrLtQ3Ee4OIF3hnA=</pre>
       <br/><hr/>
       <h2>Closing Behavior</h2>
       <table>
@@ -242,6 +242,7 @@ Sec-WebSocket-Accept: UK0RlVv6zgODycpgKUEhvanLsrY=</pre>
          <tr class="stats_row"><td>wasClean</td><td class="left">True</td><td class="left">True, iff full WebSockets closing handshake was performed (close frame sent and received) _and_ the server dropped the TCP (which is its responsibility).</td></tr>
          <tr class="stats_row"><td>wasNotCleanReason</td><td class="left">None</td><td class="left">When wasClean == False, the reason what happened.</td></tr>
          <tr class="stats_row"><td>wasServerConnectionDropTimeout</td><td class="left">False</td><td class="left">When we are a client, and we expected the server to drop the TCP, but that didn't happen in time, this gets True.</td></tr>
+         <tr class="stats_row"><td>wasOpenHandshakeTimeout</td><td class="left">False</td><td class="left">When performing the opening handshake, but the peer did not finish in time, this gets True.</td></tr>
          <tr class="stats_row"><td>wasCloseHandshakeTimeout</td><td class="left">False</td><td class="left">When we initiated a closing handshake, but the peer did not respond in time, this gets True.</td></tr>
          <tr class="stats_row"><td>localCloseCode</td><td class="left">1000</td><td class="left">The close code I sent in close frame (if any).</td></tr>
          <tr class="stats_row"><td>localCloseReason</td><td class="left">None</td><td class="left">The close reason I sent in close frame (if any).</td></tr>
@@ -253,8 +254,8 @@ Sec-WebSocket-Accept: UK0RlVv6zgODycpgKUEhvanLsrY=</pre>
       <table>
          <tr class="stats_header"><td>Chop Size</td><td>Count</td><td>Octets</td></tr>
          <tr class="stats_row"><td>39</td><td>1</td><td>39</td></tr>
-         <tr class="stats_row"><td>285</td><td>1</td><td>285</td></tr>
-         <tr class="stats_total"><td>Total</td><td>2</td><td>324</td></tr>
+         <tr class="stats_row"><td>236</td><td>1</td><td>236</td></tr>
+         <tr class="stats_total"><td>Total</td><td>2</td><td>275</td></tr>
       </table>
       <h3>Octets Transmitted by Chop Size</h3>
       <table>
@@ -263,8 +264,8 @@ Sec-WebSocket-Accept: UK0RlVv6zgODycpgKUEhvanLsrY=</pre>
          <tr class="stats_row"><td>4</td><td>1</td><td>4</td></tr>
          <tr class="stats_row"><td>10</td><td>1</td><td>10</td></tr>
          <tr class="stats_row"><td>14</td><td>1</td><td>14</td></tr>
-         <tr class="stats_row"><td>173</td><td>1</td><td>173</td></tr>
-         <tr class="stats_total"><td>Total</td><td>5</td><td>204</td></tr>
+         <tr class="stats_row"><td>168</td><td>1</td><td>168</td></tr>
+         <tr class="stats_total"><td>Total</td><td>5</td><td>199</td></tr>
       </table>
       <h3>Frames Received by Opcode</h3>
       <table>
@@ -285,14 +286,13 @@ Sec-WebSocket-Accept: UK0RlVv6zgODycpgKUEhvanLsrY=</pre>
       <div id="wirelog">
          <pre class="wirelog_rx_octets">000 RX OCTETS: 474554202f72756e436173653f636173653d3735266167656e743d636f6d2e73717561726575702e5352576562536f636b65</pre>
          <pre class="wirelog_rx_octets">               74546573747320485454502f312e310d0a486f73743a206c6f63616c686f73743a393030310d0a557067726164653a207765</pre>
-         <pre class="wirelog_rx_octets">               62736f636b65740d0a436f6e6e656374696f6e3a20557067726164650d0a5365632d576562536f636b65742d4b65793a2038</pre>
-         <pre class="wirelog_rx_octets">               63545737456c75427842333578596b495276784f673d3d0d0a5365632d576562536f636b65742d56657273696f6e3a203133</pre>
-         <pre class="wirelog_rx_octets">               0d0a4f726967696e3a2077733a2f2f6c6f63616c686f73743a393030312f72756e436173653f636173653d3735266167656e</pre>
-         <pre class="wirelog_rx_octets">               743d636f6d2e ...</pre>
+         <pre class="wirelog_rx_octets">               62736f636b65740d0a436f6e6e656374696f6e3a20557067726164650d0a5365632d576562536f636b65742d4b65793a202b</pre>
+         <pre class="wirelog_rx_octets">               55796171584c6777747931706546596a6f573743413d3d0d0a5365632d576562536f636b65742d56657273696f6e3a203133</pre>
+         <pre class="wirelog_rx_octets">               0d0a4f726967696e3a20687474703a2f2f6c6f63616c686f73743a393030312f0d0a0d0a</pre>
          <pre class="wirelog_tx_octets">001 TX OCTETS: 485454502f312e312031303120537769746368696e672050726f746f636f6c730d0a5365727665723a204175746f6261686e</pre>
-         <pre class="wirelog_tx_octets">               576562536f636b6574735465737453756974652f302e342e31300d0a557067726164653a20776562736f636b65740d0a436f</pre>
-         <pre class="wirelog_tx_octets">               6e6e656374696f6e3a20557067726164650d0a5365632d576562536f636b65742d4163636570743a20554b30526c5676367a</pre>
-         <pre class="wirelog_tx_octets">               674f44796370674b55456876616e4c7372593d0d0a0d0a</pre>
+         <pre class="wirelog_tx_octets">               5465737453756974652f302e352e312d302e352e310d0a557067726164653a20576562536f636b65740d0a436f6e6e656374</pre>
+         <pre class="wirelog_tx_octets">               696f6e3a20557067726164650d0a5365632d576562536f636b65742d4163636570743a206f324c2f43306a4c4e725947724c</pre>
+         <pre class="wirelog_tx_octets">               7451334565344f494633686e413d0d0a0d0a</pre>
          <pre class="wirelog_tx_frame">002 TX FRAME : OPCODE=1, FIN=False, RSV=0, MASK=None, PAYLOAD-REPEAT-LEN=None, CHOPSIZE=None, SYNC=False</pre>
          <pre class="wirelog_tx_frame">               Îºá½¹ÏƒÎ¼Îµô</pre>
          <pre class="wirelog_tx_octets">003 TX OCTETS: 010ccebae1bdb9cf83cebcceb5f4</pre>
@@ -307,8 +307,8 @@ Sec-WebSocket-Accept: UK0RlVv6zgODycpgKUEhvanLsrY=</pre>
          <pre class="wirelog_tx_frame">               €€edited</pre>
          <pre class="wirelog_tx_octets">011 TX OCTETS: 80088080656469746564</pre>
          <pre class="wirelog_kill_after">012 FAIL CONNECTION AFTER 1.000000 sec</pre>
-         <pre class="wirelog_rx_octets">013 RX OCTETS: 88a15a7323a2599c77c7220703c428124ec729534ed7290703c03f5355c3361a47820f27658f62</pre>
-         <pre class="wirelog_rx_frame">014 RX FRAME : OPCODE=8, FIN=True, RSV=0, MASKED=True, MASK=5a7323a2</pre>
+         <pre class="wirelog_rx_octets">013 RX OCTETS: 88a199c598669a2acc03e1b1b800eba4f503eae5f513eab1b804fce5ee07f5acfc46cc91de4ba1</pre>
+         <pre class="wirelog_rx_frame">014 RX FRAME : OPCODE=8, FIN=True, RSV=0, MASKED=True, MASK=3939633539383636</pre>
          <pre class="wirelog_rx_frame">               ïText frames must be valid UTF-8</pre>
          <pre class="wirelog_tx_frame">015 TX FRAME : OPCODE=8, FIN=True, RSV=0, MASK=None, PAYLOAD-REPEAT-LEN=None, CHOPSIZE=None, SYNC=False</pre>
          <pre class="wirelog_tx_frame">               è</pre>
