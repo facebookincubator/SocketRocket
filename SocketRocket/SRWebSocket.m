@@ -287,6 +287,7 @@ typedef void (^data_callback)(SRWebSocket *webSocket,  NSData *data);
 
 @synthesize delegate = _delegate;
 @synthesize url = _url;
+@synthesize protocols = _protocols;
 @synthesize readyState = _readyState;
 
 static __strong NSData *CRLFCRLF;
@@ -294,6 +295,15 @@ static __strong NSData *CRLFCRLF;
 + (void)initialize;
 {
     CRLFCRLF = [[NSData alloc] initWithBytes:"\r\n\r\n" length:4];
+}
+
+- (id)initWithURLRequest:(NSURLRequest *)request protocols:(NSString*)protocols {
+    self = [self initWithURLRequest:request];
+    if (self) {
+        _protocols = protocols;
+    }
+    
+    return self;
 }
 
 - (id)initWithURLRequest:(NSURLRequest *)request;
@@ -468,6 +478,7 @@ static __strong NSData *CRLFCRLF;
     CFHTTPMessageSetHeaderFieldValue(request, CFSTR("Connection"), CFSTR("Upgrade"));
     CFHTTPMessageSetHeaderFieldValue(request, CFSTR("Sec-WebSocket-Key"), (__bridge CFStringRef)_secKey);
     CFHTTPMessageSetHeaderFieldValue(request, CFSTR("Sec-WebSocket-Version"), (__bridge CFStringRef)[NSString stringWithFormat:@"%d", _webSocketVersion]);
+    CFHTTPMessageSetHeaderFieldValue(request, CFSTR("Sec-WebSocket-Protocol"), (__bridge CFStringRef)_protocols);
     
     // create origin url, which needs to be http based:
     NSString* origin = [NSString stringWithFormat:@"%@%@%@%@", @"http://",  _url.host, @":", [_url.port stringValue]];
