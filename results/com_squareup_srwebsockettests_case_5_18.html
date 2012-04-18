@@ -202,7 +202,7 @@ pre.wirelog_tcp_closed_by_peer {color: #fff; margin: 0; background-color: #000; 
       <center><a href="http://autobahn.ws/testsuite" title="Autobahn WebSockets Testsuite"><img src="http://autobahn.ws/static/img/ws_protocol_test_report.png"          border="0" width="820" height="46" alt="Autobahn WebSockets Testsuite Report"></img></a></center>
       <center><a href="http://autobahn.ws"           title="Autobahn WebSockets">          <img src="http://autobahn.ws/static/img/ws_protocol_test_report_autobahn.png" border="0" width="300" height="68" alt="Autobahn WebSockets">                 </img></a></center>
       <br/>
-      <p class="case case_ok">com.squareup.SRWebSocketTests - <span style="font-size: 1.3em;"><b>Case 5.18</b></span> : Pass - <span style="font-size: 0.9em;"><b>1</b> ms @ 2012-04-18T18:51:19Z</a></p>
+      <p class="case case_ok">com.squareup.SRWebSocketTests - <span style="font-size: 1.3em;"><b>Case 5.18</b></span> : Pass - <span style="font-size: 0.9em;"><b>1</b> ms @ 2012-04-18T19:33:51Z</a></p>
       <p class="case_text_block case_desc"><b>Case Description</b><br/><br/>Send text Message fragmented into 2 fragments, with both frame opcodes set to text, sent in one chop.</p>
       <p class="case_text_block case_expect"><b>Case Expectation</b><br/><br/>The connection is failed immediately, since all data frames after the initial data frame must have opcode 0.</p>
 
@@ -218,14 +218,14 @@ pre.wirelog_tcp_closed_by_peer {color: #fff; margin: 0; background-color: #000; 
 Host: localhost:9001
 Upgrade: websocket
 Connection: Upgrade
-Sec-WebSocket-Key: PcxA00ukTfJs54su1zQivw==
+Sec-WebSocket-Key: pBfaitJ8fmvv0s7wTXGcQA==
 Sec-WebSocket-Version: 13
 Origin: http://localhost:9001/</pre>
       <pre class="http_dump">HTTP/1.1 101 Switching Protocols
 Server: AutobahnTestSuite/0.5.1-0.5.1
 Upgrade: WebSocket
 Connection: Upgrade
-Sec-WebSocket-Accept: 93ijqqzP+VMEkrymtNAnTOrl228=</pre>
+Sec-WebSocket-Accept: ZjryfczUZ/wx3wdI5B5DS2KT0fM=</pre>
       <br/><hr/>
       <h2>Closing Behavior</h2>
       <table>
@@ -278,13 +278,13 @@ Sec-WebSocket-Accept: 93ijqqzP+VMEkrymtNAnTOrl228=</pre>
       <div id="wirelog">
          <pre class="wirelog_rx_octets">000 RX OCTETS: 474554202f72756e436173653f636173653d3632266167656e743d636f6d2e73717561726575702e5352576562536f636b65</pre>
          <pre class="wirelog_rx_octets">               74546573747320485454502f312e310d0a486f73743a206c6f63616c686f73743a393030310d0a557067726164653a207765</pre>
-         <pre class="wirelog_rx_octets">               62736f636b65740d0a436f6e6e656374696f6e3a20557067726164650d0a5365632d576562536f636b65742d4b65793a2050</pre>
-         <pre class="wirelog_rx_octets">               6378413030756b54664a7335347375317a516976773d3d0d0a5365632d576562536f636b65742d56657273696f6e3a203133</pre>
+         <pre class="wirelog_rx_octets">               62736f636b65740d0a436f6e6e656374696f6e3a20557067726164650d0a5365632d576562536f636b65742d4b65793a2070</pre>
+         <pre class="wirelog_rx_octets">               42666169744a38666d7676307337775458476351413d3d0d0a5365632d576562536f636b65742d56657273696f6e3a203133</pre>
          <pre class="wirelog_rx_octets">               0d0a4f726967696e3a20687474703a2f2f6c6f63616c686f73743a393030312f0d0a0d0a</pre>
          <pre class="wirelog_tx_octets">001 TX OCTETS: 485454502f312e312031303120537769746368696e672050726f746f636f6c730d0a5365727665723a204175746f6261686e</pre>
          <pre class="wirelog_tx_octets">               5465737453756974652f302e352e312d302e352e310d0a557067726164653a20576562536f636b65740d0a436f6e6e656374</pre>
-         <pre class="wirelog_tx_octets">               696f6e3a20557067726164650d0a5365632d576562536f636b65742d4163636570743a203933696a71717a502b564d456b72</pre>
-         <pre class="wirelog_tx_octets">               796d744e416e544f726c3232383d0d0a0d0a</pre>
+         <pre class="wirelog_tx_octets">               696f6e3a20557067726164650d0a5365632d576562536f636b65742d4163636570743a205a6a727966637a555a2f77783377</pre>
+         <pre class="wirelog_tx_octets">               64493542354453324b5430664d3d0d0a0d0a</pre>
          <pre class="wirelog_tx_frame">002 TX FRAME : OPCODE=1, FIN=False, RSV=0, MASK=None, PAYLOAD-REPEAT-LEN=None, CHOPSIZE=None, SYNC=False</pre>
          <pre class="wirelog_tx_frame">               fragment1</pre>
          <pre class="wirelog_tx_octets">003 TX OCTETS: 0109667261676d656e7431</pre>
@@ -292,9 +292,9 @@ Sec-WebSocket-Accept: 93ijqqzP+VMEkrymtNAnTOrl228=</pre>
          <pre class="wirelog_tx_frame">               fragment2</pre>
          <pre class="wirelog_tx_octets">005 TX OCTETS: 8109667261676d656e7432</pre>
          <pre class="wirelog_kill_after">006 FAIL CONNECTION AFTER 1.000000 sec</pre>
-         <pre class="wirelog_rx_octets">007 RX OCTETS: 88c1ae253874adcf5918c2055c15da441812dc445511dd055912da404a54da4d5d54c74b5100c7445454ca444c158e434a15</pre>
-         <pre class="wirelog_rx_octets">               c3401819db564c54c6444e118e4a4817c1415d549e</pre>
-         <pre class="wirelog_rx_frame">008 RX FRAME : OPCODE=8, FIN=True, RSV=0, MASKED=True, MASK=6165323533383734</pre>
+         <pre class="wirelog_rx_octets">007 RX OCTETS: 88c1d540c21bd6aaa377b960a67aa121e27da721af7ea660a37da125b03ba128a73bbc2eab6fbc21ae3bb121b67af526b07a</pre>
+         <pre class="wirelog_rx_octets">               b825e276a033b63bbd21b47ef52fb278ba24a73be5</pre>
+         <pre class="wirelog_rx_frame">008 RX FRAME : OPCODE=8, FIN=True, RSV=0, MASKED=True, MASK=6435343063323162</pre>
          <pre class="wirelog_rx_frame">               êall data frames after the initial data frame must have opcode 0</pre>
          <pre class="wirelog_tx_frame">009 TX FRAME : OPCODE=8, FIN=True, RSV=0, MASK=None, PAYLOAD-REPEAT-LEN=None, CHOPSIZE=None, SYNC=False</pre>
          <pre class="wirelog_tx_frame">               è</pre>
