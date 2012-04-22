@@ -202,7 +202,7 @@ pre.wirelog_tcp_closed_by_peer {color: #fff; margin: 0; background-color: #000; 
       <center><a href="http://autobahn.ws/testsuite" title="Autobahn WebSockets Testsuite"><img src="http://autobahn.ws/static/img/ws_protocol_test_report.png"          border="0" width="820" height="46" alt="Autobahn WebSockets Testsuite Report"></img></a></center>
       <center><a href="http://autobahn.ws"           title="Autobahn WebSockets">          <img src="http://autobahn.ws/static/img/ws_protocol_test_report_autobahn.png" border="0" width="300" height="68" alt="Autobahn WebSockets">                 </img></a></center>
       <br/>
-      <p class="case case_failed">com.squareup.SRWebSocketTests - <span style="font-size: 1.3em;"><b>Case 6.4.4</b></span> : Fail - <span style="font-size: 0.9em;"><b>2003</b> ms @ 2012-04-18T19:33:57Z</a></p>
+      <p class="case case_non_strict">com.squareup.SRWebSocketTests - <span style="font-size: 1.3em;"><b>Case 6.4.4</b></span> : Non-Strict - <span style="font-size: 0.9em;"><b>2002</b> ms @ 2012-04-22T23:23:02Z</a></p>
       <p class="case_text_block case_desc"><b>Case Description</b><br/><br/>Same as Case 6.4.2, but we send message not in 3 frames, but in 3 chops of the same message frame.
 <br><br>MESSAGE PARTS:<br>
 PART1 = Îºá½¹ÏƒÎ¼Îµô (cebae1bdb9cf83cebcceb5f4)<br>
@@ -212,7 +212,7 @@ PART3 =  ()<br>
       <p class="case_text_block case_expect"><b>Case Expectation</b><br/><br/>The first chop is accepted, we expect to timeout on the first wait. The 2nd chop should be rejected immediately (fail fast on UTF-8). If we timeout, we expect the connection is failed at least then, since the complete message payload is not valid UTF-8.</p>
 
       <p class="case_text_block case_outcome">
-         <b>Case Outcome</b><br/><br/>Actual events differ from any expected.<br/><br/>
+         <b>Case Outcome</b><br/><br/>Actual events match at least one expected.<br/><br/>
          <i>Expected:</i><br/><span class="case_pickle">{'NON-STRICT': [('timeout', 'A'), ('timeout', 'B')], 'OK': [('timeout', 'A')]}</span><br/><br/>
          <i>Observed:</i><br><span class="case_pickle">[('timeout', 'A'), ('timeout', 'B')]</span>
       </p>
@@ -223,14 +223,14 @@ PART3 =  ()<br>
 Host: localhost:9001
 Upgrade: websocket
 Connection: Upgrade
-Sec-WebSocket-Key: 4MzIq9j9uvu+5L4Nw4cvsQ==
+Sec-WebSocket-Key: O69TlGcnbYgo+y2z9MxaEQ==
 Sec-WebSocket-Version: 13
 Origin: http://localhost:9001/</pre>
       <pre class="http_dump">HTTP/1.1 101 Switching Protocols
 Server: AutobahnTestSuite/0.5.1-0.5.1
 Upgrade: WebSocket
 Connection: Upgrade
-Sec-WebSocket-Accept: WZgP25juyGxzBI3Lc1r6Dl+lUn8=</pre>
+Sec-WebSocket-Accept: YJm/GdlgF3HhGE8e2qx1tItTB1c=</pre>
       <br/><hr/>
       <h2>Closing Behavior</h2>
       <table>
@@ -286,13 +286,13 @@ Sec-WebSocket-Accept: WZgP25juyGxzBI3Lc1r6Dl+lUn8=</pre>
       <div id="wirelog">
          <pre class="wirelog_rx_octets">000 RX OCTETS: 474554202f72756e436173653f636173653d3737266167656e743d636f6d2e73717561726575702e5352576562536f636b65</pre>
          <pre class="wirelog_rx_octets">               74546573747320485454502f312e310d0a486f73743a206c6f63616c686f73743a393030310d0a557067726164653a207765</pre>
-         <pre class="wirelog_rx_octets">               62736f636b65740d0a436f6e6e656374696f6e3a20557067726164650d0a5365632d576562536f636b65742d4b65793a2034</pre>
-         <pre class="wirelog_rx_octets">               4d7a4971396a397576752b354c344e7734637673513d3d0d0a5365632d576562536f636b65742d56657273696f6e3a203133</pre>
+         <pre class="wirelog_rx_octets">               62736f636b65740d0a436f6e6e656374696f6e3a20557067726164650d0a5365632d576562536f636b65742d4b65793a204f</pre>
+         <pre class="wirelog_rx_octets">               3639546c47636e6259676f2b79327a394d786145513d3d0d0a5365632d576562536f636b65742d56657273696f6e3a203133</pre>
          <pre class="wirelog_rx_octets">               0d0a4f726967696e3a20687474703a2f2f6c6f63616c686f73743a393030312f0d0a0d0a</pre>
          <pre class="wirelog_tx_octets">001 TX OCTETS: 485454502f312e312031303120537769746368696e672050726f746f636f6c730d0a5365727665723a204175746f6261686e</pre>
          <pre class="wirelog_tx_octets">               5465737453756974652f302e352e312d302e352e310d0a557067726164653a20576562536f636b65740d0a436f6e6e656374</pre>
-         <pre class="wirelog_tx_octets">               696f6e3a20557067726164650d0a5365632d576562536f636b65742d4163636570743a20575a675032356a757947787a4249</pre>
-         <pre class="wirelog_tx_octets">               334c63317236446c2b6c556e383d0d0a0d0a</pre>
+         <pre class="wirelog_tx_octets">               696f6e3a20557067726164650d0a5365632d576562536f636b65742d4163636570743a20594a6d2f47646c67463348684745</pre>
+         <pre class="wirelog_tx_octets">               386532717831744974544231633d0d0a0d0a</pre>
          <pre class="wirelog_tx_octets">002 TX OCTETS: 0115</pre>
          <pre class="wirelog_tx_octets">003 TX OCTETS: cebae1bdb9cf83cebcceb5f4</pre>
          <pre class="wirelog_delay">004 DELAY 1.000000 sec for TAG A</pre>
@@ -304,8 +304,8 @@ Sec-WebSocket-Accept: WZgP25juyGxzBI3Lc1r6Dl+lUn8=</pre>
          <pre class="wirelog_tx_frame">010 TX FRAME : OPCODE=0, FIN=True, RSV=0, MASK=None, PAYLOAD-REPEAT-LEN=None, CHOPSIZE=None, SYNC=False</pre>
          <pre class="wirelog_tx_octets">011 TX OCTETS: 8000</pre>
          <pre class="wirelog_kill_after">012 FAIL CONNECTION AFTER 1.000000 sec</pre>
-         <pre class="wirelog_rx_octets">013 RX OCTETS: 88a1a76c8c26a483d843df18ac40d50de143d44ce153d418ac44c24cfa47cb05e806f238ca0b9f</pre>
-         <pre class="wirelog_rx_frame">014 RX FRAME : OPCODE=8, FIN=True, RSV=0, MASKED=True, MASK=6137366338633236</pre>
+         <pre class="wirelog_rx_octets">013 RX OCTETS: 88a1d3c0dc73d02f8816abb4fc15a1a1b116a0e0b106a0b4fc11b6e0aa12bfa9b85386949a5eeb</pre>
+         <pre class="wirelog_rx_frame">014 RX FRAME : OPCODE=8, FIN=True, RSV=0, MASKED=True, MASK=6433633064633733</pre>
          <pre class="wirelog_rx_frame">               ïText frames must be valid UTF-8</pre>
          <pre class="wirelog_tx_frame">015 TX FRAME : OPCODE=8, FIN=True, RSV=0, MASK=None, PAYLOAD-REPEAT-LEN=None, CHOPSIZE=None, SYNC=False</pre>
          <pre class="wirelog_tx_frame">               è</pre>
