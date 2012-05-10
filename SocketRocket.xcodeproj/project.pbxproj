@@ -115,15 +115,10 @@
 
 /* Begin PBXFileReference section */
 		4A864853155C5988002CE346 /* libSocketRocket-simulator.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libSocketRocket-simulator.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		4A864857155C5989002CE346 /* SocketRocket-simulator-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SocketRocket-simulator-Prefix.pch"; sourceTree = "<group>"; };
-		4A864858155C5989002CE346 /* SocketRocket_simulator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SocketRocket_simulator.h; sourceTree = "<group>"; };
-		4A864859155C5989002CE346 /* SocketRocket_simulator.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SocketRocket_simulator.m; sourceTree = "<group>"; };
 		4A864868155C5991002CE346 /* libSocketRocket-iphone.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libSocketRocket-iphone.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		4A864871155C5A65002CE346 /* SocketRocket.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SocketRocket.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		4A864872155C5A65002CE346 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
-		4A864876155C5A65002CE346 /* SocektRocket-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "SocektRocket-Info.plist"; sourceTree = "<group>"; };
-		4A864878155C5A65002CE346 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
-		4A86487A155C5A65002CE346 /* SocektRocket-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SocektRocket-Prefix.pch"; sourceTree = "<group>"; };
+		4A86487A155C5A65002CE346 /* SocketRocket-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "SocketRocket-Prefix.pch"; path = "../SocketRocket/SocketRocket-Prefix.pch"; sourceTree = "<group>"; };
 		4A864887155C5B4F002CE346 /* libicucore.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libicucore.dylib; path = Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator5.1.sdk/usr/lib/libicucore.dylib; sourceTree = DEVELOPER_DIR; };
 		4A864889155C5B5E002CE346 /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator5.1.sdk/System/Library/Frameworks/CFNetwork.framework; sourceTree = DEVELOPER_DIR; };
 		4A86488B155C5B64002CE346 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator5.1.sdk/System/Library/Frameworks/Security.framework; sourceTree = DEVELOPER_DIR; };
@@ -248,24 +243,6 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		4A864855155C5989002CE346 /* SocketRocket-simulator */ = {
-			isa = PBXGroup;
-			children = (
-				4A864858155C5989002CE346 /* SocketRocket_simulator.h */,
-				4A864859155C5989002CE346 /* SocketRocket_simulator.m */,
-				4A864856155C5989002CE346 /* Supporting Files */,
-			);
-			path = "SocketRocket-simulator";
-			sourceTree = "<group>";
-		};
-		4A864856155C5989002CE346 /* Supporting Files */ = {
-			isa = PBXGroup;
-			children = (
-				4A864857155C5989002CE346 /* SocketRocket-simulator-Prefix.pch */,
-			);
-			name = "Supporting Files";
-			sourceTree = "<group>";
-		};
 		4A864874155C5A65002CE346 /* SocektRocket */ = {
 			isa = PBXGroup;
 			children = (
@@ -277,9 +254,7 @@
 		4A864875155C5A65002CE346 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				4A864876155C5A65002CE346 /* SocektRocket-Info.plist */,
-				4A864877155C5A65002CE346 /* InfoPlist.strings */,
-				4A86487A155C5A65002CE346 /* SocektRocket-Prefix.pch */,
+				4A86487A155C5A65002CE346 /* SocketRocket-Prefix.pch */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -348,7 +323,6 @@
 				F6BDA807145900D200FE3253 /* SRWebSocketTests */,
 				F62417EA14D52F3C003CE997 /* TestChat */,
 				F668C887153E91210044DBAC /* SocketRocketOSX */,
-				4A864855155C5989002CE346 /* SocketRocket-simulator */,
 				4A864874155C5A65002CE346 /* SocektRocket */,
 				F6B2082F1450F597009315AF /* Frameworks */,
 				F6B2082E1450F597009315AF /* Products */,
@@ -801,14 +775,6 @@
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
-		4A864877155C5A65002CE346 /* InfoPlist.strings */ = {
-			isa = PBXVariantGroup;
-			children = (
-				4A864878155C5A65002CE346 /* en */,
-			);
-			name = InfoPlist.strings;
-			sourceTree = "<group>";
-		};
 		F62417ED14D52F3C003CE997 /* InfoPlist.strings */ = {
 			isa = PBXVariantGroup;
 			children = (
@@ -846,7 +812,7 @@
 				DSTROOT = /tmp/SocketRocket_simulator.dst;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "SocketRocket-simulator/SocketRocket-simulator-Prefix.pch";
+				GCC_PREFIX_HEADER = "SocketRocket/SocketRocket-Prefix.pch";
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 5.1;
@@ -868,7 +834,7 @@
 				DSTROOT = /tmp/SocketRocket_simulator.dst;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "SocketRocket-simulator/SocketRocket-simulator-Prefix.pch";
+				GCC_PREFIX_HEADER = "SocketRocket/SocketRocket-Prefix.pch";
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 5.1;
 				OTHER_LDFLAGS = "-ObjC";
@@ -885,7 +851,7 @@
 				DSTROOT = /tmp/SocketRocket_simulator.dst;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "SocketRocket-simulator/SocketRocket-simulator-Prefix.pch";
+				GCC_PREFIX_HEADER = "SocketRocket/SocketRocket-Prefix.pch";
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 5.1;
@@ -902,7 +868,7 @@
 				DSTROOT = /tmp/SocketRocket_simulator.dst;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "SocketRocket-simulator/SocketRocket-simulator-Prefix.pch";
+				GCC_PREFIX_HEADER = "SocketRocket/SocketRocket-Prefix.pch";
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 5.1;
 				OTHER_LDFLAGS = "-ObjC";
@@ -938,12 +904,12 @@
 				DEAD_CODE_STRIPPING = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "SocektRocket/SocektRocket-Prefix.pch";
+				GCC_PRECOMPILE_PREFIX_HEADER = NO;
+				GCC_PREFIX_HEADER = "";
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
-				INFOPLIST_FILE = "SocektRocket/SocektRocket-Info.plist";
+				INFOPLIST_FILE = "SocketRocket/SocketRocket-Info.plist";
 				INSTALL_PATH = "";
 				LINK_WITH_STANDARD_LIBRARIES = NO;
 				MACH_O_TYPE = mh_object;
@@ -967,11 +933,11 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "SocektRocket/SocektRocket-Prefix.pch";
+				GCC_PRECOMPILE_PREFIX_HEADER = NO;
+				GCC_PREFIX_HEADER = "";
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
-				INFOPLIST_FILE = "SocektRocket/SocektRocket-Info.plist";
+				INFOPLIST_FILE = "SocketRocket/SocketRocket-Info.plist";
 				INSTALL_PATH = "";
 				LINK_WITH_STANDARD_LIBRARIES = NO;
 				MACH_O_TYPE = mh_object;
