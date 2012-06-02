@@ -36,7 +36,7 @@ There's a few options. Choose one, or just figure it out
   contributions. Message me if you are interested.
 
 Depending on how you configure your project you may need to ``#import`` either
-``<SocketRocket/SRSocketRocket.h>`` or ``"SRSocketRocket.h"``
+``<SocketRocket/SRWebSocket.h>`` or ``"SRWebSocket.h"``
 
 Framework Dependencies
 ``````````````````````
