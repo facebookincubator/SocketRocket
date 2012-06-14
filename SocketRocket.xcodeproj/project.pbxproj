@@ -6,7 +6,41 @@
 	objectVersion = 46;
 	objects = {
 
+/* Begin PBXAggregateTarget section */
+		4A864869155C5A15002CE346 /* SocketRocket-ios */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = 4A86486A155C5A15002CE346 /* Build configuration list for PBXAggregateTarget "SocketRocket-ios" */;
+			buildPhases = (
+				4A864898155C5BCD002CE346 /* ShellScript */,
+			);
+			dependencies = (
+				4A86489A155C5BD2002CE346 /* PBXTargetDependency */,
+				4A86489C155C5BD2002CE346 /* PBXTargetDependency */,
+			);
+			name = "SocketRocket-ios";
+			productName = "SocketRocket-ios";
+		};
+/* End PBXAggregateTarget section */
+
 /* Begin PBXBuildFile section */
+		4A864854155C5989002CE346 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F6B208301450F597009315AF /* Foundation.framework */; };
+		4A864863155C5991002CE346 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F6B208301450F597009315AF /* Foundation.framework */; };
+		4A864884155C5B16002CE346 /* base64.c in Sources */ = {isa = PBXBuildFile; fileRef = F6016C7B146124B20037BB3D /* base64.c */; };
+		4A864885155C5B22002CE346 /* SRWebSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = F6A12CD0145119B700C1D980 /* SRWebSocket.m */; };
+		4A864886155C5B24002CE346 /* NSData+SRB64Additions.m in Sources */ = {isa = PBXBuildFile; fileRef = F6572124146C7B6A00D6B8A9 /* NSData+SRB64Additions.m */; };
+		4A864888155C5B4F002CE346 /* libicucore.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A864887155C5B4F002CE346 /* libicucore.dylib */; };
+		4A86488A155C5B5F002CE346 /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A864889155C5B5E002CE346 /* CFNetwork.framework */; };
+		4A86488C155C5B64002CE346 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A86488B155C5B64002CE346 /* Security.framework */; };
+		4A86488D155C5B71002CE346 /* base64.c in Sources */ = {isa = PBXBuildFile; fileRef = F6016C7B146124B20037BB3D /* base64.c */; };
+		4A86488E155C5B77002CE346 /* SRWebSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = F6A12CD0145119B700C1D980 /* SRWebSocket.m */; };
+		4A86488F155C5B77002CE346 /* NSData+SRB64Additions.m in Sources */ = {isa = PBXBuildFile; fileRef = F6572124146C7B6A00D6B8A9 /* NSData+SRB64Additions.m */; };
+		4A864890155C5B80002CE346 /* libicucore.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = F6C41C95145F7C4700641356 /* libicucore.dylib */; };
+		4A864891155C5B86002CE346 /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F6A12CD51451231B00C1D980 /* CFNetwork.framework */; };
+		4A864892155C5B8D002CE346 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F6A12CD3145122FC00C1D980 /* Security.framework */; };
+		4A864894155C5B9D002CE346 /* base64.h in Headers */ = {isa = PBXBuildFile; fileRef = F6016C7E146124ED0037BB3D /* base64.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		4A864895155C5B9F002CE346 /* SRWebSocket.h in Headers */ = {isa = PBXBuildFile; fileRef = F6A12CCF145119B700C1D980 /* SRWebSocket.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		4A864896155C5BA1002CE346 /* NSData+SRB64Additions.h in Headers */ = {isa = PBXBuildFile; fileRef = F6572123146C7B6A00D6B8A9 /* NSData+SRB64Additions.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		4A86489E155C5D03002CE346 /* SocketRocket in Resources */ = {isa = PBXBuildFile; fileRef = 4A86489D155C5CF4002CE346 /* SocketRocket */; };
 		F6016C7C146124B20037BB3D /* base64.c in Sources */ = {isa = PBXBuildFile; fileRef = F6016C7B146124B20037BB3D /* base64.c */; };
 		F6016C7F146124ED0037BB3D /* base64.h in Headers */ = {isa = PBXBuildFile; fileRef = F6016C7E146124ED0037BB3D /* base64.h */; };
 		F6016C8814620EC70037BB3D /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F6A12CD3145122FC00C1D980 /* Security.framework */; };
@@ -49,6 +83,27 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		4A864882155C5B07002CE346 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F6B208241450F597009315AF /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4A864869155C5A15002CE346;
+			remoteInfo = "SocketRocket-ios";
+		};
+		4A864899155C5BD2002CE346 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F6B208241450F597009315AF /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4A864852155C5988002CE346;
+			remoteInfo = "SocketRocket-simulator";
+		};
+		4A86489B155C5BD2002CE346 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F6B208241450F597009315AF /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4A86485F155C5991002CE346;
+			remoteInfo = "SocketRocket-iphone";
+		};
 		F62417D514D50869003CE997 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = F6B208241450F597009315AF /* Project object */;
@@ -59,6 +114,15 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		4A864853155C5988002CE346 /* libSocketRocket-simulator.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libSocketRocket-simulator.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		4A864868155C5991002CE346 /* libSocketRocket-iphone.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libSocketRocket-iphone.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		4A864871155C5A65002CE346 /* SocketRocket.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SocketRocket.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		4A864872155C5A65002CE346 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
+		4A86487A155C5A65002CE346 /* SocketRocket-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "SocketRocket-Prefix.pch"; path = "../SocketRocket/SocketRocket-Prefix.pch"; sourceTree = "<group>"; };
+		4A864887155C5B4F002CE346 /* libicucore.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libicucore.dylib; path = Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator5.1.sdk/usr/lib/libicucore.dylib; sourceTree = DEVELOPER_DIR; };
+		4A864889155C5B5E002CE346 /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator5.1.sdk/System/Library/Frameworks/CFNetwork.framework; sourceTree = DEVELOPER_DIR; };
+		4A86488B155C5B64002CE346 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator5.1.sdk/System/Library/Frameworks/Security.framework; sourceTree = DEVELOPER_DIR; };
+		4A86489D155C5CF4002CE346 /* SocketRocket */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = SocketRocket; sourceTree = "<group>"; };
 		F6016C7B146124B20037BB3D /* base64.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = base64.c; sourceTree = "<group>"; };
 		F6016C7E146124ED0037BB3D /* base64.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = base64.h; sourceTree = "<group>"; };
 		F60CC29F14D4EA0500A005E4 /* SRTWebSocketOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SRTWebSocketOperation.h; sourceTree = "<group>"; };
@@ -106,6 +170,28 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		4A864850155C5988002CE346 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4A86488C155C5B64002CE346 /* Security.framework in Frameworks */,
+				4A86488A155C5B5F002CE346 /* CFNetwork.framework in Frameworks */,
+				4A864888155C5B4F002CE346 /* libicucore.dylib in Frameworks */,
+				4A864854155C5989002CE346 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4A864862155C5991002CE346 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4A864892155C5B8D002CE346 /* Security.framework in Frameworks */,
+				4A864891155C5B86002CE346 /* CFNetwork.framework in Frameworks */,
+				4A864890155C5B80002CE346 /* libicucore.dylib in Frameworks */,
+				4A864863155C5991002CE346 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		F62417E014D52F3C003CE997 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -157,6 +243,22 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		4A864874155C5A65002CE346 /* SocektRocket */ = {
+			isa = PBXGroup;
+			children = (
+				4A864875155C5A65002CE346 /* Supporting Files */,
+			);
+			path = SocektRocket;
+			sourceTree = "<group>";
+		};
+		4A864875155C5A65002CE346 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				4A86487A155C5A65002CE346 /* SocketRocket-Prefix.pch */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
 		F62417EA14D52F3C003CE997 /* TestChat */ = {
 			isa = PBXGroup;
 			children = (
@@ -214,10 +316,14 @@
 		F6B208221450F597009315AF = {
 			isa = PBXGroup;
 			children = (
+				4A86488B155C5B64002CE346 /* Security.framework */,
+				4A864889155C5B5E002CE346 /* CFNetwork.framework */,
+				4A864887155C5B4F002CE346 /* libicucore.dylib */,
 				F6B208321450F597009315AF /* SocketRocket */,
 				F6BDA807145900D200FE3253 /* SRWebSocketTests */,
 				F62417EA14D52F3C003CE997 /* TestChat */,
 				F668C887153E91210044DBAC /* SocketRocketOSX */,
+				4A864874155C5A65002CE346 /* SocektRocket */,
 				F6B2082F1450F597009315AF /* Frameworks */,
 				F6B2082E1450F597009315AF /* Products */,
 			);
@@ -232,6 +338,9 @@
 				F6BDA802145900D200FE3253 /* SRWebSocketTests.octest */,
 				F62417E314D52F3C003CE997 /* TestChat.app */,
 				F668C880153E91210044DBAC /* SocketRocket.framework */,
+				4A864853155C5988002CE346 /* libSocketRocket-simulator.a */,
+				4A864868155C5991002CE346 /* libSocketRocket-iphone.a */,
+				4A864871155C5A65002CE346 /* SocketRocket.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -247,6 +356,7 @@
 				F6BDA803145900D200FE3253 /* SenTestingKit.framework */,
 				F62417E514D52F3C003CE997 /* UIKit.framework */,
 				F62417E814D52F3C003CE997 /* CoreGraphics.framework */,
+				4A864872155C5A65002CE346 /* CoreFoundation.framework */,
 				F668C883153E91210044DBAC /* Other Frameworks */,
 			);
 			name = Frameworks;
@@ -255,6 +365,7 @@
 		F6B208321450F597009315AF /* SocketRocket */ = {
 			isa = PBXGroup;
 			children = (
+				4A86489D155C5CF4002CE346 /* SocketRocket */,
 				F6016C7B146124B20037BB3D /* base64.c */,
 				F6016C7E146124ED0037BB3D /* base64.h */,
 				F6A12CCF145119B700C1D980 /* SRWebSocket.h */,
@@ -300,6 +411,30 @@
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
+		4A864851155C5988002CE346 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4A864864155C5991002CE346 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4A864893155C5B96002CE346 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4A864894155C5B9D002CE346 /* base64.h in Headers */,
+				4A864895155C5B9F002CE346 /* SRWebSocket.h in Headers */,
+				4A864896155C5BA1002CE346 /* NSData+SRB64Additions.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		F668C87D153E91210044DBAC /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
@@ -320,6 +455,58 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
+		4A864852155C5988002CE346 /* SocketRocket-simulator */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4A86485D155C5989002CE346 /* Build configuration list for PBXNativeTarget "SocketRocket-simulator" */;
+			buildPhases = (
+				4A86484F155C5988002CE346 /* Sources */,
+				4A864850155C5988002CE346 /* Frameworks */,
+				4A864851155C5988002CE346 /* Headers */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "SocketRocket-simulator";
+			productName = "SocketRocket-simulator";
+			productReference = 4A864853155C5988002CE346 /* libSocketRocket-simulator.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		4A86485F155C5991002CE346 /* SocketRocket-iphone */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4A864865155C5991002CE346 /* Build configuration list for PBXNativeTarget "SocketRocket-iphone" */;
+			buildPhases = (
+				4A864860155C5991002CE346 /* Sources */,
+				4A864862155C5991002CE346 /* Frameworks */,
+				4A864864155C5991002CE346 /* Headers */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "SocketRocket-iphone";
+			productName = "SocketRocket-simulator";
+			productReference = 4A864868155C5991002CE346 /* libSocketRocket-iphone.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		4A864870155C5A65002CE346 /* SocketRocket.framework */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4A86487B155C5A65002CE346 /* Build configuration list for PBXNativeTarget "SocketRocket.framework" */;
+			buildPhases = (
+				4A864893155C5B96002CE346 /* Headers */,
+				4A86486F155C5A65002CE346 /* Resources */,
+				4A864897155C5BBF002CE346 /* ShellScript */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				4A864883155C5B07002CE346 /* PBXTargetDependency */,
+			);
+			name = SocketRocket.framework;
+			productName = SocektRocket;
+			productReference = 4A864871155C5A65002CE346 /* SocketRocket.framework */;
+			productType = "com.apple.product-type.bundle";
+		};
 		F62417E214D52F3C003CE997 /* TestChat */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = F62417FC14D52F3C003CE997 /* Build configuration list for PBXNativeTarget "TestChat" */;
@@ -415,11 +602,23 @@
 				F668C87F153E91210044DBAC /* SocketRocketOSX */,
 				F6BDA801145900D200FE3253 /* SRWebSocketTests */,
 				F62417E214D52F3C003CE997 /* TestChat */,
+				4A864852155C5988002CE346 /* SocketRocket-simulator */,
+				4A86485F155C5991002CE346 /* SocketRocket-iphone */,
+				4A864869155C5A15002CE346 /* SocketRocket-ios */,
+				4A864870155C5A65002CE346 /* SocketRocket.framework */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		4A86486F155C5A65002CE346 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4A86489E155C5D03002CE346 /* SocketRocket in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		F62417E114D52F3C003CE997 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -447,6 +646,32 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		4A864897155C5BBF002CE346 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "rm -rf ${PROJECT_NAME}.framework; cp -R ${BUILT_PRODUCTS_DIR}/${PROJECT_NAME}.framework ./\n";
+		};
+		4A864898155C5BCD002CE346 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "rm -rf ${BUILT_PRODUCTS_DIR}/${PROJECT_NAME}; lipo -create \"${BUILT_PRODUCTS_DIR}/lib${PROJECT_NAME}-iphone.a\" \"${BUILT_PRODUCTS_DIR}/../${CONFIGURATION}-iphonesimulator/lib${PROJECT_NAME}-simulator.a\" -output \"${BUILT_PRODUCTS_DIR}/${PROJECT_NAME}\"; cp ${BUILT_PRODUCTS_DIR}/${PROJECT_NAME} ${PROJECT_NAME}";
+		};
 		F6BDA800145900D200FE3253 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -463,6 +688,26 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		4A86484F155C5988002CE346 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4A864884155C5B16002CE346 /* base64.c in Sources */,
+				4A864885155C5B22002CE346 /* SRWebSocket.m in Sources */,
+				4A864886155C5B24002CE346 /* NSData+SRB64Additions.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4A864860155C5991002CE346 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4A86488E155C5B77002CE346 /* SRWebSocket.m in Sources */,
+				4A86488F155C5B77002CE346 /* NSData+SRB64Additions.m in Sources */,
+				4A86488D155C5B71002CE346 /* base64.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		F62417DF14D52F3C003CE997 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -507,6 +752,21 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		4A864883155C5B07002CE346 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4A864869155C5A15002CE346 /* SocketRocket-ios */;
+			targetProxy = 4A864882155C5B07002CE346 /* PBXContainerItemProxy */;
+		};
+		4A86489A155C5BD2002CE346 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4A864852155C5988002CE346 /* SocketRocket-simulator */;
+			targetProxy = 4A864899155C5BD2002CE346 /* PBXContainerItemProxy */;
+		};
+		4A86489C155C5BD2002CE346 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4A86485F155C5991002CE346 /* SocketRocket-iphone */;
+			targetProxy = 4A86489B155C5BD2002CE346 /* PBXContainerItemProxy */;
+		};
 		F62417D614D50869003CE997 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = F6B2082C1450F597009315AF /* SocketRocket */;
@@ -542,6 +802,156 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		4A86485B155C5989002CE346 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALTERNATE_PERMISSIONS_FILES = (
+					iphonesimulator,
+					iphoneos,
+				);
+				DSTROOT = /tmp/SocketRocket_simulator.dst;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "SocketRocket/SocketRocket-Prefix.pch";
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 5.1;
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphonesimulator;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = iphonesimulator;
+			};
+			name = Debug;
+		};
+		4A86485C155C5989002CE346 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALTERNATE_PERMISSIONS_FILES = (
+					iphonesimulator,
+					iphoneos,
+				);
+				DSTROOT = /tmp/SocketRocket_simulator.dst;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "SocketRocket/SocketRocket-Prefix.pch";
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 5.1;
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphonesimulator;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = iphonesimulator;
+			};
+			name = Release;
+		};
+		4A864866155C5991002CE346 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DSTROOT = /tmp/SocketRocket_simulator.dst;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "SocketRocket/SocketRocket-Prefix.pch";
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 5.1;
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "SocketRocket-iphone";
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = iphoneos;
+			};
+			name = Debug;
+		};
+		4A864867155C5991002CE346 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DSTROOT = /tmp/SocketRocket_simulator.dst;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "SocketRocket/SocketRocket-Prefix.pch";
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 5.1;
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "SocketRocket-iphone";
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = iphoneos;
+			};
+			name = Release;
+		};
+		4A86486B155C5A15002CE346 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUILD_STYLE = Release;
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		4A86486C155C5A15002CE346 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUILD_STYLE = Release;
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		4A86487C155C5A65002CE346 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				BUILD_STYLE = Release;
+				DEAD_CODE_STRIPPING = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = NO;
+				GCC_PREFIX_HEADER = "";
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				INFOPLIST_FILE = "SocketRocket/SocketRocket-Info.plist";
+				INSTALL_PATH = "";
+				LINK_WITH_STANDARD_LIBRARIES = NO;
+				MACH_O_TYPE = mh_object;
+				MACOSX_DEPLOYMENT_TARGET = "";
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = SocketRocket;
+				SDKROOT = iphoneos5.1;
+				SUPPORTED_PLATFORMS = iphoneos;
+				WARNING_LDFLAGS = "-ObjC";
+				WRAPPER_EXTENSION = framework;
+			};
+			name = Debug;
+		};
+		4A86487D155C5A65002CE346 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				BUILD_STYLE = Release;
+				DEAD_CODE_STRIPPING = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = NO;
+				GCC_PREFIX_HEADER = "";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				INFOPLIST_FILE = "SocketRocket/SocketRocket-Info.plist";
+				INSTALL_PATH = "";
+				LINK_WITH_STANDARD_LIBRARIES = NO;
+				MACH_O_TYPE = mh_object;
+				MACOSX_DEPLOYMENT_TARGET = "";
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = SocketRocket;
+				SDKROOT = iphoneos5.1;
+				SUPPORTED_PLATFORMS = iphoneos;
+				WARNING_LDFLAGS = "-ObjC";
+				WRAPPER_EXTENSION = framework;
+			};
+			name = Release;
+		};
 		F62417FD14D52F3C003CE997 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -772,6 +1182,38 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		4A86485D155C5989002CE346 /* Build configuration list for PBXNativeTarget "SocketRocket-simulator" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4A86485B155C5989002CE346 /* Debug */,
+				4A86485C155C5989002CE346 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+		4A864865155C5991002CE346 /* Build configuration list for PBXNativeTarget "SocketRocket-iphone" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4A864866155C5991002CE346 /* Debug */,
+				4A864867155C5991002CE346 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+		4A86486A155C5A15002CE346 /* Build configuration list for PBXAggregateTarget "SocketRocket-ios" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4A86486B155C5A15002CE346 /* Debug */,
+				4A86486C155C5A15002CE346 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+		4A86487B155C5A65002CE346 /* Build configuration list for PBXNativeTarget "SocketRocket.framework" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4A86487C155C5A65002CE346 /* Debug */,
+				4A86487D155C5A65002CE346 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
 		F62417FC14D52F3C003CE997 /* Build configuration list for PBXNativeTarget "TestChat" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
