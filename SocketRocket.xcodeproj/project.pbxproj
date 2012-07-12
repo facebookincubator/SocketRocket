@@ -606,6 +606,7 @@
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = SocketRocket;
 				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
 				WRAPPER_EXTENSION = framework;
 			};
 			name = Debug;
@@ -633,6 +634,7 @@
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = SocketRocket;
 				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
 				WRAPPER_EXTENSION = framework;
 			};
 			name = Release;
