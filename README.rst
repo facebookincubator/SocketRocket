@@ -35,6 +35,7 @@ There's a few options. Choose one, or just figure it out
 - For OS X you will have to repackage make a .framework target.  I will take
   contributions. Message me if you are interested.
 
+
 Depending on how you configure your project you may need to ``#import`` either
 ``<SocketRocket/SRWebSocket.h>`` or ``"SRWebSocket.h"``
 
@@ -72,7 +73,9 @@ The Web Socket.
   closes, errors, or fails.  This is similar to how ``NSURLConnection`` behaves.
   (unlike ``NSURLConnection``, ``SRWebSocket`` won't retain the delegate)
 
-What you need to know:: 
+What you need to know
+
+.. code-block:: objective-c
 
   @interface SRWebSocket : NSObject
 
@@ -90,12 +93,13 @@ What you need to know::
   // Send a UTF8 String or Data
   - (void)send:(id)data;
 
-
   @end
 
 ``SRWebSocketDelegate``
 ```````````````````````
-You implement this ::
+You implement this
+
+.. code-block:: objective-c
 
   @protocol SRWebSocketDelegate <NSObject>
 
@@ -146,6 +150,9 @@ To run from the app, choose the ``SocketRocket`` target and run the test action
 (``cmd+u``). It runs the same thing, but makes it easier to debug.  There is
 some serious pre/post hooks in the Test action.  You can edit it to customize
 behavior.
+
+.. note:: Xcode only up to version 4.4 is currently supported for the test
+  harness
 
 TestChat Demo Application
 -------------------------
