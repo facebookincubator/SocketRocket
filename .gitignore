@@ -6,3 +6,4 @@ build/
 nohup.out
 .DS_Store
 xcuserdata/
+xcshareddata/
