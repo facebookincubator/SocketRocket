@@ -14,11 +14,22 @@
 //   limitations under the License.
 //
 
-
 #import "SRWebSocket.h"
 
 #if TARGET_OS_IPHONE
-#define HAS_ICU
+	#define HAS_ICU
+
+	#if __IPHONE_OS_VERSION_MIN_REQUIRED >= 60000
+		#define NEEDS_DISPATCH_RETAIN_RELEASE 0
+	#else
+		#define NEEDS_DISPATCH_RETAIN_RELEASE 1
+	#endif
+#else
+	#if MAC_OS_X_VERSION_MIN_REQUIRED >= 1080     // Mac OS X 10.8 or later
+		#define NEEDS_DISPATCH_RETAIN_RELEASE 0
+	#else
+		#define NEEDS_DISPATCH_RETAIN_RELEASE 1     // Mac OS X 10.7 or earlier
+	#endif
 #endif
 
 #ifdef HAS_ICU
@@ -309,7 +320,10 @@ static __strong NSData *CRLFCRLF;
     _workQueue = dispatch_queue_create(NULL, DISPATCH_QUEUE_SERIAL);
     
     _callbackQueue = dispatch_get_main_queue();
+
+#if NEEDS_DISPATCH_RETAIN_RELEASE
     dispatch_retain(_callbackQueue);
+#endif
     
     _readBuffer = [[NSMutableData alloc] init];
     _outputBuffer = [[NSMutableData alloc] init];
@@ -328,9 +342,11 @@ static __strong NSData *CRLFCRLF;
 
     [_inputStream close];
     [_outputStream close];
-    
+
+#if NEEDS_DISPATCH_RETAIN_RELEASE
     dispatch_release(_callbackQueue);
     dispatch_release(_workQueue);
+#endif
     
     if (_receivedHTTPHeaders) {
         CFRelease(_receivedHTTPHeaders);
