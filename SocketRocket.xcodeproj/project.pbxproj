@@ -640,7 +640,7 @@
 					"-all_load",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = macosx;
+				SDKROOT = macosx10.7;
 				SKIP_INSTALL = YES;
 			};
 			name = Debug;
@@ -669,7 +669,7 @@
 					"-all_load",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = macosx;
+				SDKROOT = macosx10.7;
 				SKIP_INSTALL = YES;
 			};
 			name = Release;
@@ -915,6 +915,7 @@
 				B2EB6A7D15DB5C800035AD92 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		F62417FC14D52F3C003CE997 /* Build configuration list for PBXNativeTarget "TestChat" */ = {
 			isa = XCConfigurationList;
