@@ -202,7 +202,7 @@ pre.wirelog_tcp_closed_by_peer {color: #fff; margin: 0; background-color: #000; 
       <center><a href="http://autobahn.ws/testsuite" title="Autobahn WebSockets Testsuite"><img src="http://autobahn.ws/static/img/ws_protocol_test_report.png"          border="0" width="820" height="46" alt="Autobahn WebSockets Testsuite Report"></img></a></center>
       <center><a href="http://autobahn.ws"           title="Autobahn WebSockets">          <img src="http://autobahn.ws/static/img/ws_protocol_test_report_autobahn.png" border="0" width="300" height="68" alt="Autobahn WebSockets">                 </img></a></center>
       <br/>
-      <p class="case case_ok">com.squareup.SRWebSocketTests - <span style="font-size: 1.3em;"><b>Case 4.1.5</b></span> : Pass - <span style="font-size: 0.9em;"><b>3</b> ms @ 2012-07-29T01:25:35Z</a></p>
+      <p class="case case_ok">com.squareup.SRWebSocketTests - <span style="font-size: 1.3em;"><b>Case 4.1.5</b></span> : Pass - <span style="font-size: 0.9em;"><b>5</b> ms @ 2012-08-31T01:58:15Z</a></p>
       <p class="case_text_block case_desc"><b>Case Description</b><br/><br/>Send small text message, then send frame with reserved non-control <b>Opcode = 7</b> and non-empty payload, then send Ping.</p>
       <p class="case_text_block case_expect"><b>Case Expectation</b><br/><br/>Echo for first message is received, but then connection is failed immediately, since reserved opcode frame is used. A Pong is not received.</p>
 
@@ -216,16 +216,16 @@ pre.wirelog_tcp_closed_by_peer {color: #fff; margin: 0; background-color: #000; 
       <h2>Opening Handshake</h2>
       <pre class="http_dump">GET /runCase?case=39&agent=com.squareup.SRWebSocketTests HTTP/1.1
 Host: localhost:9001
+Origin: http://localhost:9001/
+Sec-WebSocket-Key: EeoWjIKgj2wNEywY36oGgA==
 Upgrade: websocket
 Connection: Upgrade
-Sec-WebSocket-Key: nb+Bg5wL9SkeXfn09oNNKA==
-Sec-WebSocket-Version: 13
-Origin: http://localhost:9001/</pre>
+Sec-WebSocket-Version: 13</pre>
       <pre class="http_dump">HTTP/1.1 101 Switching Protocols
 Server: AutobahnTestSuite/0.5.2-0.5.5
 Upgrade: WebSocket
 Connection: Upgrade
-Sec-WebSocket-Accept: PF0psaqqw7OhCdm1CUV6qfAbRH0=</pre>
+Sec-WebSocket-Accept: rY6xKuUiuTosocjat81VgtbKEp0=</pre>
       <br/><hr/>
       <h2>Closing Behavior</h2>
       <table>
@@ -281,14 +281,14 @@ Sec-WebSocket-Accept: PF0psaqqw7OhCdm1CUV6qfAbRH0=</pre>
       <h2>Wire Log</h2>
       <div id="wirelog">
          <pre class="wirelog_rx_octets">000 RX OCTETS: 474554202f72756e436173653f636173653d3339266167656e743d636f6d2e73717561726575702e5352576562536f636b65</pre>
-         <pre class="wirelog_rx_octets">               74546573747320485454502f312e310d0a486f73743a206c6f63616c686f73743a393030310d0a557067726164653a207765</pre>
-         <pre class="wirelog_rx_octets">               62736f636b65740d0a436f6e6e656374696f6e3a20557067726164650d0a5365632d576562536f636b65742d4b65793a206e</pre>
-         <pre class="wirelog_rx_octets">               622b426735774c39536b6558666e30396f4e4e4b413d3d0d0a5365632d576562536f636b65742d56657273696f6e3a203133</pre>
-         <pre class="wirelog_rx_octets">               0d0a4f726967696e3a20687474703a2f2f6c6f63616c686f73743a393030312f0d0a0d0a</pre>
+         <pre class="wirelog_rx_octets">               74546573747320485454502f312e310d0a486f73743a206c6f63616c686f73743a393030310d0a4f726967696e3a20687474</pre>
+         <pre class="wirelog_rx_octets">               703a2f2f6c6f63616c686f73743a393030312f0d0a5365632d576562536f636b65742d4b65793a2045656f576a494b676a32</pre>
+         <pre class="wirelog_rx_octets">               774e4579775933366f4767413d3d0d0a557067726164653a20776562736f636b65740d0a436f6e6e656374696f6e3a205570</pre>
+         <pre class="wirelog_rx_octets">               67726164650d0a5365632d576562536f636b65742d56657273696f6e3a2031330d0a0d0a</pre>
          <pre class="wirelog_tx_octets">001 TX OCTETS: 485454502f312e312031303120537769746368696e672050726f746f636f6c730d0a5365727665723a204175746f6261686e</pre>
          <pre class="wirelog_tx_octets">               5465737453756974652f302e352e322d302e352e350d0a557067726164653a20576562536f636b65740d0a436f6e6e656374</pre>
-         <pre class="wirelog_tx_octets">               696f6e3a20557067726164650d0a5365632d576562536f636b65742d4163636570743a20504630707361717177374f684364</pre>
-         <pre class="wirelog_tx_octets">               6d3143555636716641625248303d0d0a0d0a</pre>
+         <pre class="wirelog_tx_octets">               696f6e3a20557067726164650d0a5365632d576562536f636b65742d4163636570743a20725936784b75556975546f736f63</pre>
+         <pre class="wirelog_tx_octets">               6a61743831566774624b4570303d0d0a0d0a</pre>
          <pre class="wirelog_tx_frame_sync">002 TX FRAME : OPCODE=1, FIN=True, RSV=0, MASK=None, PAYLOAD-REPEAT-LEN=None, CHOPSIZE=1, SYNC=False</pre>
          <pre class="wirelog_tx_frame_sync">               Hello, world!</pre>
          <pre class="wirelog_tx_octets_sync">003 TX OCTETS: 81</pre>
@@ -312,10 +312,10 @@ Sec-WebSocket-Accept: PF0psaqqw7OhCdm1CUV6qfAbRH0=</pre>
          <pre class="wirelog_tx_octets_sync">020 TX OCTETS: 21</pre>
          <pre class="wirelog_tx_octets_sync">021 TX OCTETS: 87</pre>
          <pre class="wirelog_tx_octets_sync">022 TX OCTETS: 0d</pre>
-         <pre class="wirelog_tx_octets_sync">023 TX OCTETS: 48</pre>
-         <pre class="wirelog_rx_octets">024 RX OCTETS: 818d3f5cee3b773982575070ce4c502e825f1e</pre>
-         <pre class="wirelog_rx_frame">025 RX FRAME : OPCODE=1, FIN=True, RSV=0, MASKED=True, MASK=3366356365653362</pre>
+         <pre class="wirelog_rx_octets">023 RX OCTETS: 818dcb691652830c7a3ea4453625a41b7a36ea</pre>
+         <pre class="wirelog_rx_frame">024 RX FRAME : OPCODE=1, FIN=True, RSV=0, MASKED=True, MASK=6362363931363532</pre>
          <pre class="wirelog_rx_frame">               Hello, world!</pre>
+         <pre class="wirelog_tx_octets_sync">025 TX OCTETS: 48</pre>
          <pre class="wirelog_tx_octets_sync">026 TX OCTETS: 65</pre>
          <pre class="wirelog_tx_octets_sync">027 TX OCTETS: 6c</pre>
          <pre class="wirelog_tx_octets_sync">028 TX OCTETS: 6c</pre>
@@ -330,8 +330,8 @@ Sec-WebSocket-Accept: PF0psaqqw7OhCdm1CUV6qfAbRH0=</pre>
          <pre class="wirelog_tx_octets_sync">037 TX OCTETS: 21</pre>
          <pre class="wirelog_tx_octets_sync">038 TX OCTETS: 89</pre>
          <pre class="wirelog_tx_octets_sync">039 TX OCTETS: 00</pre>
-         <pre class="wirelog_rx_octets">040 RX OCTETS: 8892bc2b2801bfc17d6fd7454776d20b4771df444c649c1c</pre>
-         <pre class="wirelog_rx_frame">041 RX FRAME : OPCODE=8, FIN=True, RSV=0, MASKED=True, MASK=6263326232383031</pre>
+         <pre class="wirelog_rx_octets">040 RX OCTETS: 889217012b1614eb7e787c6f446179214466746e4f733736</pre>
+         <pre class="wirelog_rx_frame">041 RX FRAME : OPCODE=8, FIN=True, RSV=0, MASKED=True, MASK=3137303132623136</pre>
          <pre class="wirelog_rx_frame">               ÍUnknown opcode 7</pre>
          <pre class="wirelog_tx_frame">042 TX FRAME : OPCODE=8, FIN=True, RSV=0, MASK=None, PAYLOAD-REPEAT-LEN=None, CHOPSIZE=None, SYNC=False</pre>
          <pre class="wirelog_tx_frame">               Ë</pre>
