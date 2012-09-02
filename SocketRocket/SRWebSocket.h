@@ -50,6 +50,8 @@ extern NSString *const SRWebSocketErrorDomain;
 - (id)initWithURL:(NSURL *)url protocols:(NSArray *)protocols;
 - (id)initWithURL:(NSURL *)url;
 
+- (void)setValue:(NSString *)value forHTTPHeaderField:(NSString *)field;
+
 // SRWebSockets are intended one-time-use only.  Open should be called once and only once
 - (void)open;
 

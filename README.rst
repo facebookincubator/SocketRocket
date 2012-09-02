@@ -81,6 +81,9 @@ What you need to know
 
   // Make it with this
   - (id)initWithURLRequest:(NSURLRequest *)request;
+  
+  // Add additional HTTP Header
+  - (id)setValue:(NSString *)value forHTTPHeaderField(NSString *)field;
 
   // Set this before opening
   @property (nonatomic, assign) id <SRWebSocketDelegate> delegate;
