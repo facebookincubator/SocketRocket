@@ -245,6 +245,8 @@ typedef void (^data_callback)(SRWebSocket *webSocket,  NSData *data);
     __strong SRWebSocket *_selfRetain;
     
     NSArray *_requestedProtocols;
+    
+    NSMutableDictionary *_additionalHTTPHeaders;
 }
 
 @synthesize delegate = _delegate;
@@ -294,8 +296,18 @@ static __strong NSData *CRLFCRLF;
 
 - (id)initWithURL:(NSURL *)url protocols:(NSArray *)protocols;
 {
-    NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:url];    
+    NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:url];
     return [self initWithURLRequest:request protocols:protocols];
+}
+
+- (void)setValue:(NSString *)value forHTTPHeaderField:(NSString *)field
+{
+    if ( value != nil && field != nil ) {
+        if ( ! _additionalHTTPHeaders )
+            _additionalHTTPHeaders = [[NSMutableDictionary alloc] init];
+        
+        [_additionalHTTPHeaders setValue:value forKey:field];
+    }
 }
 
 - (void)_SR_commonInit;
@@ -336,6 +348,7 @@ static __strong NSData *CRLFCRLF;
         CFRelease(_receivedHTTPHeaders);
         _receivedHTTPHeaders = NULL;
     }
+
 }
 
 #ifndef NDEBUG
@@ -469,6 +482,10 @@ static __strong NSData *CRLFCRLF;
     }
 
     [_urlRequest.allHTTPHeaderFields enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
+        CFHTTPMessageSetHeaderFieldValue(request, (__bridge CFStringRef)key, (__bridge CFStringRef)obj);
+    }];
+
+    [_additionalHTTPHeaders enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
         CFHTTPMessageSetHeaderFieldValue(request, (__bridge CFStringRef)key, (__bridge CFStringRef)obj);
     }];
     
