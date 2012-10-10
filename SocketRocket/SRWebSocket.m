@@ -37,10 +37,42 @@
 #import "base64.h"
 #import "NSData+SRB64Additions.h"
 
+
+/*
+ * Neither Mac OS X 10.8 and iOS 6 require a dispatch_release under ARC
+ */
+#if ! __has_feature(objc_arc)
+    #define SAFE_DispatchQueueRelease(__v) (dispatch_release(__v));
+#else
+    // -fobjc-arc
+
+    #if TARGET_OS_IPHONE
+        // Compiling for iOS
+        #if __IPHONE_OS_VERSION_MIN_REQUIRED >= 60000
+            // iOS 6.0 or later
+            #define SAFE_DispatchQueueRelease(__v)
+        #else
+            // iOS 5.X or earlier
+            #define SAFE_DispatchQueueRelease(__v) (dispatch_release(__v));
+        #endif
+    #else
+        // Compiling for Mac OS X
+        #if MAC_OS_X_VERSION_MIN_REQUIRED >= 1080
+            // Mac OS X 10.8 or later
+            #define SAFE_DispatchQueueRelease(__v)
+        #else
+            // Mac OS X 10.7 or earlier
+            #define SAFE_DispatchQueueRelease(__v) (dispatch_release(__v));
+        #endif
+    #endif
+#endif
+
+
+
 typedef enum  {
     SROpCodeTextFrame = 0x1,
     SROpCodeBinaryFrame = 0x2,
-    //3-7Reserved 
+    //3-7Reserved
     SROpCodeConnectionClose = 0x8,
     SROpCodePing = 0x9,
     SROpCodePong = 0xA,
@@ -310,7 +342,7 @@ static __strong NSData *CRLFCRLF;
     _workQueue = dispatch_queue_create(NULL, DISPATCH_QUEUE_SERIAL);
     
     _callbackQueue = dispatch_get_main_queue();
-    dispatch_retain(_callbackQueue);
+    SAFE_DispatchQueueRelease(_callbackQueue);
     
     _readBuffer = [[NSMutableData alloc] init];
     _outputBuffer = [[NSMutableData alloc] init];
@@ -330,8 +362,8 @@ static __strong NSData *CRLFCRLF;
     [_inputStream close];
     [_outputStream close];
     
-    dispatch_release(_callbackQueue);
-    dispatch_release(_workQueue);
+    SAFE_DispatchQueueRelease(_callbackQueue);
+    SAFE_DispatchQueueRelease(_workQueue);
     
     if (_receivedHTTPHeaders) {
         CFRelease(_receivedHTTPHeaders);
