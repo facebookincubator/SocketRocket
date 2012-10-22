@@ -631,6 +631,13 @@ static __strong NSData *CRLFCRLF;
     });
 }
 
+- (void)sendPing {
+	NSAssert(self.readyState != SR_CONNECTING, @"Invalid State: Cannot call send: until connection is open");
+    dispatch_async(_workQueue, ^{
+		[self _sendFrameWithOpcode:SROpCodePing data:[NSData data]];
+    });
+}
+
 - (void)handlePing:(NSData *)pingData;
 {
     // Need to pingpong this off _callbackQueue first to make sure messages happen in order
