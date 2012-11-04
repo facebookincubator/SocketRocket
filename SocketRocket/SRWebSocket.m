@@ -705,6 +705,13 @@ static __strong NSData *CRLFCRLF;
     });
 }
 
+- (void)sendPing:(NSData *)data
+{
+    dispatch_async(_workQueue, ^{
+        [self _sendFrameWithOpcode:SROpCodePing data:data];
+    });
+}
+
 - (void)handlePing:(NSData *)pingData;
 {
     // Need to pingpong this off _callbackQueue first to make sure messages happen in order
@@ -715,9 +722,13 @@ static __strong NSData *CRLFCRLF;
     }];
 }
 
-- (void)handlePong;
+- (void)handlePong:(NSData *)data;
 {
-    // NOOP
+    if ([self.delegate respondsToSelector:@selector(webSocket:didReceivePong:)]) {
+        [self _performDelegateBlock:^{
+            [self.delegate webSocket:self didReceivePong:data];
+        }];
+    }
 }
 
 - (void)_handleMessage:(id)message
@@ -847,7 +858,7 @@ static inline BOOL closeCodeIsValid(int closeCode) {
             [self handlePing:frameData];
             break;
         case SROpCodePong:
-            [self handlePong];
+            [self handlePong:frameData];
             break;
         default:
             [self _closeWithProtocolError:[NSString stringWithFormat:@"Unknown opcode %d", opcode]];
