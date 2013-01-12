@@ -13,7 +13,7 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 //
-
+extern "C" {
 
 #import "SRWebSocket.h"
 
@@ -51,6 +51,7 @@
 #error SocketRocket muust be compiled with ARC enabled
 #endif
 
+}
 
 typedef enum  {
     SROpCodeTextFrame = 0x1,
@@ -121,7 +122,7 @@ static inline void SRFastLog(NSString *format, ...);
 @end
 
 
-static NSString *newSHA1String(const char *bytes, size_t length) {
+static NSString *newSHA1String(const void *bytes, size_t length) {
     uint8_t md[CC_SHA1_DIGEST_LENGTH];
     
     CC_SHA1(bytes, length, md);
@@ -523,7 +524,7 @@ static __strong NSData *CRLFCRLF;
     CFHTTPMessageSetHeaderFieldValue(request, CFSTR("Host"), (__bridge CFStringRef)(_url.port ? [NSString stringWithFormat:@"%@:%@", _url.host, _url.port] : _url.host));
         
     NSMutableData *keyBytes = [[NSMutableData alloc] initWithLength:16];
-    SecRandomCopyBytes(kSecRandomDefault, keyBytes.length, keyBytes.mutableBytes);
+    SecRandomCopyBytes(kSecRandomDefault, keyBytes.length, (uint8_t *)keyBytes.mutableBytes);
     _secKey = [keyBytes SR_stringByBase64Encoding];
     assert([_secKey length] == 24);
     
@@ -972,7 +973,7 @@ static const uint8_t SRPayloadLenMask   = 0x7F;
     [self _addConsumerWithDataLength:2 callback:^(SRWebSocket *self, NSData *data) {
         __block frame_header header = {0};
         
-        const uint8_t *headerBuffer = data.bytes;
+        const uint8_t *headerBuffer = reinterpret_cast<const uint8_t *>(data.bytes);
         assert(data.length >= 2);
         
         if (headerBuffer[0] & SRRsvMask) {
@@ -1069,7 +1070,7 @@ static const uint8_t SRPayloadLenMask   = 0x7F;
     
     NSUInteger dataLength = _outputBuffer.length;
     if (dataLength - _outputBufferOffset > 0 && _outputStream.hasSpaceAvailable) {
-        NSInteger bytesWritten = [_outputStream write:_outputBuffer.bytes + _outputBufferOffset maxLength:dataLength - _outputBufferOffset];
+        NSInteger bytesWritten = [_outputStream write:reinterpret_cast<const uint8_t *>(_outputBuffer.bytes) + _outputBufferOffset maxLength:dataLength - _outputBufferOffset];
         if (bytesWritten == -1) {
             [self _failWithError:[NSError errorWithDomain:@"org.lolrus.SocketRocket" code:2145 userInfo:[NSDictionary dictionaryWithObject:@"Error writing to stream" forKey:NSLocalizedDescriptionKey]]];
              return;
@@ -1078,7 +1079,7 @@ static const uint8_t SRPayloadLenMask   = 0x7F;
         _outputBufferOffset += bytesWritten;
         
         if (_outputBufferOffset > 4096 && _outputBufferOffset > (_outputBuffer.length >> 1)) {
-            _outputBuffer = [[NSMutableData alloc] initWithBytes:(char *)_outputBuffer.bytes + _outputBufferOffset length:_outputBuffer.length - _outputBufferOffset];
+            _outputBuffer = [[NSMutableData alloc] initWithBytes:reinterpret_cast<const void *>(reinterpret_cast<const char *>(_outputBuffer.bytes) + _outputBufferOffset) length:_outputBuffer.length - _outputBufferOffset];
             _outputBufferOffset = 0;
         }
     }
@@ -1148,7 +1149,7 @@ static const char CRLFCRLFBytes[] = {'\r', '\n', '\r', '\n'};
         __block size_t match_count = 0;
         
         size_t size = data.length;
-        const unsigned char *buffer = data.bytes;
+        const uint8_t *buffer = reinterpret_cast<const uint8_t *>(data.bytes);
         for (size_t i = 0; i < size; i++ ) {
             if (((const unsigned char *)buffer)[i] == ((const unsigned char *)bytes)[match_count]) {
                 match_count += 1;
@@ -1216,7 +1217,7 @@ static const char CRLFCRLFBytes[] = {'\r', '\n', '\r', '\n'};
             NSMutableData *mutableSlice = [slice mutableCopy];
             
             NSUInteger len = mutableSlice.length;
-            uint8_t *bytes = mutableSlice.mutableBytes;
+            uint8_t *bytes = reinterpret_cast<uint8_t *>(mutableSlice.mutableBytes);
             
             for (NSUInteger i = 0; i < len; i++) {
                 bytes[i] = bytes[i] ^ _currentReadMaskKey[_currentReadMaskOffset % sizeof(_currentReadMaskKey)];
