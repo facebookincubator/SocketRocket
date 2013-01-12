@@ -202,7 +202,7 @@ pre.wirelog_tcp_closed_by_peer {color: #fff; margin: 0; background-color: #000; 
       <center><a href="http://autobahn.ws/testsuite" title="Autobahn WebSockets Testsuite"><img src="http://autobahn.ws/static/img/ws_protocol_test_report.png"          border="0" width="820" height="46" alt="Autobahn WebSockets Testsuite Report"></img></a></center>
       <center><a href="http://autobahn.ws"           title="Autobahn WebSockets">          <img src="http://autobahn.ws/static/img/ws_protocol_test_report_autobahn.png" border="0" width="300" height="68" alt="Autobahn WebSockets">                 </img></a></center>
       <br/>
-      <p class="case case_ok">com.squareup.SRWebSocketTests - <span style="font-size: 1.3em;"><b>Case 6.4.3</b></span> : Pass - <span style="font-size: 0.9em;"><b>1002</b> ms @ 2012-08-31T01:58:20Z</a></p>
+      <p class="case case_ok">com.squareup.SRWebSocketTests - <span style="font-size: 1.3em;"><b>Case 6.4.3</b></span> : Pass - <span style="font-size: 0.9em;"><b>1002</b> ms @ 2013-01-12T21:20:03Z</a></p>
       <p class="case_text_block case_desc"><b>Case Description</b><br/><br/>Same as Case 6.4.1, but we send message not in 3 frames, but in 3 chops of the same message frame.
 <br><br>MESSAGE PARTS:<br>
 PART1 = κόσμε (cebae1bdb9cf83cebcceb5)<br>
@@ -222,7 +222,7 @@ PART3 = edited (656469746564)<br>
       <pre class="http_dump">GET /runCase?case=76&agent=com.squareup.SRWebSocketTests HTTP/1.1
 Host: localhost:9001
 Origin: http://localhost:9001/
-Sec-WebSocket-Key: 1B0ISbCau7NKAjv/deTGbA==
+Sec-WebSocket-Key: yIMbLW/KGBLqW2+XrDrrwQ==
 Upgrade: websocket
 Connection: Upgrade
 Sec-WebSocket-Version: 13</pre>
@@ -230,7 +230,7 @@ Sec-WebSocket-Version: 13</pre>
 Server: AutobahnTestSuite/0.5.2-0.5.5
 Upgrade: WebSocket
 Connection: Upgrade
-Sec-WebSocket-Accept: hxWcq/spufegjGiMbbjnEuz036Q=</pre>
+Sec-WebSocket-Accept: oiyLnvRHXru9l/UjSF+/N1IhSx4=</pre>
       <br/><hr/>
       <h2>Closing Behavior</h2>
       <table>
@@ -283,21 +283,21 @@ Sec-WebSocket-Accept: hxWcq/spufegjGiMbbjnEuz036Q=</pre>
       <div id="wirelog">
          <pre class="wirelog_rx_octets">000 RX OCTETS: 474554202f72756e436173653f636173653d3736266167656e743d636f6d2e73717561726575702e5352576562536f636b65</pre>
          <pre class="wirelog_rx_octets">               74546573747320485454502f312e310d0a486f73743a206c6f63616c686f73743a393030310d0a4f726967696e3a20687474</pre>
-         <pre class="wirelog_rx_octets">               703a2f2f6c6f63616c686f73743a393030312f0d0a5365632d576562536f636b65742d4b65793a2031423049536243617537</pre>
-         <pre class="wirelog_rx_octets">               4e4b416a762f6465544762413d3d0d0a557067726164653a20776562736f636b65740d0a436f6e6e656374696f6e3a205570</pre>
+         <pre class="wirelog_rx_octets">               703a2f2f6c6f63616c686f73743a393030312f0d0a5365632d576562536f636b65742d4b65793a2079494d624c572f4b4742</pre>
+         <pre class="wirelog_rx_octets">               4c7157322b587244727277513d3d0d0a557067726164653a20776562736f636b65740d0a436f6e6e656374696f6e3a205570</pre>
          <pre class="wirelog_rx_octets">               67726164650d0a5365632d576562536f636b65742d56657273696f6e3a2031330d0a0d0a</pre>
          <pre class="wirelog_tx_octets">001 TX OCTETS: 485454502f312e312031303120537769746368696e672050726f746f636f6c730d0a5365727665723a204175746f6261686e</pre>
          <pre class="wirelog_tx_octets">               5465737453756974652f302e352e322d302e352e350d0a557067726164653a20576562536f636b65740d0a436f6e6e656374</pre>
-         <pre class="wirelog_tx_octets">               696f6e3a20557067726164650d0a5365632d576562536f636b65742d4163636570743a2068785763712f7370756665676a47</pre>
-         <pre class="wirelog_tx_octets">               694d62626a6e45757a303336513d0d0a0d0a</pre>
+         <pre class="wirelog_tx_octets">               696f6e3a20557067726164650d0a5365632d576562536f636b65742d4163636570743a206f69794c6e765248587275396c2f</pre>
+         <pre class="wirelog_tx_octets">               556a53462b2f4e3149685378343d0d0a0d0a</pre>
          <pre class="wirelog_tx_octets">002 TX OCTETS: 0115</pre>
          <pre class="wirelog_tx_octets">003 TX OCTETS: cebae1bdb9cf83cebcceb5</pre>
          <pre class="wirelog_delay">004 DELAY 1.000000 sec for TAG A</pre>
          <pre class="wirelog_delay">005 DELAY TIMEOUT on TAG A</pre>
          <pre class="wirelog_tx_octets">006 TX OCTETS: f4908080</pre>
          <pre class="wirelog_delay">007 DELAY 1.000000 sec for TAG B</pre>
-         <pre class="wirelog_rx_octets">008 RX OCTETS: 88a1d5f9c7dad61693bfad8de7bca798aabfa6d9aaafa68de7b8b0d9b1bbb990a3fa80ad81f7ed</pre>
-         <pre class="wirelog_rx_frame">009 RX FRAME : OPCODE=8, FIN=True, RSV=0, MASKED=True, MASK=6435663963376461</pre>
+         <pre class="wirelog_rx_octets">008 RX OCTETS: 88a197eb47d7940413b2ef9f67b1e58a2ab2e4cb2aa2e49f67b5f2cb31b6fb8223f7c2bf01faaf</pre>
+         <pre class="wirelog_rx_frame">009 RX FRAME : OPCODE=8, FIN=True, RSV=0, MASKED=True, MASK=3937656234376437</pre>
          <pre class="wirelog_rx_frame">               �Text frames must be valid UTF-8</pre>
          <pre class="wirelog_tx_frame">010 TX FRAME : OPCODE=8, FIN=True, RSV=0, MASK=None, PAYLOAD-REPEAT-LEN=None, CHOPSIZE=None, SYNC=False</pre>
          <pre class="wirelog_tx_frame">               �</pre>
