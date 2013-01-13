@@ -35,9 +35,11 @@ namespace squareup {
         void SimpleDial(const char *hostname, const char *servname, dispatch_queue_t callback_queue, dispatch_queue_t parent_io_queue, simple_dial_callback dial_callback, void(^close_handler)(int error));
         
         class IO {
+        public:
             virtual void Close(dispatch_io_close_flags_t flags) = 0;
             virtual void Read(size_t length, dispatch_io_handler_t handler) = 0;
             virtual void Write(dispatch_data_t data, dispatch_io_handler_t handler) = 0;
+            virtual void Barrier(dispatch_block_t barrier) = 0;
         };
         
         class RawIO : public IO {
@@ -48,6 +50,7 @@ namespace squareup {
             void Close(dispatch_io_close_flags_t flags);
             void Read(size_t length, dispatch_io_handler_t handler);
             void Write(dispatch_data_t data, dispatch_io_handler_t handler);
+            void Barrier(dispatch_block_t barrier);
             
             inline RawIO(dispatch_fd_t fd,
                          dispatch_queue_t cleanupQueue,

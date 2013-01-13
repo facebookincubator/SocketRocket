@@ -9,7 +9,7 @@ extern "C" {
 #import <SenTestingKit/SenTestingKit.h>
 }
 
-#include "DispatchChannel.h"
+#include "DispatchIO.h"
 #include "DispatchData.h"
 
 using namespace squareup::dispatch;

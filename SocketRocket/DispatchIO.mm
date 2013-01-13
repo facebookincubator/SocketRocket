@@ -6,7 +6,7 @@
 //
 //
 
-#include "DispatchChannel.h"
+#include "DispatchIO.h"
 #include <Block.h>
 #include <string>
 
@@ -231,6 +231,10 @@ namespace squareup {
         
         void RawIO::Write(dispatch_data_t data, dispatch_io_handler_t handler)  {
             dispatch_io_write(_channel, 0, data, _callbackQueue, handler);
+        }
+        
+        void RawIO::Barrier(dispatch_block_t barrier) {
+            dispatch_io_barrier(_channel, barrier);
         }
     }
 }

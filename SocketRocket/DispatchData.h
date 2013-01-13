@@ -35,6 +35,11 @@ namespace dispatch {
             _data(dispatch_data_create(reinterpret_cast<const void *>(str), strlen(str), release_queue, DISPATCH_DATA_DESTRUCTOR_DEFAULT)) {
         }
         
+        inline Data(const void *bytes, size_t length, dispatch_queue_t release_queue) :
+        _data(dispatch_data_create(bytes, length, release_queue, DISPATCH_DATA_DESTRUCTOR_DEFAULT)) {
+        }
+
+        
         inline Data Concat(dispatch_data_t other) const {
             return Data(dispatch_data_create_concat(_data, other), false);
         }
@@ -47,13 +52,11 @@ namespace dispatch {
             return Data(dispatch_data_create_subrange(_data, offset, length), false);
         }
         
-        inline Data Map(const void **buffer_ptr,
-                        size_t *size_ptr) const {
+        inline Data Map(const void **buffer_ptr, size_t *size_ptr) const {
             return Data(dispatch_data_create_map(_data, buffer_ptr, size_ptr), false);
         }
         
-        inline Data CopyRegion(size_t location,
-                               size_t *offset_ptr) const {
+        inline Data CopyRegion(size_t location, size_t *offset_ptr) const {
             return Data(dispatch_data_copy_region(_data, location, offset_ptr), false);
         }
         

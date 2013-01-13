@@ -7,8 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		27CA136116A21E4D00A35C2D /* DispatchChannel.mm in Sources */ = {isa = PBXBuildFile; fileRef = 27CA135F16A21E4D00A35C2D /* DispatchChannel.mm */; };
-		27CA136216A21E4D00A35C2D /* DispatchChannel.h in Headers */ = {isa = PBXBuildFile; fileRef = 27CA136016A21E4D00A35C2D /* DispatchChannel.h */; };
+		2725F85B16A29D18007018E9 /* SecureIO.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2725F85916A29D18007018E9 /* SecureIO.mm */; };
+		2725F85C16A29D18007018E9 /* SecureIO.h in Headers */ = {isa = PBXBuildFile; fileRef = 2725F85A16A29D18007018E9 /* SecureIO.h */; };
+		27CA136116A21E4D00A35C2D /* DispatchIO.mm in Sources */ = {isa = PBXBuildFile; fileRef = 27CA135F16A21E4D00A35C2D /* DispatchIO.mm */; };
+		27CA136216A21E4D00A35C2D /* DispatchIO.h in Headers */ = {isa = PBXBuildFile; fileRef = 27CA136016A21E4D00A35C2D /* DispatchIO.h */; };
 		27CA136616A2243000A35C2D /* DispatchData.mm in Sources */ = {isa = PBXBuildFile; fileRef = 27CA136416A2243000A35C2D /* DispatchData.mm */; };
 		27CA136716A2243000A35C2D /* DispatchData.h in Headers */ = {isa = PBXBuildFile; fileRef = 27CA136516A2243000A35C2D /* DispatchData.h */; };
 		27CA136A16A23AAE00A35C2D /* STRDispatchTest.mm in Sources */ = {isa = PBXBuildFile; fileRef = 27CA136916A23AAE00A35C2D /* STRDispatchTest.mm */; };
@@ -65,8 +67,10 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		27CA135F16A21E4D00A35C2D /* DispatchChannel.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = DispatchChannel.mm; sourceTree = "<group>"; };
-		27CA136016A21E4D00A35C2D /* DispatchChannel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DispatchChannel.h; sourceTree = "<group>"; };
+		2725F85916A29D18007018E9 /* SecureIO.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SecureIO.mm; sourceTree = "<group>"; };
+		2725F85A16A29D18007018E9 /* SecureIO.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SecureIO.h; sourceTree = "<group>"; };
+		27CA135F16A21E4D00A35C2D /* DispatchIO.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = DispatchIO.mm; sourceTree = "<group>"; };
+		27CA136016A21E4D00A35C2D /* DispatchIO.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DispatchIO.h; sourceTree = "<group>"; };
 		27CA136416A2243000A35C2D /* DispatchData.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = DispatchData.mm; sourceTree = "<group>"; };
 		27CA136516A2243000A35C2D /* DispatchData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DispatchData.h; sourceTree = "<group>"; };
 		27CA136916A23AAE00A35C2D /* STRDispatchTest.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = STRDispatchTest.mm; sourceTree = "<group>"; };
@@ -275,8 +279,10 @@
 				F6A12CD0145119B700C1D980 /* SRWebSocket.mm */,
 				F6572123146C7B6A00D6B8A9 /* NSData+SRB64Additions.h */,
 				F6572124146C7B6A00D6B8A9 /* NSData+SRB64Additions.m */,
-				27CA135F16A21E4D00A35C2D /* DispatchChannel.mm */,
-				27CA136016A21E4D00A35C2D /* DispatchChannel.h */,
+				27CA135F16A21E4D00A35C2D /* DispatchIO.mm */,
+				27CA136016A21E4D00A35C2D /* DispatchIO.h */,
+				2725F85916A29D18007018E9 /* SecureIO.mm */,
+				2725F85A16A29D18007018E9 /* SecureIO.h */,
 				27CA136416A2243000A35C2D /* DispatchData.mm */,
 				27CA136516A2243000A35C2D /* DispatchData.h */,
 			);
@@ -332,8 +338,9 @@
 			files = (
 				F6A12CD1145119B700C1D980 /* SRWebSocket.h in Headers */,
 				F6016C7F146124ED0037BB3D /* base64.h in Headers */,
-				27CA136216A21E4D00A35C2D /* DispatchChannel.h in Headers */,
+				27CA136216A21E4D00A35C2D /* DispatchIO.h in Headers */,
 				27CA136716A2243000A35C2D /* DispatchData.h in Headers */,
+				2725F85C16A29D18007018E9 /* SecureIO.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -512,8 +519,9 @@
 				F6A12CD2145119B700C1D980 /* SRWebSocket.mm in Sources */,
 				F6016C7C146124B20037BB3D /* base64.c in Sources */,
 				F6572126146C7B6A00D6B8A9 /* NSData+SRB64Additions.m in Sources */,
-				27CA136116A21E4D00A35C2D /* DispatchChannel.mm in Sources */,
+				27CA136116A21E4D00A35C2D /* DispatchIO.mm in Sources */,
 				27CA136616A2243000A35C2D /* DispatchData.mm in Sources */,
+				2725F85B16A29D18007018E9 /* SecureIO.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
