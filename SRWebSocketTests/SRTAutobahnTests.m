@@ -108,6 +108,7 @@
 
 - (unsigned int)testCaseCount;
 {
+    return 0;
     if (self.invocation) {
         return [super testCaseCount];
     }

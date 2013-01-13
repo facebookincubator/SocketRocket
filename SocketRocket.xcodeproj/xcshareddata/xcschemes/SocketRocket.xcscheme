@@ -89,6 +89,11 @@
                BlueprintName = "SRWebSocketTests"
                ReferencedContainer = "container:SocketRocket.xcodeproj">
             </BuildableReference>
+            <SkippedTests>
+               <Test
+                  Identifier = "SRTAutobahnTests">
+               </Test>
+            </SkippedTests>
          </TestableReference>
       </Testables>
       <MacroExpansion>

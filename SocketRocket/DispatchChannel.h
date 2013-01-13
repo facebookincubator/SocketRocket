@@ -11,8 +11,19 @@
 
 #include <dispatch/dispatch.h>
 
+#include <string>
+
+extern "C" {
+#include <netdb.h>
+}
+
 namespace squareup {
 namespace dispatch {
+    
+    typedef void (^dial_callback)(dispatch_fd_t fd, int error_code, const char *error_message);
+    
+    void Dial(dispatch_queue_t workQueue, const char *hostname, const char *servname, dispatch_queue_t callback_queue, dial_callback callback);
+    
     class Channel {
         virtual void Read(size_t length, dispatch_io_handler_t handler, dispatch_queue_t queue) = 0;
         virtual void Write(size_t length, dispatch_data_t data, dispatch_io_handler_t handler, dispatch_queue_t queue) = 0;
@@ -39,6 +50,8 @@ namespace dispatch {
             _channel = nullptr;
         }
     };
+    
+    
 }
 }
 
