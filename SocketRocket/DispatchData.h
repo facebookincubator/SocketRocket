@@ -9,6 +9,10 @@
 #ifndef __SocketRocket__DispatchData__
 #define __SocketRocket__DispatchData__
 
+extern "C" {
+    #include <string.h>
+}
+
 #include <iostream>
 #include <dispatch/dispatch.h>
 
@@ -24,6 +28,11 @@ namespace dispatch {
             if (retain) {
                 dispatch_retain(_data);
             }
+        }
+        
+        // Will copy the data
+        inline Data(const char *str, dispatch_queue_t release_queue) :
+            _data(dispatch_data_create(reinterpret_cast<const void *>(str), strlen(str), release_queue, DISPATCH_DATA_DESTRUCTOR_DEFAULT)) {
         }
         
         inline Data Concat(dispatch_data_t other) const {

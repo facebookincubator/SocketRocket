@@ -9,7 +9,7 @@
 /* Begin PBXBuildFile section */
 		27CA136116A21E4D00A35C2D /* DispatchChannel.mm in Sources */ = {isa = PBXBuildFile; fileRef = 27CA135F16A21E4D00A35C2D /* DispatchChannel.mm */; };
 		27CA136216A21E4D00A35C2D /* DispatchChannel.h in Headers */ = {isa = PBXBuildFile; fileRef = 27CA136016A21E4D00A35C2D /* DispatchChannel.h */; };
-		27CA136616A2243000A35C2D /* DispatchData.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27CA136416A2243000A35C2D /* DispatchData.cpp */; };
+		27CA136616A2243000A35C2D /* DispatchData.mm in Sources */ = {isa = PBXBuildFile; fileRef = 27CA136416A2243000A35C2D /* DispatchData.mm */; };
 		27CA136716A2243000A35C2D /* DispatchData.h in Headers */ = {isa = PBXBuildFile; fileRef = 27CA136516A2243000A35C2D /* DispatchData.h */; };
 		27CA136A16A23AAE00A35C2D /* STRDispatchTest.mm in Sources */ = {isa = PBXBuildFile; fileRef = 27CA136916A23AAE00A35C2D /* STRDispatchTest.mm */; };
 		F6016C7C146124B20037BB3D /* base64.c in Sources */ = {isa = PBXBuildFile; fileRef = F6016C7B146124B20037BB3D /* base64.c */; };
@@ -67,7 +67,7 @@
 /* Begin PBXFileReference section */
 		27CA135F16A21E4D00A35C2D /* DispatchChannel.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = DispatchChannel.mm; sourceTree = "<group>"; };
 		27CA136016A21E4D00A35C2D /* DispatchChannel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DispatchChannel.h; sourceTree = "<group>"; };
-		27CA136416A2243000A35C2D /* DispatchData.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DispatchData.cpp; sourceTree = "<group>"; };
+		27CA136416A2243000A35C2D /* DispatchData.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = DispatchData.mm; sourceTree = "<group>"; };
 		27CA136516A2243000A35C2D /* DispatchData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DispatchData.h; sourceTree = "<group>"; };
 		27CA136916A23AAE00A35C2D /* STRDispatchTest.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = STRDispatchTest.mm; sourceTree = "<group>"; };
 		F6016C7B146124B20037BB3D /* base64.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = base64.c; sourceTree = "<group>"; };
@@ -277,7 +277,7 @@
 				F6572124146C7B6A00D6B8A9 /* NSData+SRB64Additions.m */,
 				27CA135F16A21E4D00A35C2D /* DispatchChannel.mm */,
 				27CA136016A21E4D00A35C2D /* DispatchChannel.h */,
-				27CA136416A2243000A35C2D /* DispatchData.cpp */,
+				27CA136416A2243000A35C2D /* DispatchData.mm */,
 				27CA136516A2243000A35C2D /* DispatchData.h */,
 			);
 			path = SocketRocket;
@@ -513,7 +513,7 @@
 				F6016C7C146124B20037BB3D /* base64.c in Sources */,
 				F6572126146C7B6A00D6B8A9 /* NSData+SRB64Additions.m in Sources */,
 				27CA136116A21E4D00A35C2D /* DispatchChannel.mm in Sources */,
-				27CA136616A2243000A35C2D /* DispatchData.cpp in Sources */,
+				27CA136616A2243000A35C2D /* DispatchData.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
