@@ -9,8 +9,11 @@ extern "C" {
 #import <SenTestingKit/SenTestingKit.h>
 }
 
+#include <Security/SecureTransport.h>
+
 #include "DispatchIO.h"
 #include "DispatchData.h"
+#include "SecureIO.h"
 
 using namespace squareup::dispatch;
 
@@ -64,6 +67,68 @@ using namespace squareup::dispatch;
             if (done) {
                 raw_io->Close(0);
             }
+        });
+        
+    }, cleanupBlock);
+    
+    [self runCurrentRunLoopUntilTestPasses:[&finished](){
+        return (BOOL)finished;
+    } timeout:100.0];
+}
+
+- (void)testDialTLS;
+{
+    SecureIO *raw_io = nullptr;
+    bool finished = false;
+    
+    auto cleanupBlock = [&finished, raw_io](int error) {
+        dispatch_async(dispatch_get_main_queue(), [raw_io]{
+            delete raw_io;
+        });
+        NSLog(@"FINISHED");
+        finished = true;
+    };
+    
+    SSLContextRef ctx = SSLCreateContext(CFAllocatorGetDefault(), kSSLClientSide, kSSLStreamType);
+    
+    DialTLS("localhost", "10248", ctx, dispatch_get_main_queue(), dispatch_get_main_queue(), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), [&raw_io, self, &finished](squareup::dispatch::SecureIO *io, int error, const char *error_message) {
+        
+        STAssertEquals(error, 0, @"Should not have errored, but got %s", error_message);
+        STAssertTrue(io != nullptr, @"io should be valid");
+        
+        if (!io) {
+            finished = true;
+            return;
+        }
+        
+        raw_io = io;
+        
+        __block bool seenInner = false;
+        __block bool seenOuter = false;
+        
+        raw_io->Write(Data("HELLO THERE!\n", dispatch_get_main_queue()), ^(bool done, dispatch_data_t data, int error) {
+            STAssertEquals(error, 0, @"Error should == 0");
+            STAssertFalse(seenOuter, @"Should only see the outer once");
+            if (done) {
+                seenOuter = true;
+            }
+            if (done && !error) {
+                
+            }
+        });
+        
+        raw_io->Write(Data("HELLO THERE2!\n", dispatch_get_main_queue()), ^(bool done, dispatch_data_t data, int error) {
+            STAssertFalse(seenInner, @"Shouldn't have seen inner yet");
+            if (done) {
+                seenInner = done;
+            }
+            STAssertEquals(error, 0, @"Error should == 0");
+            STAssertFalse(finished, @"Shouldn't have finished");
+            
+            if (done && !error) {
+                raw_io->Close(0);
+            }
+            
         });
         
     }, cleanupBlock);

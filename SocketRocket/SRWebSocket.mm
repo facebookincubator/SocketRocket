@@ -37,15 +37,7 @@ extern "C" {
 #import "base64.h"
 #import "NSData+SRB64Additions.h"
 
-#if OS_OBJECT_USE_OBJC_RETAIN_RELEASE
-#define sr_dispatch_retain(x)
-#define sr_dispatch_release(x)
-#define maybe_bridge(x) ((__bridge void *) x)
-#else
-#define sr_dispatch_retain(x) dispatch_retain(x)
-#define sr_dispatch_release(x) dispatch_release(x)
-#define maybe_bridge(x) (x)
-#endif
+#import "Common.h"
 
 #if !__has_feature(objc_arc) 
 #error SocketRocket muust be compiled with ARC enabled
@@ -348,7 +340,7 @@ static __strong NSData *CRLFCRLF;
     _workQueue = dispatch_queue_create(NULL, DISPATCH_QUEUE_SERIAL);
     
     // Going to set a specific on the queue so we can validate we're on the work queue
-    dispatch_queue_set_specific(_workQueue, (__bridge void *)self, maybe_bridge(_workQueue), NULL);
+    dispatch_queue_set_specific(_workQueue, (__bridge void *)self, sr_maybe_bridge(_workQueue), NULL);
     
     _delegateDispatchQueue = dispatch_get_main_queue();
     sr_dispatch_retain(_delegateDispatchQueue);
@@ -371,7 +363,7 @@ static __strong NSData *CRLFCRLF;
 
 - (void)assertOnWorkQueue;
 {
-    assert(dispatch_get_specific((__bridge void *)self) == maybe_bridge(_workQueue));
+    assert(dispatch_get_specific((__bridge void *)self) == sr_maybe_bridge(_workQueue));
 }
 
 - (void)dealloc

@@ -9,6 +9,7 @@
 #include "DispatchIO.h"
 #include <Block.h>
 #include <string>
+#include "Common.h"
 
 extern "C" {
 #include <sys/types.h>
@@ -21,6 +22,7 @@ extern "C" {
 namespace squareup {
     namespace dispatch {
         
+        IO::~IO() {};
         class Connector;
         
         typedef void(^finish_callback)(Connector *connector, addrinfo *res0, dispatch_fd_t fd, int error_code, const char *error_message);
@@ -32,15 +34,16 @@ namespace squareup {
             dispatch_queue_t _workQueue;
             int _lastError;
             const char *_lastErrorMessage;
-            
+            bool _foundAddr = false;
+
         public:
             // Takes ownership of res0;
             inline Connector(dispatch_queue_t workQueue, struct addrinfo *res0, finish_callback finishCallback) : _res(res0), _res0(res0), _finishCallback([finishCallback copy]), _workQueue(workQueue) {
-                dispatch_retain(_workQueue);
+                sr_dispatch_retain(_workQueue);
             }
             
             virtual ~Connector() {
-                dispatch_release(_workQueue);
+                sr_dispatch_release(_workQueue);
             }
             
             inline void NextIter() {
@@ -53,7 +56,9 @@ namespace squareup {
             inline void DoNext() {
                 // We ran out of addresses
                 if (!_res) {
+                    assert(!_foundAddr);
                     _finishCallback(this, _res0, -1, _lastError, _lastErrorMessage);
+                    _finishCallback = nullptr;
                     return;
                 }
                 
@@ -106,6 +111,9 @@ namespace squareup {
             // if this is the first try we call connect.  otherwise we check the status
             inline void TryConnect(bool firstTry, dispatch_fd_t fd, dispatch_source_t readSource) {
                 // Now, set connection to be non-blocking
+                
+                assert(!_foundAddr);
+                
                 assert(fd != -1);
                 
                 _lastError = 0;
@@ -124,21 +132,30 @@ namespace squareup {
                     if (_lastError != EINPROGRESS) {
                         _lastErrorMessage = strerror(_lastError);
                         dispatch_source_cancel(readSource);
-                        dispatch_release(readSource);
+                        sr_dispatch_release(readSource);
                         readSource = nullptr;
                         NextIter();
                     }
                     return;
                 }
                 
+                _foundAddr = true;
+                
+                // We don't want to close the FD, so make the cancel handler a noop
+                dispatch_suspend(readSource);
+                dispatch_source_set_cancel_handler(readSource, ^{});
+                dispatch_resume(readSource);
+                dispatch_source_cancel(readSource);
+                
+                // Dispose of it without canceling it
+                sr_dispatch_release(readSource);
+                
                 // Successful connections get here.  Then we don't try anymore
                 
                 // If we get this far, we're done
-                dispatch_async(_workQueue, [this, readSource, fd]{
+                dispatch_async(_workQueue, [this, fd]{
                     _finishCallback(this, _res0, fd, 0, nullptr);
-                    
-                    // Dispose of it without canceling it
-                    dispatch_release(readSource);
+                    _finishCallback = nullptr;
                 });
                 
                 return;
@@ -147,7 +164,7 @@ namespace squareup {
         
         void Dial(dispatch_queue_t workQueue, const char *hostname, const char *servname, dispatch_queue_t callback_queue, dial_callback callback) {
             callback = [callback copy];
-            dispatch_retain(callback_queue);
+            sr_dispatch_retain(callback_queue);
             
             // Does cleanup and whatnot
             dispatch_async(workQueue, ^{
@@ -161,8 +178,9 @@ namespace squareup {
                 
                 error = getaddrinfo(hostname, servname, &hints, &res0);
                 
-                auto finish = [callback_queue, callback, workQueue](Connector *connector, addrinfo *res0, dispatch_fd_t fd, int error_code, const char *error_message){
-                    dispatch_async(callback_queue, [=]{
+                auto finish = [callback_queue, callback, res0, workQueue](Connector *connector, addrinfo *res0, dispatch_fd_t fd, int error_code, const char *error_message){
+                    NSLog(@"Pew");
+                    dispatch_async(callback_queue, [fd, callback_queue, workQueue, error_message, callback, res0, connector, error_code]{
                         callback(fd, error_code, error_message);
                         
                         if (res0) {
@@ -173,10 +191,10 @@ namespace squareup {
                             // Delete it after it doesn't reference this block anymore
                             dispatch_async(callback_queue, [workQueue, connector, callback_queue]{
                                 delete connector;
-                                dispatch_release(callback_queue);
+                                sr_dispatch_release(callback_queue);
                             });
                         } else {
-                            dispatch_release(callback_queue);
+                            sr_dispatch_release(callback_queue);
                         }
                     });
                 };
@@ -199,8 +217,10 @@ namespace squareup {
             dispatch_queue_t io_queue = dispatch_queue_create("squareup.dispatch.SimpleDial IO Queue", DISPATCH_QUEUE_SERIAL);
             dispatch_set_target_queue(io_queue, parent_io_queue);
             
-            dispatch_retain(callback_queue);
-            close_handler = [close_handler copy];
+            sr_dispatch_retain(callback_queue);
+            if (close_handler != nullptr) {
+                close_handler = [close_handler copy];
+            }
             
             Dial(callback_queue, hostname, servname, callback_queue, [=](dispatch_fd_t fd, int error_code, const char *error_message) {
                 RawIO *io = nullptr;
@@ -210,15 +230,49 @@ namespace squareup {
                     // The write stream is also appropriate for closing
                     io = new RawIO(fd, callback_queue, callback_queue, io_queue, [fd, close_handler](int error) {
                         close(fd);
-                        close_handler(error);
+                        if (close_handler != nullptr) {
+                            close_handler(error);
+                        }
                     });
                 }
                 
                 dial_callback(io, error_code, error_message);
                 
-                dispatch_release(io_queue);
-                dispatch_release(parent_io_queue);
+                sr_dispatch_release(io_queue);
+                sr_dispatch_release(parent_io_queue);
             });
+        }
+        
+        RawIO::RawIO(dispatch_fd_t fd,
+                     dispatch_queue_t cleanupQueue,
+                     dispatch_queue_t callbackQueue,
+                     dispatch_queue_t ioQueue,
+                     void (^cleanup_handler)(int error)) : _callbackQueue(callbackQueue) {
+            _channel = dispatch_io_create(DISPATCH_IO_STREAM, fd, cleanupQueue, cleanup_handler);
+            dispatch_set_target_queue(_channel, ioQueue);
+            sr_dispatch_retain(_callbackQueue);
+        }
+        
+        // Takes ownership of channel
+        // retain is only for the channel
+        RawIO::RawIO(dispatch_io_t channel, dispatch_queue_t callbackQueue, bool retain) : _channel(channel), _callbackQueue(callbackQueue) {
+            if (retain) {
+                sr_dispatch_retain(_channel);
+            }
+            sr_dispatch_retain(_callbackQueue);
+        };
+        
+        // Clones an existing IO
+        RawIO::RawIO(dispatch_io_t otherIo, dispatch_queue_t queue, dispatch_queue_t callbackQueue, dispatch_queue_t ioQueue, void (^cleanup_handler)(int error)) :
+            RawIO(dispatch_io_create_with_io(DISPATCH_IO_STREAM, otherIo, queue, cleanup_handler), false) {
+            dispatch_set_target_queue(_channel, ioQueue);
+        }
+        
+        RawIO::~RawIO() {
+            sr_dispatch_release(_channel);
+            sr_dispatch_release(_callbackQueue);
+            _channel = nullptr;
+            _callbackQueue = nullptr;
         }
         
         void RawIO::Close(dispatch_io_close_flags_t flags) {
@@ -236,5 +290,14 @@ namespace squareup {
         void RawIO::Barrier(dispatch_block_t barrier) {
             dispatch_io_barrier(_channel, barrier);
         }
+        
+        void RawIO::SetHighWater(size_t high_water) {
+            dispatch_io_set_high_water(_channel, high_water);
+        }
+        
+        void RawIO::SetLowWater(size_t low_water) {
+            dispatch_io_set_low_water(_channel, low_water);
+        }
+        
     }
 }

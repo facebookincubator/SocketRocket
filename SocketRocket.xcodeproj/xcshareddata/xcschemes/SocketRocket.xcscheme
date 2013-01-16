@@ -93,6 +93,12 @@
                <Test
                   Identifier = "SRTAutobahnTests">
                </Test>
+               <Test
+                  Identifier = "STRDispatchTest/testConnect">
+               </Test>
+               <Test
+                  Identifier = "STRDispatchTest/testSimpleDial">
+               </Test>
             </SkippedTests>
          </TestableReference>
       </Testables>
@@ -126,6 +132,11 @@
          <AdditionalOption
             key = "MallocScribble"
             value = ""
+            isEnabled = "YES">
+         </AdditionalOption>
+         <AdditionalOption
+            key = "DYLD_INSERT_LIBRARIES"
+            value = "/usr/lib/libgmalloc.dylib"
             isEnabled = "YES">
          </AdditionalOption>
          <AdditionalOption
