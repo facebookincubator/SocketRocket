@@ -163,15 +163,15 @@ namespace squareup {
                 return;
             }
             
-            bool success = true;
-            bool wroteOnceOrMore = false;
             OSStatus result = 0;
+            
+            size_t totalSize = dispatch_data_get_size(data);
             
             dispatch_data_apply(data, [&](dispatch_data_t region, size_t offset, const void *buffer, size_t size) -> bool {
                 WriteJob newJob;
                 newJob.handler = handler;
                 newJob.rawBytes = size;
-                newJob.isLast = false;
+                newJob.isLast = offset + size == totalSize;
                 newJob.cryptedBytes = 0;
                 
                 _writeJobs.push_back(newJob);
@@ -180,7 +180,6 @@ namespace squareup {
                 // isLast will be set to True for the last one
                 size_t sizeWritten = 0;
                 result = ::SSLWrite(_context, buffer, size, &sizeWritten);
-                wroteOnceOrMore = true;
                 
                 // I think we can make this assumption since we don't block at all in our handler.
                 
@@ -193,11 +192,7 @@ namespace squareup {
                 return true;
             });
             
-            if (wroteOnceOrMore) {
-                _writeJobs.back().isLast = true;
-            }
-            
-            if (!success) {
+            if (result) {
                 Cancel(0, result);
                 return;
             }
@@ -247,13 +242,18 @@ namespace squareup {
         OSStatus SecureIO::SSLWriteHandler(const void *data, size_t *dataLength) {
             size_t requestedLength = *dataLength;
             
+            SSLSessionState state;
+            SSLGetSessionState(_context, &state);
+            
+            NSLog(@"State %d", state);
+            
             if (!_handshakeHandler && !_closing) {
                 assert(_writeJobs.size() > 0);
                 _writeJobs.back().cryptedBytes += requestedLength;
             }
             
-            _io->Write(Data(data, requestedLength, _workQueue), [this](bool done, dispatch_data_t data, int error) {
-                HandleSSLWrite(done, data, error);
+            _io->Write(Data(data, requestedLength, _workQueue), [this, requestedLength](bool done, dispatch_data_t data, int error) {
+                HandleSSLWrite(done, requestedLength, error);
             });
             
             
@@ -329,7 +329,7 @@ namespace squareup {
             
             // TODO: honor watermarks
             dispatch_async(_callbackQueue, [isDone, rawData, handler]{
-                handler(true, rawData, 0);
+                handler(isDone, rawData, 0);
             });
             
             if (status == errSSLClosedGraceful) {
@@ -343,7 +343,7 @@ namespace squareup {
             PumpSSLRead();
         }
         
-        void SecureIO::HandleSSLWrite(bool done, dispatch_data_t data, int error) {
+        void SecureIO::HandleSSLWrite(bool done, size_t requestedLength, int error) {
             if (_handshakeHandler) {
                 CheckHandshake();
                 return;
@@ -368,12 +368,13 @@ namespace squareup {
             if (done) {
                 // if we're an error we want to go to the last one
                 if (error) {
-                    while (!_writeJobs.front().isLast) {
-                        _writeJobs.pop_front();
-                    }
+                    Cancel(0, error);
+                    return;
                 }
                 
                 assert(_writeJobs.size());
+                
+                _writeJobs.front().cryptedBytes -= requestedLength;
                 
                 WriteJob writeJob = _writeJobs.front();
                 
@@ -385,7 +386,9 @@ namespace squareup {
                     });
                 }
                 
-                _writeJobs.pop_front();
+                if (writeJob.cryptedBytes == 0) {
+                    _writeJobs.pop_front();
+                }
             }
         }
         
@@ -418,6 +421,7 @@ namespace squareup {
         
         void SecureIO::Cancel(dispatch_io_close_flags_t flags, int error) {
             _cancelled = true;
+            NSLog(@"Cancelled");
             for (const ReadRequest &req : _readRequests) {
                 dispatch_async(_callbackQueue, [req]{
                     req.handler(true, nullptr, ECANCELED);

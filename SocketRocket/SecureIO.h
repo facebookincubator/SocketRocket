@@ -105,7 +105,7 @@ namespace squareup {
            
            
        private:
-           void HandleSSLWrite(bool done, dispatch_data_t data, int error);
+           void HandleSSLWrite(bool done, size_t requestedLength, int error);
            void HandleSSLRead(bool done, dispatch_data_t data, int error);
            
            void PumpSSLRead();

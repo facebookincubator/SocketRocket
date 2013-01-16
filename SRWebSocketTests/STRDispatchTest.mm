@@ -105,30 +105,40 @@ using namespace squareup::dispatch;
         
         __block bool seenInner = false;
         __block bool seenOuter = false;
+//        
+//        raw_io->Write(Data("HELLO THERE!\n", dispatch_get_main_queue()), ^(bool done, dispatch_data_t data, int error) {
+//            STAssertEquals(error, 0, @"Error should == 0");
+//            STAssertFalse(seenOuter, @"Should only see the outer once");
+//            if (done) {
+//                seenOuter = true;
+//            }
+//            if (done && !error) {
+//                
+//            }
+//        });
+//        
+//        raw_io->Write(Data("HELLO THERE2!\n", dispatch_get_main_queue()), ^(bool done, dispatch_data_t data, int error) {
+//            STAssertFalse(seenInner, @"Shouldn't have seen inner yet");
+//            if (done) {
+//                seenInner = done;
+//            }
+//            STAssertEquals(error, 0, @"Error should == 0");
+//            STAssertFalse(finished, @"Shouldn't have finished");
+//        });
         
-        raw_io->Write(Data("HELLO THERE!\n", dispatch_get_main_queue()), ^(bool done, dispatch_data_t data, int error) {
-            STAssertEquals(error, 0, @"Error should == 0");
-            STAssertFalse(seenOuter, @"Should only see the outer once");
-            if (done) {
-                seenOuter = true;
-            }
-            if (done && !error) {
+        
+        raw_io->Read(INT_MAX, ^(bool done, dispatch_data_t data, int error) {
+            if (!error) {
+                raw_io->Write(data, ^(bool done, dispatch_data_t data, int error) {
+                    
+                });
+            } else {
+                STAssertTrue(error == ECANCELED, @"Server should terminate");
                 
+                if (done && !error) {
+                    raw_io->Close(0);
+                }    
             }
-        });
-        
-        raw_io->Write(Data("HELLO THERE2!\n", dispatch_get_main_queue()), ^(bool done, dispatch_data_t data, int error) {
-            STAssertFalse(seenInner, @"Shouldn't have seen inner yet");
-            if (done) {
-                seenInner = done;
-            }
-            STAssertEquals(error, 0, @"Error should == 0");
-            STAssertFalse(finished, @"Shouldn't have finished");
-            
-            if (done && !error) {
-                raw_io->Close(0);
-            }
-            
         });
         
     }, cleanupBlock);
