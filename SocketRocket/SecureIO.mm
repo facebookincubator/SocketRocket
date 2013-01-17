@@ -129,14 +129,37 @@ namespace squareup {
         }
         
         void SecureIO::PumpSSLRead() {
+            
+            size_t buffSize = SIZE_MAX;
+            
+            // This can happen if we have leftover data and haven't requested more.
+            while (buffSize > 0) {
+                // Make sure we are requesting enough;
+                OSStatus status = SSLGetBufferedReadSize(_context, &buffSize);
+                assert(status == 0);
+                if (buffSize > 0) {
+                    if (_readRequests.size() == 0) {
+                        return;
+                    }
+                    
+                    DoSSLRead();
+                }
+            }
+            
             _calculatingRequestSize = true;
             
+            const size_t maxBufferSize = 32 * 1024;
+            
+            // We don't actually want to read anything into the _sslReadBuffer, howevr there's a bug when we go through 2g of data we have a memory issue
+            
+            _sslReadBuffer.resize(std::max(_sslReadBuffer.capacity(), std::min(_rawBytesRequested, maxBufferSize)));
+            
             size_t dummyProcessed;
-            // Make sure we are requesting enough;
-            OSStatus status = ::SSLRead(_context, nullptr, _rawBytesRequested, &dummyProcessed);
+            
+            assert(buffSize == 0);
+            OSStatus status = ::SSLRead(_context, _sslReadBuffer.data(), _sslReadBuffer.size(), &dummyProcessed);
             assert(dummyProcessed == 0);
             _calculatingRequestSize = false;
-            
             
             if (status == errSSLClosedGraceful) {
                 if (!_closing) {
@@ -264,7 +287,9 @@ namespace squareup {
         }
         
         void SecureIO::HandleSSLRead(bool done, dispatch_data_t data, int error) {
-            assert(_handshakeHandler.Valid() || _readRequests.size() > 0);
+            if (!_handshakeHandler.Valid() && _readRequests.size() == 0) {
+                return;
+            }
 
             if (error != 0) {
                 if (_handshakeHandler.Valid()) {
@@ -287,6 +312,11 @@ namespace squareup {
                 return;
             }
             
+            DoSSLRead();
+            PumpSSLRead();
+        }
+        
+        void SecureIO::DoSSLRead() {
             assert(_readRequests.size() > 0);
             
             ReadRequest *frontRead = &_readRequests.front();
@@ -298,6 +328,10 @@ namespace squareup {
             length = std::min(length, 2 * _waitingCryptedData.Size());
             length = std::min(length, _highWater);
             
+            size_t buffSize = 0;
+            SSLGetBufferedReadSize(_context, &buffSize);
+            length = std::max(buffSize, length);
+            
             size_t sizeRead = 0;
             
             void *buffer = malloc(length);
@@ -305,7 +339,7 @@ namespace squareup {
             
             // TODO: optimize this and not malloc memory each time
             assert(_calculatingRequestSize == false);
-            
+
             assert(_handlingRead == false);
             _handlingRead = true;
             OSStatus status = ::SSLRead(_context, buffer, length, &sizeRead);
@@ -315,9 +349,7 @@ namespace squareup {
                 free(buffer);
                 buffer = nullptr;
                 // TODO: handle error better
-                handler(true, (dispatch_data_t)nullptr, error);
-
-                _readRequests.pop_front();
+                Cancel(0, status);
                 return;
             }
             
@@ -337,8 +369,6 @@ namespace squareup {
             if (isDone) {
                 _readRequests.pop_front();
             }
-            
-            PumpSSLRead();
         }
         
         void SecureIO::HandleSSLWrite(bool done, size_t requestedLength, int error) {
@@ -378,12 +408,12 @@ namespace squareup {
                 
                 // Only call them when we're "done" for now, because we don't want to do bookkeeping of remaining data to consume
                 // TODO: probably change this
-                if (writeJob.isLast) {
-                    writeJob.handler(writeJob.isLast, dispatch_data_empty, error);
-                }
                 
                 if (writeJob.cryptedBytes == 0) {
                     _writeJobs.pop_front();
+                    if (writeJob.isLast) {
+                        writeJob.handler(true, dispatch_data_empty, error);
+                    }
                 }
             }
         }

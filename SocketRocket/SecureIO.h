@@ -13,6 +13,7 @@
 #include "DispatchData.h"
 
 #include <deque>
+#include <vector>
 
 struct SSLContext;
 
@@ -121,6 +122,8 @@ namespace squareup {
            // This is set to true when we send a NULL data ptr.  This is so we can request data we need.
            bool _calculatingRequestSize = false;
            
+           std::vector<uint8_t> _sslReadBuffer;
+           
        public:
            // Takes ownership of IO and delete it when done
            SecureIO(IO *io, SSLContextRef context, dispatch_queue_t workQueue);
@@ -164,6 +167,7 @@ namespace squareup {
            void HandleSSLRead(bool done, dispatch_data_t data, int error);
            
            void PumpSSLRead();
+           void DoSSLRead();
            
        };
    }

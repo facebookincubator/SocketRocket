@@ -59,7 +59,7 @@ using namespace squareup::dispatch;
     
     dispatch_queue_t workQueue = dispatch_queue_create("squareup.dispatch work queue", DISPATCH_QUEUE_SERIAL);
     
-    DialTLS("10.0.1.15", "10248", ctx, dispatch_get_main_queue(), workQueue, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), [self, _cmd](squareup::dispatch::SecureIO *io, int error, const char *error_message) {
+    DialTLS("localhost", "10248", ctx, dispatch_get_main_queue(), workQueue, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), [self, _cmd](squareup::dispatch::SecureIO *io, int error, const char *error_message) {
         
         NSAssert(error == 0, @"Should not have errored, but got %s", error_message);
         NSAssert(io != nullptr, @"io should be valid");
@@ -94,19 +94,22 @@ using namespace squareup::dispatch;
 //        });
 
         
-        _io->Read(INT_MAX, dispatch_get_main_queue(), [self, _cmd](bool done, dispatch_data_t data, int error) {
-            if (!error) {
-                _io->Write(data, dispatch_get_main_queue(), [self](bool done, dispatch_data_t data, int error) {
+        for (int i = 0; i < 4096; i++) {
+
+            _io->Read(1024 * 1024* 13, dispatch_get_main_queue(), [self, _cmd, i](bool readDone, dispatch_data_t data, int error) {
+                if (!error) {
                     
-                });
-            } else {
-                NSAssert(error == ECANCELED, @"Server should terminate");
-                
-                if (done && !error) {
-                    _io->Close(0);
-                }    
-            }
-        });
+                    _io->Write(data, dispatch_get_main_queue(), [self, readDone, i](bool done, dispatch_data_t data, int error) {
+                    });
+                } else {
+                    NSAssert(error == ECANCELED, @"Server should terminate");
+                    
+                    if (readDone && !error) {
+                        _io->Close(0);
+                    }
+                }
+            });
+        }
         
     }, finishBlock);
 
