@@ -62,7 +62,7 @@ using namespace squareup::dispatch;
         }
         raw_io = io;
 
-        io->Write(Data("HELLO THERE!", dispatch_get_main_queue()), [self, &raw_io](bool done, dispatch_data_t data, int error) {
+        io->Write(Data("HELLO THERE!", dispatch_get_main_queue()), dispatch_get_main_queue(), [self, &raw_io](bool done, dispatch_data_t data, int error) {
             STAssertEquals(error, 0, @"Error should == 0");
             if (done) {
                 raw_io->Close(0);
@@ -91,7 +91,7 @@ using namespace squareup::dispatch;
     
     SSLContextRef ctx = SSLCreateContext(CFAllocatorGetDefault(), kSSLClientSide, kSSLStreamType);
     
-    DialTLS("localhost", "10248", ctx, dispatch_get_main_queue(), dispatch_get_main_queue(), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), [&raw_io, self, &finished](squareup::dispatch::SecureIO *io, int error, const char *error_message) {
+    DialTLS("10.0.1.15", "10248", ctx, dispatch_get_main_queue(), dispatch_get_main_queue(), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), [&raw_io, self, &finished](squareup::dispatch::SecureIO *io, int error, const char *error_message) {
         
         STAssertEquals(error, 0, @"Should not have errored, but got %s", error_message);
         STAssertTrue(io != nullptr, @"io should be valid");
@@ -127,9 +127,9 @@ using namespace squareup::dispatch;
 //        });
         
         
-        raw_io->Read(INT_MAX, ^(bool done, dispatch_data_t data, int error) {
+        raw_io->Read(SIZE_MAX, dispatch_get_main_queue(), ^(bool done, dispatch_data_t data, int error) {
             if (!error) {
-                raw_io->Write(data, ^(bool done, dispatch_data_t data, int error) {
+                raw_io->Write(data, dispatch_get_main_queue(), ^(bool done, dispatch_data_t data, int error) {
                     
                 });
             } else {

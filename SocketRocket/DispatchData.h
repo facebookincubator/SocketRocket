@@ -98,6 +98,24 @@ namespace dispatch {
             return dispatch_data_get_size(static_cast<dispatch_data_t>(*this));
         }
         
+        // This is a workaround since the memory gets quite fragmented if you use it as a stream
+        inline void FlattenIfNecessary() {
+            if (NumRegions() > 100) {
+                size_t size;
+                const void * buffer;
+                (*this) = Data(Map(&buffer, &size));
+            }
+        }
+        
+        inline size_t NumRegions() {
+            size_t ret = 0;
+            Apply([&ret](dispatch_data_t region, size_t offset, const void *buffer, size_t size) -> bool {
+                ret += 1;
+                return true;
+            });
+            return ret;
+        }
+        
         inline operator dispatch_data_t() const {
             return _data;
         }

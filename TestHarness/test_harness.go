@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"crypto/rand"
 	"crypto/tls"
-	"encoding/base64"
 	"io"
+	"io/ioutil"
 	"log"
 	"net"
 )
@@ -19,41 +19,74 @@ func main() {
 		Certificates: []tls.Certificate{keyPair},
 	}
 
-	listener, err := tls.Listen("tcp", "localhost:10248", cfg)
+	listener, err := tls.Listen("tcp", ":10248", cfg)
 	if err != nil {
 		panic(err)
 	}
 
 	for conn, err := listener.Accept(); err == nil; conn, err = listener.Accept() {
 		go func(conn net.Conn) {
+			defer func() {
+				if err := recover(); err != nil {
+					log.Println("Something failed:", err)
+				}
+			}()
 
-			writtenBytes := bytes.NewBuffer(make([]byte, 0, 81920))
-			encoder := base64.NewEncoder(base64.StdEncoding, writtenBytes)
-			io.CopyN(encoder, rand.Reader, 2000000)
+			ch := make(chan bool, 1)
+			maxPending := make(chan bool, 2)
 
-			reader := bytes.NewReader(writtenBytes.Bytes())
+			chunkSize := int64(1024 * 1024)
+			buff2 := bytes.NewBuffer(make([]byte, 0, chunkSize))
 
-			_, err := io.Copy(conn, reader)
+			randBytes := make([]byte, chunkSize)
+			_, err := rand.Read(randBytes)
 			if err != nil {
 				panic(err)
 			}
+			randReader := bytes.NewReader(randBytes)
 
+			ch <- true
+			go func() {
+				defer func() {
+					if err := recover(); err != nil {
+						log.Println("Something failed:", err)
+					}
+				}()
 
-			buff2 := bytes.NewBuffer(make([]byte, 0, writtenBytes.Len()))
+				defer func() {
+					<-ch
+				}()
 
-			num, err := io.CopyN(buff2, conn, int64(writtenBytes.Len()))
-			if err != nil {
-				panic(err)
+				for i := 0; ; i++ {
+
+					defer func() {
+						if err := recover(); err != nil {
+							log.Println("Something failed:", err)
+						}
+					}()
+					_, err := io.CopyN(ioutil.Discard, conn, chunkSize)
+					if err != nil {
+						panic(err)
+					}
+					<-maxPending
+
+					log.Println("Chunk read back (", i, ")")
+				}
+
+				buff2.Reset()
+			}()
+
+			for {
+				maxPending <- true
+				randReader.Seek(0, 0)
+				_, err := io.CopyN(conn, randReader, chunkSize)
+				if err != nil {
+					panic(err)
+				}
+
 			}
-
-
-			if bytes.Compare(writtenBytes.Bytes(), buff2.Bytes()) == 0 {
-				log.Println("Success!", num)
-			} else {
-				log.Println("Fail :(!\n\n", writtenBytes.Len(), buff2.Len(), string(writtenBytes.Bytes()), "\n", string(buff2.Bytes()))
-			}
-
-		//	conn.Close()
+			ch <- true
+			conn.Close()
 		}(conn)
 	}
 	if err != nil {

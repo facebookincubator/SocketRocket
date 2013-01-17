@@ -16,12 +16,12 @@ extern "C" {
 #if OS_OBJECT_USE_OBJC_RETAIN_RELEASE
 #define sr_dispatch_retain(x)
 #define sr_dispatch_release(x)
-#define sr_maybe_bridge(x) ((__bridge void *) x)
+#define __sr_maybe_bridge__ __bridge
 #define __sr_maybe_strong__ __strong
 #else
 #define sr_dispatch_retain(x) dispatch_retain(x)
 #define sr_dispatch_release(x) dispatch_release(x)
-#define sr_maybe_bridge(x) (x)
+#define __sr_maybe_bridge__
 #define __sr_maybe_strong__
 #endif
     

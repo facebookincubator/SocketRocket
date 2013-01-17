@@ -340,7 +340,7 @@ static __strong NSData *CRLFCRLF;
     _workQueue = dispatch_queue_create(NULL, DISPATCH_QUEUE_SERIAL);
     
     // Going to set a specific on the queue so we can validate we're on the work queue
-    dispatch_queue_set_specific(_workQueue, (__bridge void *)self, sr_maybe_bridge(_workQueue), NULL);
+    dispatch_queue_set_specific(_workQueue, (__bridge void *)self, (__sr_maybe_bridge__ void *)(_workQueue), NULL);
     
     _delegateDispatchQueue = dispatch_get_main_queue();
     sr_dispatch_retain(_delegateDispatchQueue);
@@ -363,7 +363,7 @@ static __strong NSData *CRLFCRLF;
 
 - (void)assertOnWorkQueue;
 {
-    assert(dispatch_get_specific((__bridge void *)self) == sr_maybe_bridge(_workQueue));
+    assert(dispatch_get_specific((__bridge void *)self) == (__sr_maybe_bridge__ void*)(_workQueue));
 }
 
 - (void)dealloc

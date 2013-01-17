@@ -27,7 +27,7 @@
 		F62417E914D52F3C003CE997 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F62417E814D52F3C003CE997 /* CoreGraphics.framework */; };
 		F62417EF14D52F3C003CE997 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = F62417ED14D52F3C003CE997 /* InfoPlist.strings */; };
 		F62417F114D52F3C003CE997 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = F62417F014D52F3C003CE997 /* main.m */; };
-		F62417F514D52F3C003CE997 /* TCAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = F62417F414D52F3C003CE997 /* TCAppDelegate.m */; };
+		F62417F514D52F3C003CE997 /* TCAppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = F62417F414D52F3C003CE997 /* TCAppDelegate.mm */; };
 		F62417F814D52F3C003CE997 /* MainStoryboard.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F62417F614D52F3C003CE997 /* MainStoryboard.storyboard */; };
 		F62417FB14D52F3C003CE997 /* TCViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F62417FA14D52F3C003CE997 /* TCViewController.m */; };
 		F624180114D5300C003CE997 /* TCChatCell.m in Sources */ = {isa = PBXBuildFile; fileRef = F624180014D5300C003CE997 /* TCChatCell.m */; };
@@ -89,7 +89,7 @@
 		F62417F014D52F3C003CE997 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		F62417F214D52F3C003CE997 /* TestChat-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "TestChat-Prefix.pch"; sourceTree = "<group>"; };
 		F62417F314D52F3C003CE997 /* TCAppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TCAppDelegate.h; sourceTree = "<group>"; };
-		F62417F414D52F3C003CE997 /* TCAppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TCAppDelegate.m; sourceTree = "<group>"; };
+		F62417F414D52F3C003CE997 /* TCAppDelegate.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = TCAppDelegate.mm; sourceTree = "<group>"; };
 		F62417F714D52F3C003CE997 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = en; path = en.lproj/MainStoryboard.storyboard; sourceTree = "<group>"; };
 		F62417F914D52F3C003CE997 /* TCViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TCViewController.h; sourceTree = "<group>"; };
 		F62417FA14D52F3C003CE997 /* TCViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TCViewController.m; sourceTree = "<group>"; };
@@ -180,7 +180,7 @@
 			children = (
 				F62417EB14D52F3C003CE997 /* Supporting Files */,
 				F62417F314D52F3C003CE997 /* TCAppDelegate.h */,
-				F62417F414D52F3C003CE997 /* TCAppDelegate.m */,
+				F62417F414D52F3C003CE997 /* TCAppDelegate.mm */,
 				F62417F614D52F3C003CE997 /* MainStoryboard.storyboard */,
 				F62417F914D52F3C003CE997 /* TCViewController.h */,
 				F62417FA14D52F3C003CE997 /* TCViewController.m */,
@@ -500,7 +500,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F62417F114D52F3C003CE997 /* main.m in Sources */,
-				F62417F514D52F3C003CE997 /* TCAppDelegate.m in Sources */,
+				F62417F514D52F3C003CE997 /* TCAppDelegate.mm in Sources */,
 				F62417FB14D52F3C003CE997 /* TCViewController.m in Sources */,
 				F624180114D5300C003CE997 /* TCChatCell.m in Sources */,
 			);
@@ -589,7 +589,6 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "TestChat/TestChat-Prefix.pch";
 				INFOPLIST_FILE = "TestChat/TestChat-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -608,7 +607,6 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "TestChat/TestChat-Prefix.pch";
 				INFOPLIST_FILE = "TestChat/TestChat-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
 				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -690,7 +688,7 @@
 				GCC_WARN_SIGN_COMPARE = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 5.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				RUN_CLANG_STATIC_ANALYZER = YES;
 				SDKROOT = iphoneos6.0;
 			};
@@ -716,7 +714,7 @@
 				GCC_WARN_SIGN_COMPARE = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 5.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				RUN_CLANG_STATIC_ANALYZER = YES;
 				SDKROOT = iphoneos6.0;
 				VALIDATE_PRODUCT = YES;
@@ -770,7 +768,6 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "SRWebSocketTests/SRWebSocketTests-Prefix.pch";
 				INFOPLIST_FILE = "SRWebSocketTests/SRWebSocketTests-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 5.1;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(DEVELOPER_DIR)/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator5.0.sdk/usr/lib/system\"",
@@ -796,7 +793,6 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "SRWebSocketTests/SRWebSocketTests-Prefix.pch";
 				INFOPLIST_FILE = "SRWebSocketTests/SRWebSocketTests-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 5.1;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(DEVELOPER_DIR)/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator5.0.sdk/usr/lib/system\"",

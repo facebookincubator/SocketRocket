@@ -247,19 +247,17 @@ namespace squareup {
                      dispatch_queue_t cleanupQueue,
                      dispatch_queue_t callbackQueue,
                      dispatch_queue_t ioQueue,
-                     void (^cleanup_handler)(int error)) : _callbackQueue(callbackQueue) {
+                     void (^cleanup_handler)(int error)) {
             _channel = dispatch_io_create(DISPATCH_IO_STREAM, fd, cleanupQueue, cleanup_handler);
             dispatch_set_target_queue(_channel, ioQueue);
-            sr_dispatch_retain(_callbackQueue);
         }
         
         // Takes ownership of channel
         // retain is only for the channel
-        RawIO::RawIO(dispatch_io_t channel, dispatch_queue_t callbackQueue, bool retain) : _channel(channel), _callbackQueue(callbackQueue) {
+        RawIO::RawIO(dispatch_io_t channel, dispatch_queue_t callbackQueue, bool retain) : _channel(channel) {
             if (retain) {
                 sr_dispatch_retain(_channel);
             }
-            sr_dispatch_retain(_callbackQueue);
         };
         
         // Clones an existing IO
@@ -270,21 +268,19 @@ namespace squareup {
         
         RawIO::~RawIO() {
             sr_dispatch_release(_channel);
-            sr_dispatch_release(_callbackQueue);
             _channel = nullptr;
-            _callbackQueue = nullptr;
         }
         
         void RawIO::Close(dispatch_io_close_flags_t flags) {
             dispatch_io_close(_channel, flags);
         }
         
-        void RawIO::Read(size_t length, dispatch_io_handler_t handler) {
-            dispatch_io_read(_channel, 0, length, _callbackQueue, handler);
+        void RawIO::Read(size_t length, dispatch_queue_t queue, dispatch_io_handler_t handler) {
+            dispatch_io_read(_channel, 0, length, queue, handler);
         }
         
-        void RawIO::Write(dispatch_data_t data, dispatch_io_handler_t handler)  {
-            dispatch_io_write(_channel, 0, data, _callbackQueue, handler);
+        void RawIO::Write(dispatch_data_t data, dispatch_queue_t queue, dispatch_io_handler_t handler)  {
+            dispatch_io_write(_channel, 0, data, queue, handler);
         }
         
         void RawIO::Barrier(dispatch_block_t barrier) {
@@ -298,6 +294,5 @@ namespace squareup {
         void RawIO::SetLowWater(size_t low_water) {
             dispatch_io_set_low_water(_channel, low_water);
         }
-        
     }
 }

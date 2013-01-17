@@ -11,6 +11,8 @@
 #include "SecureIO.h"
 #include "DispatchData.h"
 
+#define ALLOW_INSECURE_SSL 1
+
 namespace squareup {
     namespace dispatch {
         static OSStatus readFunc(SSLConnectionRef connection, void *data, size_t *dataLength);
@@ -42,11 +44,11 @@ namespace squareup {
                     return;
                 }
                 
-                SecureIO *newIO = new SecureIO(io, ssl_context, work_queue, callback_queue);
+                SecureIO *newIO = new SecureIO(io, ssl_context, work_queue);
                 
                 sr_dispatch_release(callback_queue);
                 
-                newIO->Handshake([newIO, dial_callback](bool done, dispatch_data_t data, int error) {
+                newIO->Handshake(callback_queue, [newIO, dial_callback](bool done, dispatch_data_t data, int error) {
                     SecureIO *io = newIO;
                     if (error) {
                         delete io;
@@ -61,32 +63,30 @@ namespace squareup {
         }
         
         
-        SecureIO::SecureIO(IO *io, SSLContextRef context, dispatch_queue_t workQueue, dispatch_queue_t callbackQueue) :
-        _io(io), _context(context), _workQueue(workQueue), _callbackQueue(callbackQueue) {
+        SecureIO::SecureIO(IO *io, SSLContextRef context, dispatch_queue_t workQueue) :
+        _io(io), _context(context), _workQueue(workQueue) {
             sr_dispatch_retain(_workQueue);
-            sr_dispatch_retain(_callbackQueue);
             CFRetain(_context);
             
             SSLSetConnection(_context, reinterpret_cast<const void *>(this));
             SSLSetIOFuncs(_context, readFunc, writeFunc);
             
             // TODO: delegate certificate authentication
-            #if DEBUG
+            #if ALLOW_INSECURE_SSL
             SSLSetSessionOption(_context, kSSLSessionOptionBreakOnServerAuth, true);
             #endif
         }
         
         SecureIO::~SecureIO() {
             sr_dispatch_release(_workQueue);
-            sr_dispatch_release(_callbackQueue);
             CFRelease(_context);
             
             // make sure things closed before we delete the io
             assert(!_io);
         }
         
-        void SecureIO::Handshake(dispatch_io_handler_t handler) {
-            _handshakeHandler = [handler copy];
+        void SecureIO::Handshake(dispatch_queue_t queue, dispatch_io_handler_t handler) {
+            _handshakeHandler = DispatchHandler(queue, handler);
             dispatch_async(_workQueue, [this]{
                 CheckHandshake();
             });
@@ -107,19 +107,19 @@ namespace squareup {
             });
         }
         
-        void SecureIO::Read(size_t length, dispatch_io_handler_t handler) {
-            handler = [handler copy];
-            dispatch_async(_workQueue, [length, handler, this]{
+        void SecureIO::Read(size_t length, dispatch_queue_t queue, dispatch_io_handler_t handler) {
+            DispatchHandler dispatchHandler(queue, [handler copy]);
+            
+            dispatch_async(_workQueue, [length, dispatchHandler, this]{
                 if (_cancelled) {
-                    dispatch_async(_callbackQueue, [handler]{
-                        handler(true, nullptr, ECANCELED);
-                    });
+                    dispatchHandler(true, (dispatch_data_t)nullptr, ECANCELED);
                     return;
                 }
                 
                 ReadRequest readRequest;
-                readRequest.handler = handler;
-                readRequest.rawBytesRemaining = length;
+                readRequest.handler = dispatchHandler;
+                readRequest.rawBytesRemaining += length;
+
                 
                 _readRequests.push_back(readRequest);
                 // TODO: run on queue
@@ -134,32 +134,39 @@ namespace squareup {
             size_t dummyProcessed;
             // Make sure we are requesting enough;
             OSStatus status = ::SSLRead(_context, nullptr, _rawBytesRequested, &dummyProcessed);
+            assert(dummyProcessed == 0);
+            _calculatingRequestSize = false;
+            
+            
+            if (status == errSSLClosedGraceful) {
+                if (!_closing) {
+                    _closing = true;
+                    Cancel(0, 0);
+                    return;
+                }
+            }
+            
             assert(status == errSSLWouldBlock);
             
-            _calculatingRequestSize = false;
         }
         
-        void SecureIO::Write(dispatch_data_t data, dispatch_io_handler_t handler) {
-
+        void SecureIO::Write(dispatch_data_t data, dispatch_queue_t queue, dispatch_io_handler_t handler) {
             sr_dispatch_retain(data);
-            handler = [handler copy];
+            DispatchHandler dispatchHandler(queue, handler);
 
             Data(data).Apply(^bool(dispatch_data_t region, size_t offset, const void *buffer, size_t size) {
                 return true;
             });
 
-            
-            dispatch_async(_workQueue, [data, handler, this]{
-                InnerWrite(data, handler);
+            dispatch_async(_workQueue, [data, dispatchHandler, this]{
+                InnerWrite(data, dispatchHandler);
                 sr_dispatch_release(data);
             });
         }
         
-        void SecureIO::InnerWrite(dispatch_data_t data, dispatch_io_handler_t handler) {
+        void SecureIO::InnerWrite(dispatch_data_t data, const DispatchHandler &handler) {
             if (_cancelled) {
-                dispatch_async(_callbackQueue, [handler]{
-                    handler(true, nullptr, ECANCELED);
-                });
+                handler(true, (dispatch_data_t)nullptr, ECANCELED);
                 return;
             }
             
@@ -205,7 +212,7 @@ namespace squareup {
                 
                 _cryptedBytesRequested += requestSize;
                 
-                _io->Read(requestSize, [this](bool done, dispatch_data_t data, int error) {
+                _io->Read(requestSize, _workQueue, [this](bool done, dispatch_data_t data, int error) {
                     HandleSSLRead(done, data, error);
                 });
             }
@@ -229,6 +236,8 @@ namespace squareup {
             if (bytesToCopy > 0) {
                 // Advance it forward
                 _waitingCryptedData = _waitingCryptedData.TakeInto(bytesToCopy, data);
+                
+                _waitingCryptedData.FlattenIfNecessary();
             }
             
             if (bytesToCopy < bytesRequested) {
@@ -242,41 +251,29 @@ namespace squareup {
         OSStatus SecureIO::SSLWriteHandler(const void *data, size_t *dataLength) {
             size_t requestedLength = *dataLength;
             
-            SSLSessionState state;
-            SSLGetSessionState(_context, &state);
-            
-            NSLog(@"State %d", state);
-            
-            if (!_handshakeHandler && !_closing) {
+            if (!_handshakeHandler.Valid() && !_closing && !_handlingRead) {
                 assert(_writeJobs.size() > 0);
                 _writeJobs.back().cryptedBytes += requestedLength;
             }
             
-            _io->Write(Data(data, requestedLength, _workQueue), [this, requestedLength](bool done, dispatch_data_t data, int error) {
+            _io->Write(Data(data, requestedLength, _workQueue), _workQueue, [this, requestedLength](bool done, dispatch_data_t data, int error) {
                 HandleSSLWrite(done, requestedLength, error);
             });
-            
             
             return 0;
         }
         
         void SecureIO::HandleSSLRead(bool done, dispatch_data_t data, int error) {
-            assert(_handshakeHandler || _readRequests.size() > 0);
-//            
-//            if (error == ECANCELED) {
-//                Cancel();
-//                return;
-//            }
-            
+            assert(_handshakeHandler.Valid() || _readRequests.size() > 0);
+
             if (error != 0) {
-                dispatch_io_handler_t handler = nullptr;
-                if (_handshakeHandler) {
-                    handler = _handshakeHandler;
+                if (_handshakeHandler.Valid()) {
+                    _handshakeHandler(done, (dispatch_data_t)nullptr, error);
+                    _handshakeHandler.Invalidate();
                 } else {
                     assert(_readRequests.size() > 0);
-                    handler = _readRequests.front().handler;
+                    Cancel(0, error);
                 }
-                handler(done, nullptr, error);
                 return;
             }
             
@@ -285,17 +282,17 @@ namespace squareup {
             _cryptedBytesRequested -= d.Size();
             _waitingCryptedData += d;
             
-            if (_handshakeHandler) {
+            if (_handshakeHandler.Valid()) {
                 CheckHandshake();
                 return;
             }
             
             assert(_readRequests.size() > 0);
             
-            ReadRequest &frontRead = _readRequests.front();
-            dispatch_io_handler_t handler = frontRead.handler;
+            ReadRequest *frontRead = &_readRequests.front();
+            const DispatchHandler &handler = frontRead->handler;
             
-            size_t length = frontRead.rawBytesRemaining;
+            size_t length = frontRead->rawBytesRemaining;
             
             // Let's cap length at 2x the bytes we have available.  probably won't use all of it (it will probably be less than 1x)
             length = std::min(length, 2 * _waitingCryptedData.Size());
@@ -309,28 +306,29 @@ namespace squareup {
             // TODO: optimize this and not malloc memory each time
             assert(_calculatingRequestSize == false);
             
+            assert(_handlingRead == false);
+            _handlingRead = true;
             OSStatus status = ::SSLRead(_context, buffer, length, &sizeRead);
+            _handlingRead = false;
+            
             if (status != 0 && status != errSSLWouldBlock && status != errSSLClosedGraceful) {
                 free(buffer);
                 buffer = nullptr;
                 // TODO: handle error better
-                dispatch_async(_callbackQueue, [handler, error]{
-                    handler(true, nullptr, error);
-                });
+                handler(true, (dispatch_data_t)nullptr, error);
+
                 _readRequests.pop_front();
                 return;
             }
             
             Data rawData(dispatch_data_create(buffer, sizeRead, _workQueue, DISPATCH_DATA_DESTRUCTOR_FREE), false);
             
-            frontRead.rawBytesRemaining -= sizeRead;
+            frontRead->rawBytesRemaining -= sizeRead;
             
-            bool isDone = (frontRead.rawBytesRemaining == 0);
+            bool isDone = (frontRead->rawBytesRemaining == 0);
             
             // TODO: honor watermarks
-            dispatch_async(_callbackQueue, [isDone, rawData, handler]{
-                handler(isDone, rawData, 0);
-            });
+            handler(isDone, rawData, 0);
             
             if (status == errSSLClosedGraceful) {
                 // TODO: handle close
@@ -344,7 +342,7 @@ namespace squareup {
         }
         
         void SecureIO::HandleSSLWrite(bool done, size_t requestedLength, int error) {
-            if (_handshakeHandler) {
+            if (_handshakeHandler.Valid()) {
                 CheckHandshake();
                 return;
             }
@@ -381,9 +379,7 @@ namespace squareup {
                 // Only call them when we're "done" for now, because we don't want to do bookkeeping of remaining data to consume
                 // TODO: probably change this
                 if (writeJob.isLast) {
-                    dispatch_async(_callbackQueue, [writeJob, error]{
-                        writeJob.handler(writeJob.isLast, dispatch_data_empty, error);
-                    });
+                    writeJob.handler(writeJob.isLast, dispatch_data_empty, error);
                 }
                 
                 if (writeJob.cryptedBytes == 0) {
@@ -394,14 +390,14 @@ namespace squareup {
         
         
         void SecureIO::CheckHandshake() {
-            assert(_handshakeHandler);
+            assert(_handshakeHandler.Valid());
             OSStatus status = ::SSLHandshake(_context);
             // If it would block we got nothing to do
             if (status == errSSLWouldBlock) {
                 return;
             }
             
-            #if DEBUG
+            #if ALLOW_INSECURE_SSL
             
             // TODO: make this better
             if (status == errSSLPeerAuthCompleted) {
@@ -411,27 +407,19 @@ namespace squareup {
             
             #endif
             
-            dispatch_io_handler_t handler = _handshakeHandler;
-            _handshakeHandler = nullptr;
-            
-            dispatch_async(_callbackQueue, [handler, status]{
-                handler(true, dispatch_data_empty, status);
-            });
+            _handshakeHandler(true, (dispatch_data_t)nullptr, status);
+            _handshakeHandler.Invalidate();
         }
         
         void SecureIO::Cancel(dispatch_io_close_flags_t flags, int error) {
             _cancelled = true;
-            NSLog(@"Cancelled");
+
             for (const ReadRequest &req : _readRequests) {
-                dispatch_async(_callbackQueue, [req]{
-                    req.handler(true, nullptr, ECANCELED);
-                });
+                req.handler(true, (dispatch_data_t)nullptr, ECANCELED);
             }
             
             for (const WriteJob &job : _writeJobs) {
-                dispatch_async(_callbackQueue, [job]{
-                    job.handler(true, nullptr, ECANCELED);
-                });
+                job.handler(true, (dispatch_data_t)nullptr, ECANCELED);
             }
             
             _readRequests.clear();

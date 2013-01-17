@@ -37,8 +37,8 @@ namespace squareup {
         class IO {
         public:
             virtual void Close(dispatch_io_close_flags_t flags) = 0;
-            virtual void Read(size_t length, dispatch_io_handler_t handler) = 0;
-            virtual void Write(dispatch_data_t data, dispatch_io_handler_t handler) = 0;
+            virtual void Read(size_t length, dispatch_queue_t queue, dispatch_io_handler_t handler) = 0;
+            virtual void Write(dispatch_data_t data, dispatch_queue_t queue, dispatch_io_handler_t handler) = 0;
             virtual void Barrier(dispatch_block_t barrier) = 0;
             
             
@@ -50,12 +50,11 @@ namespace squareup {
         
         class RawIO : public IO {
             dispatch_io_t _channel;
-            dispatch_queue_t _callbackQueue;
         public:
             
             void Close(dispatch_io_close_flags_t flags);
-            void Read(size_t length, dispatch_io_handler_t handler);
-            void Write(dispatch_data_t data, dispatch_io_handler_t handler);
+            void Read(size_t length, dispatch_queue_t queue, dispatch_io_handler_t handler);
+            void Write(dispatch_data_t data, dispatch_queue_t queue, dispatch_io_handler_t handler);
             void Barrier(dispatch_block_t barrier);
             
             void SetHighWater(size_t high_water);
