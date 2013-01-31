@@ -16,7 +16,7 @@
 
 #import <SenTestingKit/SenTestingKit.h>
 #import <SenTestingKit/SenTestRun.h>
-#import "SRWebSocket.h"
+#import <SocketRocket/SRWebSocket.h>
 #import "SRTWebSocketOperation.h"
 #import "SenTestCase+SRTAdditions.h"
 
