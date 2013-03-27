@@ -79,6 +79,7 @@ more rhudimentary and less robust.
 2. Add ``SocketRocket.framework`` to the link libraries
 3. If you don't have a "copy files" step for ``Framework``, create one
 4. Add ``SocketRocket.framework`` to the "copy files" step.
+5. Add ``@loader_path/../Frameworks`` to the "Runpath Search Paths" setting of your app target
 
 API
 ---
