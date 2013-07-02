@@ -33,6 +33,7 @@
 
 #import <CommonCrypto/CommonDigest.h>
 #import <Security/SecRandom.h>
+#import <zlib.h>
 
 #import "base64.h"
 #import "NSData+SRB64Additions.h"
@@ -77,7 +78,7 @@ typedef enum {
 
 typedef struct {
     BOOL fin;
-//  BOOL rsv1;
+    BOOL inflated;
 //  BOOL rsv2;
 //  BOOL rsv3;
     uint8_t opcode;
@@ -172,12 +173,14 @@ typedef void (^data_callback)(SRWebSocket *webSocket,  NSData *data);
     size_t _bytesNeeded;
     BOOL _readToCurrentFrame;
     BOOL _unmaskBytes;
+    BOOL _inflateBytes;
 }
 @property (nonatomic, copy, readonly) stream_scanner consumer;
 @property (nonatomic, copy, readonly) data_callback handler;
 @property (nonatomic, assign) size_t bytesNeeded;
 @property (nonatomic, assign, readonly) BOOL readToCurrentFrame;
 @property (nonatomic, assign, readonly) BOOL unmaskBytes;
+@property (nonatomic, assign, readonly) BOOL inflateBytes;
 
 @end
 
@@ -186,7 +189,7 @@ typedef void (^data_callback)(SRWebSocket *webSocket,  NSData *data);
 
 - (id)initWithBufferCapacity:(NSUInteger)poolSize;
 
-- (SRIOConsumer *)consumerWithScanner:(stream_scanner)scanner handler:(data_callback)handler bytesNeeded:(size_t)bytesNeeded readToCurrentFrame:(BOOL)readToCurrentFrame unmaskBytes:(BOOL)unmaskBytes;
+- (SRIOConsumer *)consumerWithScanner:(stream_scanner)scanner handler:(data_callback)handler bytesNeeded:(size_t)bytesNeeded readToCurrentFrame:(BOOL)readToCurrentFrame unmaskBytes:(BOOL)unmaskBytes inflateBytes:(BOOL)inflateBytes;
 - (void)returnConsumer:(SRIOConsumer *)consumer;
 
 @end
@@ -207,7 +210,7 @@ typedef void (^data_callback)(SRWebSocket *webSocket,  NSData *data);
 - (void)_pumpWriting;
 
 - (void)_addConsumerWithScanner:(stream_scanner)consumer callback:(data_callback)callback;
-- (void)_addConsumerWithDataLength:(size_t)dataLength callback:(data_callback)callback readToCurrentFrame:(BOOL)readToCurrentFrame unmaskBytes:(BOOL)unmaskBytes;
+- (void)_addConsumerWithDataLength:(size_t)dataLength callback:(data_callback)callback readToCurrentFrame:(BOOL)readToCurrentFrame unmaskBytes:(BOOL)unmaskBytes inflateBytes:(BOOL)inflateBytes;
 - (void)_addConsumerWithScanner:(stream_scanner)consumer callback:(data_callback)callback dataLength:(size_t)dataLength;
 - (void)_readUntilBytes:(const void *)bytes length:(size_t)length callback:(data_callback)dataHandler;
 - (void)_readUntilHeaderCompleteWithCallback:(data_callback)dataHandler;
@@ -267,6 +270,8 @@ typedef void (^data_callback)(SRWebSocket *webSocket,  NSData *data);
     BOOL _failed;
 
     BOOL _secure;
+    BOOL _deflate;
+    z_stream _inflator;
     NSURLRequest *_urlRequest;
 
     CFHTTPMessageRef _receivedHTTPHeaders;
@@ -339,6 +344,8 @@ static __strong NSData *CRLFCRLF;
     if ([scheme isEqualToString:@"wss"] || [scheme isEqualToString:@"https"]) {
         _secure = YES;
     }
+
+    _deflate = YES;
     
     _readyState = SR_CONNECTING;
     _consumerStopped = YES;
@@ -383,6 +390,8 @@ static __strong NSData *CRLFCRLF;
     
     sr_dispatch_release(_workQueue);
     _workQueue = NULL;
+
+    inflateEnd(&_inflator);
     
     if (_receivedHTTPHeaders) {
         CFRelease(_receivedHTTPHeaders);
@@ -470,6 +479,19 @@ static __strong NSData *CRLFCRLF;
         [self _failWithError:[NSError errorWithDomain:SRWebSocketErrorDomain code:2133 userInfo:[NSDictionary dictionaryWithObject:[NSString stringWithFormat:@"Invalid Sec-WebSocket-Accept response"] forKey:NSLocalizedDescriptionKey]]];
         return;
     }
+
+    NSString *negotiatedExtensions = CFBridgingRelease(CFHTTPMessageCopyHeaderFieldValue(_receivedHTTPHeaders, CFSTR("Sec-WebSocket-Extensions")));
+    if (negotiatedExtensions) {
+        // Make sure we requested deflate
+        if (!_deflate || ![negotiatedExtensions isEqualToString:@"x-webkit-deflate-frame"]) {
+            [self _failWithError:[NSError errorWithDomain:SRWebSocketErrorDomain code:2133 userInfo:[NSDictionary dictionaryWithObject:[NSString stringWithFormat:@"Server specified Sec-WebSocket-Extensions that wasn't requested"] forKey:NSLocalizedDescriptionKey]]];
+            return;
+        }
+
+        inflateInit2(&_inflator, -15);
+    } else {
+        _deflate = NO;
+    }
     
     NSString *negotiatedProtocol = CFBridgingRelease(CFHTTPMessageCopyHeaderFieldValue(_receivedHTTPHeaders, CFSTR("Sec-WebSocket-Protocol")));
     if (negotiatedProtocol) {
@@ -531,6 +553,9 @@ static __strong NSData *CRLFCRLF;
     CFHTTPMessageSetHeaderFieldValue(request, CFSTR("Connection"), CFSTR("Upgrade"));
     CFHTTPMessageSetHeaderFieldValue(request, CFSTR("Sec-WebSocket-Key"), (__bridge CFStringRef)_secKey);
     CFHTTPMessageSetHeaderFieldValue(request, CFSTR("Sec-WebSocket-Version"), (__bridge CFStringRef)[NSString stringWithFormat:@"%ld", (long)_webSocketVersion]);
+    if (_deflate) {
+        CFHTTPMessageSetHeaderFieldValue(request, CFSTR("Sec-WebSocket-Extensions"), CFSTR("x-webkit-deflate-frame"));
+    }
     
     CFHTTPMessageSetHeaderFieldValue(request, CFSTR("Origin"), (__bridge CFStringRef)_url.SR_origin);
     
@@ -932,7 +957,7 @@ static inline BOOL closeCodeIsValid(int closeCode) {
                 }
                 
             }
-        } readToCurrentFrame:!isControlFrame unmaskBytes:frame_header.masked];
+        } readToCurrentFrame:!isControlFrame unmaskBytes:frame_header.masked inflateBytes:frame_header.inflated];
     }
 }
 
@@ -976,8 +1001,10 @@ static const uint8_t SRPayloadLenMask   = 0x7F;
         assert(data.length >= 2);
         
         if (headerBuffer[0] & SRRsvMask) {
-            [self _closeWithProtocolError:@"Server used RSV bits"];
-            return;
+            if (!self->_deflate || (((headerBuffer[0] & SRRsvMask) >> 4) & 7) != 4) {
+                [self _closeWithProtocolError:@"Server used RSV bits"];
+                return;
+            }
         }
         
         uint8_t receivedOpcode = (SROpCodeMask & headerBuffer[0]);
@@ -998,6 +1025,7 @@ static const uint8_t SRPayloadLenMask   = 0x7F;
         
         header.fin = !!(SRFinMask & headerBuffer[0]);
         
+        header.inflated = !!(SRRsvMask & headerBuffer[0]);
         
         header.masked = !!(SRMaskMask & headerBuffer[1]);
         header.payload_length = SRPayloadLenMask & headerBuffer[1];
@@ -1044,9 +1072,9 @@ static const uint8_t SRPayloadLenMask   = 0x7F;
                 }
                 
                 [self _handleFrameHeader:header curData:self->_currentFrameData];
-            } readToCurrentFrame:NO unmaskBytes:NO];
+            } readToCurrentFrame:NO unmaskBytes:NO inflateBytes:NO];
         }
-    } readToCurrentFrame:NO unmaskBytes:NO];
+    } readToCurrentFrame:NO unmaskBytes:NO inflateBytes:NO];
 }
 
 - (void)_readFrameNew;
@@ -1116,19 +1144,19 @@ static const uint8_t SRPayloadLenMask   = 0x7F;
     [self _addConsumerWithScanner:consumer callback:callback dataLength:0];
 }
 
-- (void)_addConsumerWithDataLength:(size_t)dataLength callback:(data_callback)callback readToCurrentFrame:(BOOL)readToCurrentFrame unmaskBytes:(BOOL)unmaskBytes;
+- (void)_addConsumerWithDataLength:(size_t)dataLength callback:(data_callback)callback readToCurrentFrame:(BOOL)readToCurrentFrame unmaskBytes:(BOOL)unmaskBytes inflateBytes:(BOOL)inflateBytes;
 {   
     [self assertOnWorkQueue];
     assert(dataLength);
     
-    [_consumers addObject:[_consumerPool consumerWithScanner:nil handler:callback bytesNeeded:dataLength readToCurrentFrame:readToCurrentFrame unmaskBytes:unmaskBytes]];
+    [_consumers addObject:[_consumerPool consumerWithScanner:nil handler:callback bytesNeeded:dataLength readToCurrentFrame:readToCurrentFrame unmaskBytes:unmaskBytes inflateBytes:inflateBytes]];
     [self _pumpScanner];
 }
 
 - (void)_addConsumerWithScanner:(stream_scanner)consumer callback:(data_callback)callback dataLength:(size_t)dataLength;
 {    
     [self assertOnWorkQueue];
-    [_consumers addObject:[_consumerPool consumerWithScanner:consumer handler:callback bytesNeeded:dataLength readToCurrentFrame:NO unmaskBytes:NO]];
+    [_consumers addObject:[_consumerPool consumerWithScanner:consumer handler:callback bytesNeeded:dataLength readToCurrentFrame:NO unmaskBytes:NO inflateBytes:NO]];
     [self _pumpScanner];
 }
 
@@ -1226,6 +1254,65 @@ static const char CRLFCRLFBytes[] = {'\r', '\n', '\r', '\n'};
             slice = mutableSlice;
         }
         
+        if (consumer.inflateBytes) {
+            NSMutableData *output = [NSMutableData data];
+
+            size_t consumedInput = 0;
+            while (consumedInput < slice.length) {
+                NSUInteger outputPosition = output.length;
+                [output setLength:outputPosition + 4096];
+                NSUInteger availableOutput = output.length - outputPosition;
+                NSUInteger remainingInput = slice.length - consumedInput;
+                _inflator.next_in = (Bytef *) (slice.bytes + consumedInput);
+                _inflator.avail_in = remainingInput;
+                _inflator.next_out = output.mutableBytes + outputPosition;
+                _inflator.avail_out = availableOutput;
+                int result = inflate(&_inflator, Z_NO_FLUSH);
+                consumedInput += remainingInput - _inflator.avail_in;
+                [output setLength:outputPosition + availableOutput - _inflator.avail_out];
+                if (result == Z_BUF_ERROR) {
+                    continue;
+                }
+                if (result == Z_STREAM_END) {
+                    inflateReset(&_inflator);
+                    continue;
+                }
+                if (result != Z_OK) {
+                    [self _failWithError:[NSError errorWithDomain:@"org.lolrus.SocketRocket" code:2145 userInfo:[NSDictionary dictionaryWithObject:@"Error inflating stream" forKey:NSLocalizedDescriptionKey]]];
+                    return didWork;
+                }
+            }
+
+            if (consumer.bytesNeeded - foundSize == 0) {
+                static const uint8_t footer[4] = { 0, 0, 255, 255 };
+                static const NSUInteger footerLength = 4;
+
+                consumedInput = 0;
+                while (consumedInput < footerLength) {
+                    NSUInteger outputPosition = output.length;
+                    [output setLength:outputPosition + 4096];
+                    NSUInteger availableOutput = output.length - outputPosition;
+                    NSUInteger remainingInput = footerLength - consumedInput;
+                    _inflator.next_in = (Bytef *) (footer + consumedInput);
+                    _inflator.avail_in = remainingInput;
+                    _inflator.next_out = output.mutableBytes + outputPosition;
+                    _inflator.avail_out = availableOutput;
+                    int result = inflate(&_inflator, Z_FINISH);
+                    consumedInput += remainingInput - _inflator.avail_in;
+                    [output setLength:outputPosition + availableOutput - _inflator.avail_out];
+                    if (result == Z_BUF_ERROR) {
+                        continue;
+                    }
+                    if (result != Z_OK && result != Z_STREAM_END) {
+                        [self _failWithError:[NSError errorWithDomain:@"org.lolrus.SocketRocket" code:2145 userInfo:[NSDictionary dictionaryWithObject:@"Error inflating stream" forKey:NSLocalizedDescriptionKey]]];
+                        return didWork;
+                    }
+                }
+            }
+
+            slice = output;
+        }
+
         if (consumer.readToCurrentFrame) {
             [_currentFrameData appendData:slice];
             
@@ -1500,13 +1587,14 @@ static const size_t SRFrameHeaderOverhead = 32;
 @synthesize readToCurrentFrame = _readToCurrentFrame;
 @synthesize unmaskBytes = _unmaskBytes;
 
-- (void)setupWithScanner:(stream_scanner)scanner handler:(data_callback)handler bytesNeeded:(size_t)bytesNeeded readToCurrentFrame:(BOOL)readToCurrentFrame unmaskBytes:(BOOL)unmaskBytes;
+- (void)setupWithScanner:(stream_scanner)scanner handler:(data_callback)handler bytesNeeded:(size_t)bytesNeeded readToCurrentFrame:(BOOL)readToCurrentFrame unmaskBytes:(BOOL)unmaskBytes inflateBytes:(BOOL)inflateBytes;
 {
     _scanner = [scanner copy];
     _handler = [handler copy];
     _bytesNeeded = bytesNeeded;
     _readToCurrentFrame = readToCurrentFrame;
     _unmaskBytes = unmaskBytes;
+    _inflateBytes = inflateBytes;
     assert(_scanner || _bytesNeeded);
 }
 
@@ -1534,7 +1622,7 @@ static const size_t SRFrameHeaderOverhead = 32;
     return [self initWithBufferCapacity:8];
 }
 
-- (SRIOConsumer *)consumerWithScanner:(stream_scanner)scanner handler:(data_callback)handler bytesNeeded:(size_t)bytesNeeded readToCurrentFrame:(BOOL)readToCurrentFrame unmaskBytes:(BOOL)unmaskBytes;
+- (SRIOConsumer *)consumerWithScanner:(stream_scanner)scanner handler:(data_callback)handler bytesNeeded:(size_t)bytesNeeded readToCurrentFrame:(BOOL)readToCurrentFrame unmaskBytes:(BOOL)unmaskBytes inflateBytes:(BOOL)inflateBytes;
 {
     SRIOConsumer *consumer = nil;
     if (_bufferedConsumers.count) {
@@ -1544,7 +1632,7 @@ static const size_t SRFrameHeaderOverhead = 32;
         consumer = [[SRIOConsumer alloc] init];
     }
     
-    [consumer setupWithScanner:scanner handler:handler bytesNeeded:bytesNeeded readToCurrentFrame:readToCurrentFrame unmaskBytes:unmaskBytes];
+    [consumer setupWithScanner:scanner handler:handler bytesNeeded:bytesNeeded readToCurrentFrame:readToCurrentFrame unmaskBytes:unmaskBytes inflateBytes:inflateBytes];
     
     return consumer;
 }
