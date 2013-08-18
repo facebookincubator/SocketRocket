@@ -26,7 +26,7 @@
     
     char *buffer = (char *)malloc(buffer_size);
     
-    int len = b64_ntop([self bytes], [self length], buffer, buffer_size);
+    int len = b64_ntop([self bytes], [self length] - 1, buffer, buffer_size);
     
     if (len == -1) {
         free(buffer);
