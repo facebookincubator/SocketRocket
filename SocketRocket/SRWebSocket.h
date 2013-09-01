@@ -44,6 +44,8 @@ extern NSString *const SRWebSocketErrorDomain;
 // Optional array of cookies (NSHTTPCookie objects) to apply to the connections
 @property (nonatomic, readwrite) NSArray * requestCookies;
 
+@property (nonatomic, readonly) CFHTTPMessageRef receivedHTTPHeaders;
+
 // This returns the negotiated protocol.
 // It will be nil until after the handshake completes.
 @property (nonatomic, readonly, copy) NSString *protocol;
