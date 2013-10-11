@@ -124,7 +124,7 @@ static inline void SRFastLog(NSString *format, ...);
 static NSString *newSHA1String(const char *bytes, size_t length) {
     uint8_t md[CC_SHA1_DIGEST_LENGTH];
     
-    CC_SHA1(bytes, length, md);
+    CC_SHA1(bytes, (CC_LONG)length, md);
     
     size_t buffer_size = ((sizeof(md) * 3 + 2) / 2);
     
@@ -552,7 +552,7 @@ static __strong NSData *CRLFCRLF;
 
 - (void)_initializeStreams;
 {
-    NSInteger port = _url.port.integerValue;
+    UInt32 port = (UInt32)_url.port.unsignedIntegerValue;
     if (port == 0) {
         if (!_secure) {
             port = 80;
@@ -657,6 +657,7 @@ static __strong NSData *CRLFCRLF;
             NSUInteger usedLength = 0;
             
             BOOL success = [reason getBytes:(char *)mutablePayload.mutableBytes + sizeof(uint16_t) maxLength:payload.length - sizeof(uint16_t) usedLength:&usedLength encoding:NSUTF8StringEncoding options:NSStringEncodingConversionExternalRepresentation range:NSMakeRange(0, reason.length) remainingRange:&remainingRange];
+            (void)success;
             
             assert(success);
             assert(remainingRange.length == 0);
@@ -1021,6 +1022,7 @@ static const uint8_t SRPayloadLenMask   = 0x7F;
         } else {
             [self _addConsumerWithDataLength:extra_bytes_needed callback:^(SRWebSocket *self, NSData *data) {
                 size_t mapped_size = data.length;
+                (void)mapped_size;
                 const void *mapped_buffer = data.bytes;
                 size_t offset = 0;
                 
@@ -1331,6 +1333,7 @@ static const size_t SRFrameHeaderOverhead = 32;
         unmasked_payload =  (const uint8_t *)[data UTF8String];
     } else {
         assert(NO);
+        return;
     }
     
     if (payloadLength < 126) {
@@ -1460,7 +1463,7 @@ static const size_t SRFrameHeaderOverhead = 32;
                 uint8_t buffer[bufferSize];
                 
                 while (_inputStream.hasBytesAvailable) {
-                    int bytes_read = [_inputStream read:buffer maxLength:bufferSize];
+                    NSInteger bytes_read = [_inputStream read:buffer maxLength:bufferSize];
                     
                     if (bytes_read > 0) {
                         [_readBuffer appendBytes:buffer length:bytes_read];
@@ -1670,7 +1673,7 @@ static inline int32_t validate_dispatch_data_partial_string(NSData *data) {
         size = -1;
     }
     
-    return size;
+    return (int32_t)size;
 }
 
 #else
