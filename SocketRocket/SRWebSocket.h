@@ -45,6 +45,8 @@ extern NSString *const SRWebSocketErrorDomain;
 // It will be nil until after the handshake completes.
 @property (nonatomic, readonly, copy) NSString *protocol;
 
+@property (nonatomic) NSTimeInterval connectTimeout;
+
 // Protocols should be an array of strings that turn into Sec-WebSocket-Protocol.
 - (id)initWithURLRequest:(NSURLRequest *)request protocols:(NSArray *)protocols;
 - (id)initWithURLRequest:(NSURLRequest *)request;
