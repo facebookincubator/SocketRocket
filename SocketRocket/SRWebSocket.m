@@ -713,6 +713,15 @@ static __strong NSData *CRLFCRLF;
     [_outputBuffer appendData:data];
     [self _pumpWriting];
 }
+
+- (void)sendPing
+{
+    NSAssert(self.readyState != SR_CONNECTING, @"Invalid State: Cannot call send: until connection is open");
+    dispatch_async(_workQueue, ^{
+        [self _sendFrameWithOpcode:SROpCodePing data:[NSData data]];
+    });
+}
+
 - (void)send:(id)data;
 {
     NSAssert(self.readyState != SR_CONNECTING, @"Invalid State: Cannot call send: until connection is open");
@@ -738,12 +747,21 @@ static __strong NSData *CRLFCRLF;
         dispatch_async(_workQueue, ^{
             [self _sendFrameWithOpcode:SROpCodePong data:pingData];
         });
+        [self _performDelegateBlock:^{
+            if ([self.delegate respondsToSelector:@selector(webSocketDidReceivePong:)]) {
+                [self.delegate webSocketDidReceivePing:self];
+            }
+        }];
     }];
 }
 
 - (void)handlePong;
 {
-    // NOOP
+    [self _performDelegateBlock:^{
+        if ([self.delegate respondsToSelector:@selector(webSocketDidReceivePong:)]) {
+            [self.delegate webSocketDidReceivePong:self];
+        }
+    }];
 }
 
 - (void)_handleMessage:(id)message
