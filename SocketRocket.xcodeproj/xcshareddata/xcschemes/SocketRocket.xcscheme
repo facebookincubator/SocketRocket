@@ -90,6 +90,16 @@
                ReferencedContainer = "container:SocketRocket.xcodeproj">
             </BuildableReference>
          </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "3B4150FD17C0294900DC61E4"
+               BuildableName = "NSDataSRB64AdditionsTests.octest"
+               BlueprintName = "NSDataSRB64AdditionsTests"
+               ReferencedContainer = "container:SocketRocket.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
       <MacroExpansion>
          <BuildableReference

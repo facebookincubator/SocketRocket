@@ -1,0 +1,8 @@
+//
+// Prefix header for all source files of the 'NSDataSRB64AdditionsTests' target in the 'NSDataSRB64AdditionsTests' project
+//
+
+#ifdef __OBJC__
+  #import <UIKit/UIKit.h>
+  #import <Foundation/Foundation.h>
+#endif
