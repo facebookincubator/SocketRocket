@@ -28,11 +28,11 @@
 #if TARGET_OS_IPHONE
 #import <Endian.h>
 #else
-#import <CoreServices/CoreServices.h>
+@import CoreServices;
 #endif
 
 #import <CommonCrypto/CommonDigest.h>
-#import <Security/SecRandom.h>
+@import Security.SecRandom;
 
 #import "base64.h"
 #import "NSData+SRB64Additions.h"

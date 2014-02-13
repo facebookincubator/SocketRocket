@@ -14,8 +14,8 @@
 //   limitations under the License.
 //
 
-#import <Foundation/Foundation.h>
-#import <Security/SecCertificate.h>
+@import Foundation;
+@import Security.SecCertificate;
 
 typedef enum {
     SR_CONNECTING   = 0,

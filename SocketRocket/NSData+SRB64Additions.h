@@ -14,8 +14,7 @@
 //   limitations under the License.
 //
 
-#import <Foundation/Foundation.h>
-
+@import Foundation;
 
 @interface NSData (SRB64Additions)
 
