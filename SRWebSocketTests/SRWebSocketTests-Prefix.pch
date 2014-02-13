@@ -15,7 +15,7 @@
 //
 
 #ifdef __OBJC__
-    #import <Foundation/Foundation.h>
+    @import Foundation;
     #import <SenTestingKit/SenTestingKit.h>
     #import "SenTestCase+SRTAdditions.h"
 #endif

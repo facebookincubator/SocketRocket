@@ -6,8 +6,7 @@
 //  Copyright (c) 2012 __MyCompanyName__. All rights reserved.
 //
 
-#import <UIKit/UIKit.h>
-
+@import UIKit;
 @interface TCChatCell : UITableViewCell
 
 @property (nonatomic, retain) IBOutlet UITextView *textView;

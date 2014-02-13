@@ -28,11 +28,11 @@
 #if TARGET_OS_IPHONE
 #import <Endian.h>
 #else
-#import <CoreServices/CoreServices.h>
+@import CoreServices;
 #endif
 
 #import <CommonCrypto/CommonDigest.h>
-#import <Security/SecRandom.h>
+@import Security.SecRandom;
 
 #import "base64.h"
 #import "NSData+SRB64Additions.h"
@@ -920,7 +920,7 @@ static inline BOOL closeCodeIsValid(int closeCode) {
             }
         }
     } else {
-        [self _addConsumerWithDataLength:frame_header.payload_length callback:^(SRWebSocket *self, NSData *newData) {
+        [self _addConsumerWithDataLength:(size_t)frame_header.payload_length callback:^(SRWebSocket *self, NSData *newData) {
             if (isControlFrame) {
                 [self _handleFrameWithData:newData opCode:frame_header.opcode];
             } else {
