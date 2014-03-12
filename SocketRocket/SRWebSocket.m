@@ -748,7 +748,7 @@ static __strong NSData *CRLFCRLF;
             [self _sendFrameWithOpcode:SROpCodePong data:pingData];
         });
         [self _performDelegateBlock:^{
-            if ([self.delegate respondsToSelector:@selector(webSocketDidReceivePong:)]) {
+            if ([self.delegate respondsToSelector:@selector(webSocketDidReceivePing:)]) {
                 [self.delegate webSocketDidReceivePing:self];
             }
         }];
