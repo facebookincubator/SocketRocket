@@ -615,7 +615,7 @@ static __strong NSData *CRLFCRLF;
     [self closeWithCode:1000 reason:nil];
 }
 
-- (void)closeWithCode:(NSInteger)code reason:(NSString *)reason;
+- (void)closeWithCode:(SRStatusCode)code reason:(NSString *)reason;
 {
     assert(code);
     dispatch_async(_workQueue, ^{
