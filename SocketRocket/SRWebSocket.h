@@ -45,11 +45,16 @@ extern NSString *const SRWebSocketErrorDomain;
 // It will be nil until after the handshake completes.
 @property (nonatomic, readonly, copy) NSString *protocol;
 
+// Should not be changed after opening websocket
+@property (nonatomic) BOOL allowSelfSignedCertificates;
+
 // Protocols should be an array of strings that turn into Sec-WebSocket-Protocol.
-- (id)initWithURLRequest:(NSURLRequest *)request protocols:(NSArray *)protocols;
-- (id)initWithURLRequest:(NSURLRequest *)request;
+- (id)initWithURLRequest:(NSMutableURLRequest *)request protocols:(NSArray *)protocols allowSelfSignedCertificates:(BOOL)allowSelfSignedCertificates;
+- (id)initWithURLRequest:(NSMutableURLRequest *)request protocols:(NSArray *)protocols;
+- (id)initWithURLRequest:(NSMutableURLRequest *)request;
 
 // Some helper constructors.
+- (id)initWithURL:(NSURL *)url protocols:(NSArray *)protocols allowSelfSignedCertificates:(BOOL)allowSelfSignedCertificates;
 - (id)initWithURL:(NSURL *)url protocols:(NSArray *)protocols;
 - (id)initWithURL:(NSURL *)url;
 
