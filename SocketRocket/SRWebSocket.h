@@ -53,6 +53,9 @@ extern NSString *const SRWebSocketErrorDomain;
 - (id)initWithURL:(NSURL *)url protocols:(NSArray *)protocols;
 - (id)initWithURL:(NSURL *)url;
 
+// Constructor for client SSL authentication.
+- (id)initWithURLRequest:(NSURLRequest *)request andClientCertData:(NSData *)data andClientCertCipher:(NSString *)cipher;
+
 // Delegate queue will be dispatch_main_queue by default.
 // You cannot set both OperationQueue and dispatch_queue.
 - (void)setDelegateOperationQueue:(NSOperationQueue*) queue;

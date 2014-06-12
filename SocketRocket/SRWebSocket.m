@@ -272,6 +272,10 @@ typedef void (^data_callback)(SRWebSocket *webSocket,  NSData *data);
     
     NSArray *_requestedProtocols;
     SRIOConsumerPool *_consumerPool;
+  
+    // For client SSL authentication.
+    NSData *_clientCertificateData;
+    NSString *_clientCertificateCipher;
 }
 
 @synthesize delegate = _delegate;
@@ -316,6 +320,13 @@ static __strong NSData *CRLFCRLF;
 {
     NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:url];    
     return [self initWithURLRequest:request protocols:protocols];
+}
+
+- (id)initWithURLRequest:(NSURLRequest *)request andClientCertData:(NSData *)data andClientCertCipher:(NSString *)cipher
+{
+  _clientCertificateData = data;
+  _clientCertificateCipher = cipher;
+  return [self initWithURLRequest:request];
 }
 
 - (void)_SR_commonInit;
@@ -401,7 +412,17 @@ static __strong NSData *CRLFCRLF;
     NSAssert(_readyState == SR_CONNECTING, @"Cannot call -(void)open on SRWebSocket more than once");
 
     _selfRetain = self;
-    
+  
+    if (_urlRequest.timeoutInterval > 0)
+    {
+        dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, _urlRequest.timeoutInterval * NSEC_PER_SEC);
+        dispatch_after(popTime, dispatch_get_main_queue(), ^(void)
+        {
+            if (self.readyState == SR_CONNECTING)
+                [self _failWithError:[NSError errorWithDomain:@"org.lolrus.SocketRocket" code:60 userInfo:@{NSLocalizedDescriptionKey: @"Timeout Connecting to Server"}]];
+        });
+    }
+  
     [self _connect];
 }
 
@@ -574,7 +595,49 @@ static __strong NSData *CRLFCRLF;
         [SSLOptions setValue:[NSNumber numberWithBool:NO] forKey:(__bridge id)kCFStreamSSLValidatesCertificateChain];
         NSLog(@"SocketRocket: In debug mode.  Allowing connection to any root cert");
 #endif
+      
+        // For client SSL authentication.
+        if (_clientCertificateData != nil) {
+          // Import .p12 data
+          CFArrayRef keyref = NULL;
+          OSStatus status = SecPKCS12Import((__bridge CFDataRef)_clientCertificateData,
+                                            (__bridge CFDictionaryRef)[NSDictionary
+                                                                       dictionaryWithObject:_clientCertificateCipher
+                                                                       forKey:(__bridge id)kSecImportExportPassphrase],
+                                            &keyref);
+          if (status != noErr) {
+            [self _failWithError:[NSError errorWithDomain:@"org.lolrus.SocketRocket" code:23556 userInfo:[NSDictionary dictionaryWithObject:@"Error importing pkcs12 data" forKey:NSLocalizedDescriptionKey]]];
+            return;
+          }
+          
+          // Identity
+          CFDictionaryRef identityDict = CFArrayGetValueAtIndex(keyref, 0);
+          SecIdentityRef identityRef = (SecIdentityRef)CFDictionaryGetValue(identityDict,
+                                                                            kSecImportItemIdentity);
         
+          // Cert
+          SecCertificateRef cert = NULL;
+          status = SecIdentityCopyCertificate(identityRef, &cert);
+          if (status) {
+            [self _failWithError:[NSError errorWithDomain:@"org.lolrus.SocketRocket" code:23556 userInfo:[NSDictionary dictionaryWithObject:@"Error getting client certificate from pkcs12 data" forKey:NSLocalizedDescriptionKey]]];
+            return;
+          }
+        
+          // The certificates array, containing the identity then the certificate
+          NSArray *myCerts = [[NSArray alloc] initWithObjects:(__bridge id)identityRef, (__bridge id)cert, nil];
+        
+          //
+          [SSLOptions setObject:[NSNumber numberWithBool:YES] forKey:(NSString *)kCFStreamSSLAllowsExpiredRoots];
+          [SSLOptions setObject:[NSNumber numberWithBool:YES] forKey:(NSString *)kCFStreamSSLAllowsExpiredCertificates];
+          [SSLOptions setObject:[NSNumber numberWithBool:YES] forKey:(NSString *)kCFStreamSSLAllowsAnyRoot];
+          [SSLOptions setObject:[NSNumber numberWithBool:NO] forKey:(NSString *)kCFStreamSSLValidatesCertificateChain];
+          [SSLOptions setObject:[NSString stringWithFormat:@"%@:%d", host, port] forKey:(NSString *)kCFStreamSSLPeerName];
+          [SSLOptions setObject:(NSString *)kCFStreamSocketSecurityLevelNegotiatedSSL forKey:(NSString*)kCFStreamSSLLevel];
+          [SSLOptions setObject:(NSString *)kCFStreamSocketSecurityLevelNegotiatedSSL forKey:(NSString*)kCFStreamPropertySocketSecurityLevel];
+          [SSLOptions setObject:myCerts forKey:(NSString *)kCFStreamSSLCertificates];
+          [SSLOptions setObject:[NSNumber numberWithBool:NO] forKey:(NSString *)kCFStreamSSLIsServer];
+        }
+      
         [_outputStream setProperty:SSLOptions
                             forKey:(__bridge id)kCFStreamPropertySSLSettings];
     }
