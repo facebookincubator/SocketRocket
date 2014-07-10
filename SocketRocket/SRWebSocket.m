@@ -758,7 +758,7 @@ static __strong NSData *CRLFCRLF;
     }
 }
 
-- (void)handlePing:(NSData *)pingData;
+- (void)handlePing:(NSData *)pingData
 {
     // Need to pingpong this off _callbackQueue first to make sure messages happen in order
     [self _performDelegateBlock:^{
@@ -768,19 +768,21 @@ static __strong NSData *CRLFCRLF;
     }];
 }
 
-- (void)handlePong;
+- (void)handlePong
 {
-    // NOOP
     SRFastLog(@"Received pong (%.1f ms round-trip time)", ([NSDate timeIntervalSinceReferenceDate] - _lastSentPingTime) * 1000.0);
+    _waitingForHeartbeatResponse = NO;
 }
 
 - (void)_resetHeartbeatTimer
 {
     [self assertOnWorkQueue];
     
-    _waitingForHeartbeatResponse = NO;
     if (self.heartbeatInterval > 0.0 && self.readyState == SR_OPEN) {
-        dispatch_source_set_timer(_heartbeatTimer, dispatch_time(DISPATCH_TIME_NOW, self.heartbeatInterval * NSEC_PER_SEC), DISPATCH_TIME_FOREVER, (1ull * NSEC_PER_SEC) / 10);
+        // We don't reset the heartbeat timer if we're already waiting for a pong, since according to RFC pings must always be responded to with a pong.
+        if (!_waitingForHeartbeatResponse) {
+            dispatch_source_set_timer(_heartbeatTimer, dispatch_time(DISPATCH_TIME_NOW, self.heartbeatInterval * NSEC_PER_SEC), DISPATCH_TIME_FOREVER, (1ull * NSEC_PER_SEC) / 10);
+        }
     }
     else {
         dispatch_source_set_timer(_heartbeatTimer, DISPATCH_TIME_FOREVER, DISPATCH_TIME_FOREVER, (1ull * NSEC_PER_SEC) / 10);
