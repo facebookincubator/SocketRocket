@@ -395,12 +395,27 @@ static __strong NSData *CRLFCRLF;
 
 #endif
 
-- (void)open;
+- (void)open
+{
+    [self _openWithVoIPEnabled:NO];
+}
+
+- (void)openForVoIP
+{
+    [self _openWithVoIPEnabled:YES];
+}
+
+- (void)_openWithVoIPEnabled:(BOOL)voipEnabled
 {
     assert(_url);
     NSAssert(_readyState == SR_CONNECTING, @"Cannot call -(void)open on SRWebSocket more than once");
-
+    
     _selfRetain = self;
+    
+    if (voipEnabled) {
+        [_inputStream setProperty:NSStreamNetworkServiceTypeVoIP forKey:NSStreamNetworkServiceType];
+        [_outputStream setProperty:NSStreamNetworkServiceTypeVoIP forKey:NSStreamNetworkServiceType];
+    }
     
     [self _connect];
 }

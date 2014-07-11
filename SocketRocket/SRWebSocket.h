@@ -64,6 +64,7 @@ extern NSString *const SRWebSocketErrorDomain;
 
 // SRWebSockets are intended for one-time-use only.  Open should be called once and only once.
 - (void)open;
+- (void)openForVoIP;
 
 - (void)close;
 - (void)closeWithCode:(NSInteger)code reason:(NSString *)reason;
