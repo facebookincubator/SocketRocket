@@ -24,7 +24,7 @@ typedef enum {
     SR_CLOSED       = 3,
 } SRReadyState;
 
-typedef enum {
+typedef enum SRStatusCode : NSInteger {
     SRStatusCodeNormal = 1000,
     SRStatusCodeGoingAway = 1001,
     SRStatusCodeProtocolError = 1002,
@@ -84,7 +84,7 @@ extern NSString *const SRWebSocketErrorDomain;
 - (void)open;
 
 - (void)close;
-- (void)closeWithCode:(SRStatusCode)code reason:(NSString *)reason;
+- (void)closeWithCode:(NSInteger)code reason:(NSString *)reason;
 
 // Send a UTF8 String or Data.
 - (void)send:(id)data;
@@ -103,7 +103,7 @@ extern NSString *const SRWebSocketErrorDomain;
 
 - (void)webSocketDidOpen:(SRWebSocket *)webSocket;
 - (void)webSocket:(SRWebSocket *)webSocket didFailWithError:(NSError *)error;
-- (void)webSocket:(SRWebSocket *)webSocket didCloseWithCode:(SRStatusCode)code reason:(NSString *)reason wasClean:(BOOL)wasClean;
+- (void)webSocket:(SRWebSocket *)webSocket didCloseWithCode:(NSInteger)code reason:(NSString *)reason wasClean:(BOOL)wasClean;
 
 @end
 
