@@ -200,6 +200,8 @@ typedef void (^data_callback)(SRWebSocket *webSocket,  NSData *data);
 @property (nonatomic) NSOperationQueue *delegateOperationQueue;
 @property (nonatomic) dispatch_queue_t delegateDispatchQueue;
 
+@property (nonatomic) NSTimer *connectionTimer;
+
 @end
 
 
@@ -338,6 +340,8 @@ static __strong NSData *CRLFCRLF;
     
     _scheduledRunloops = [[NSMutableSet alloc] init];
     
+    _connectTimeout = 20.0f;
+    
     [self _initializeStreams];
     
     // default handlers
@@ -355,6 +359,8 @@ static __strong NSData *CRLFCRLF;
 
     [_inputStream close];
     [_outputStream close];
+    
+    [self cancelConnectTimer];
     
     sr_dispatch_release(_workQueue);
     _workQueue = NULL;
@@ -458,6 +464,7 @@ static __strong NSData *CRLFCRLF;
     }
     
     self.readyState = SR_OPEN;
+    [self cancelConnectTimer];
     
     if (!_didFail) {
         [self _readFrameNew];
@@ -499,7 +506,7 @@ static __strong NSData *CRLFCRLF;
         
     NSMutableData *keyBytes = [[NSMutableData alloc] initWithLength:16];
     SecRandomCopyBytes(kSecRandomDefault, keyBytes.length, keyBytes.mutableBytes);
-    _secKey = keyBytes.base64Encoding;
+    _secKey = [keyBytes base64EncodedStringWithOptions:0];
     assert([_secKey length] == 24);
     
     CFHTTPMessageSetHeaderFieldValue(request, CFSTR("Upgrade"), CFSTR("websocket"));
@@ -579,6 +586,8 @@ static __strong NSData *CRLFCRLF;
     
     [_outputStream open];
     [_inputStream open];
+    
+    [self requestConnectTimer];
 }
 
 - (void)scheduleInRunLoop:(NSRunLoop *)aRunLoop forMode:(NSString *)mode;
@@ -1462,6 +1471,40 @@ static const size_t SRFrameHeaderOverhead = 32;
                 break;
         }
     });
+}
+
+
+#pragma mark Connect Timeout
+
+- (void) requestConnectTimer
+{
+    NSDate *futureDate = [NSDate dateWithTimeIntervalSinceNow:_connectTimeout];
+    
+    NSTimer *myTimer = [[NSTimer alloc] initWithFireDate:futureDate
+                                                interval:0.0
+                                                  target:self
+                                                selector:@selector(connectDidTimeout)
+                                                userInfo:nil
+                                                 repeats:NO];
+    
+    self.connectionTimer = myTimer;
+    
+    [[NSRunLoop SR_networkRunLoop] addTimer:self.connectionTimer forMode:NSDefaultRunLoopMode];
+}
+
+- (void) cancelConnectTimer
+{
+    [_connectionTimer invalidate];
+    self.connectionTimer = nil;
+}
+
+- (void)connectDidTimeout
+{
+    SRFastLog(@"connectTimeout");
+    [self cancelConnectTimer];
+    [self _failWithError:[NSError errorWithDomain:@"org.lolrus.SocketRocket"
+                                             code:60
+                                         userInfo:@{NSLocalizedDescriptionKey:@"Connection Timed out"}]];
 }
 
 @end
