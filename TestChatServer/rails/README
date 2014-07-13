@@ -1,0 +1,4 @@
+To start rails server:
+`bundle install` first and then
+`rails server -p 9000` 
+The `-p 9000` is a required param as the App code is connecting to port 9000 rather than the default 3000 port of a rails server
