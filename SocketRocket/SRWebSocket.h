@@ -40,6 +40,7 @@ typedef enum SRStatusCode : NSInteger {
 @class SRWebSocket;
 
 extern NSString *const SRWebSocketErrorDomain;
+extern NSInteger const SRWebSocketHeartbeatTimeoutErrorCode;
 
 #pragma mark - SRWebSocketDelegate
 
@@ -57,6 +58,16 @@ extern NSString *const SRWebSocketErrorDomain;
 // This returns the negotiated protocol.
 // It will be nil until after the handshake completes.
 @property (nonatomic, readonly, copy) NSString *protocol;
+
+// How long to wait (in seconds) after any message is received before sending a heartbeat
+// (i.e. a ping frame). If 0, then never send a heartbeat. Defaults to 0, since heartbeat
+// logic is generally controlled by the server, where it is better suited. This does not
+// interfere with responding to ping frames sent by the server.
+@property (nonatomic, assign) NSTimeInterval heartbeatInterval;
+
+// How long to wait (in seconds) for a response from the server after sending a heartbeat before
+// considering the server unreachable and disconnecting. Defaults to 30 seconds.
+@property (nonatomic, assign) NSTimeInterval heartbeatTimeout;
 
 // Protocols should be an array of strings that turn into Sec-WebSocket-Protocol.
 - (id)initWithURLRequest:(NSURLRequest *)request protocols:(NSArray *)protocols;
