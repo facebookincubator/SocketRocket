@@ -478,10 +478,10 @@ static __strong NSData *CRLFCRLF;
     }
                         
     [self _readUntilHeaderCompleteWithCallback:^(SRWebSocket *webSocket,  NSData *data) {
-        CFHTTPMessageAppendBytes(_receivedHTTPHeaders, (const UInt8 *)data.bytes, data.length);
+        CFHTTPMessageAppendBytes(webSocket->_receivedHTTPHeaders, (const UInt8 *)data.bytes, data.length);
         
-        if (CFHTTPMessageIsHeaderComplete(_receivedHTTPHeaders)) {
-            SRFastLog(@"Finished reading headers %@", CFBridgingRelease(CFHTTPMessageCopyAllHeaderFields(_receivedHTTPHeaders)));
+        if (CFHTTPMessageIsHeaderComplete(webSocket->_receivedHTTPHeaders)) {
+            SRFastLog(@"Finished reading headers %@", CFBridgingRelease(CFHTTPMessageCopyAllHeaderFields(webSocket->_receivedHTTPHeaders)));
             [webSocket _HTTPHeadersDidFinish];
         } else {
             [webSocket _readHTTPHeader];
@@ -985,7 +985,7 @@ static const uint8_t SRPayloadLenMask   = 0x7F;
             [webSocket _closeWithProtocolError:@"Client must receive unmasked data"];
         }
         
-        size_t extra_bytes_needed = header.masked ? sizeof(_currentReadMaskKey) : 0;
+        size_t extra_bytes_needed = header.masked ? sizeof(webSocket->_currentReadMaskKey) : 0;
         
         if (header.payload_length == 126) {
             extra_bytes_needed += sizeof(uint16_t);
@@ -1016,7 +1016,7 @@ static const uint8_t SRPayloadLenMask   = 0x7F;
                 
                 
                 if (header.masked) {
-                    assert(mapped_size >= sizeof(_currentReadMaskOffset) + offset);
+                    assert(mapped_size >= sizeof(webSocket->_currentReadMaskOffset) + offset);
                     memcpy(webSocket->_currentReadMaskKey, ((uint8_t *)mapped_buffer) + offset, sizeof(webSocket->_currentReadMaskKey));
                 }
                 
