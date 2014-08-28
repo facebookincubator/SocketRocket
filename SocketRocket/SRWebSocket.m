@@ -555,6 +555,15 @@ static __strong NSData *CRLFCRLF;
     
     CFStreamCreatePairWithSocketToHost(NULL, (__bridge CFStringRef)host, port, &readStream, &writeStream);
     
+    // Obtain all the background modes from the Info.plist file in the target project
+    NSArray* backgroundModesEnabled = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"UIBackgroundModes"];
+    
+    if (backgroundModesEnabled && [backgroundModesEnabled containsObject:@"voip"]) {
+        // Background Mode and the VOIP flag is found in the plist file. Set the socket type for the read and write stream to VOIP for background usage
+        CFReadStreamSetProperty(readStream, kCFStreamNetworkServiceType, kCFStreamNetworkServiceTypeVoIP);
+        CFWriteStreamSetProperty(writeStream, kCFStreamNetworkServiceType, kCFStreamNetworkServiceTypeVoIP);
+    }
+    
     _outputStream = CFBridgingRelease(writeStream);
     _inputStream = CFBridgingRelease(readStream);
     
