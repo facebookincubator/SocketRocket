@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name               = "SocketRocket"
-  s.version            = '1.1'
+  s.version            = '1.1.1'
   s.authors            = 'Square'
   s.source_files       = 'SocketRocket/*.{h,m,c}'
   s.requires_arc       = true
