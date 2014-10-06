@@ -498,7 +498,12 @@ static __strong NSData *CRLFCRLF;
 - (void)didConnect
 {
     SRFastLog(@"Connected");
-    CFHTTPMessageRef request = CFHTTPMessageCreateRequest(NULL, CFSTR("GET"), (__bridge CFURLRef)_url, kCFHTTPVersion1_1);
+
+    NSString *httpMethod = _urlRequest.HTTPMethod;
+    CFHTTPMessageRef request = CFHTTPMessageCreateRequest(NULL, (__bridge CFStringRef)httpMethod, (__bridge CFURLRef)_url, kCFHTTPVersion1_1);
+
+    NSData *bodyData = _urlRequest.HTTPBody;
+    CFHTTPMessageSetBody( request, (__bridge CFDataRef)bodyData );
     
     // Set host first so it defaults
     CFHTTPMessageSetHeaderFieldValue(request, CFSTR("Host"), (__bridge CFStringRef)(_url.port ? [NSString stringWithFormat:@"%@:%@", _url.host, _url.port] : _url.host));
