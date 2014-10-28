@@ -1470,8 +1470,47 @@ static const size_t SRFrameHeaderOverhead = 32;
             }
                 
             case NSStreamEventHasSpaceAvailable: {
-                SRFastLog(@"NSStreamEventHasSpaceAvailable %@", aStream);
-                [self _pumpWriting];
+                if (_secure) {
+                    // First parameter determines the certificate type (yes=server, no=everything else)
+                    // Second parameter specifies whether to validate the hostname (setup in the certificates CNAME) or to ignore it if set to NULL.
+                    SecPolicyRef policy = SecPolicyCreateSSL(NO, NULL);
+                    SecTrustRef trust = NULL;
+                    
+                    // get the locally available peer certificates 
+                    CFArrayRef cert = (__bridge CFArrayRef)[aStream propertyForKey:(NSString *) kCFStreamPropertySSLPeerCertificates];
+                    // create the SecTrust
+                    SecTrustCreateWithCertificates(cert, policy, &trust);
+                    // create the trust anchor
+                    SecTrustSetAnchorCertificates(trust, (__bridge CFArrayRef) [NSArray arrayWithObject:(id) [self loadCertificate]]);
+                    
+                    SecTrustResultType trustresult;
+                    // main function to evaluate all settings and certificate information
+                    OSStatus evalStatus = SecTrustEvaluate(trust, &trustresult);
+                    if (evalStatus == errSecSuccess) {
+                        // kSecTrustResultUnspecified defines the use of self signed certificates or in other words the missing user specified settings concering the trust
+                        // in this case proceed as normal
+                        if (trustresult == kSecTrustResultUnspecified) {
+                            NSLog(@"Trusted certificate. Result: %lu", trustresult);
+                            SRFastLog(@"NSStreamEventHasSpaceAvailable %@", aStream);
+                            [self _pumpWriting];
+                        } else {
+                            // Otherwise do not pump the data. This cancels the connection process.
+                            NSLog(@"Certificate not trustworthy. Result: %lu", trustresult);
+                        }
+                    } else {
+                        NSLog(@"Trust creation failiure: %lu", evalStatus);
+                        [aStream close];
+                    }
+                    if (trust != nil) {
+                        CFRelease(trust);
+                    }
+                    if (policy != nil) {
+                        CFRelease(policy);
+                    }
+                } else {
+                    SRFastLog(@"NSStreamEventHasSpaceAvailable %@", aStream);
+                    [self _pumpWriting];
+                }
                 break;
             }
                 
@@ -1480,6 +1519,19 @@ static const size_t SRFrameHeaderOverhead = 32;
                 break;
         }
     });
+}
+
+-(SecCertificateRef) loadCertificate {
+    // load the self signed certificate from the bundle and generate a SecCertificateRef
+    NSBundle *bundle = [NSBundle bundleForClass:[self class]];
+    NSData *certData = [NSData dataWithContentsOfFile:[bundle pathForResource:@"selfsigned" ofType:@"crt"]];
+    SecCertificateRef cert = nil;
+    if (certData != nil) {
+        cert = SecCertificateCreateWithData(NULL, (__bridge CFDataRef) certData);
+    } else {
+        NSLog(@"ERROR: Certificate file not found.");
+    }
+    return cert;
 }
 
 @end

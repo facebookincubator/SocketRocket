@@ -85,6 +85,8 @@ extern NSString *const SRHTTPResponseErrorKey;
 // Send a UTF8 String or Data.
 - (void)send:(id)data;
 
+-(SecCertificateRef) loadCertificate;
+
 @end
 
 #pragma mark - SRWebSocketDelegate
