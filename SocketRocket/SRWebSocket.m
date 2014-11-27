@@ -344,7 +344,7 @@ static __strong NSData *CRLFCRLF;
     _consumerPool = [[SRIOConsumerPool alloc] init];
     
     _scheduledRunloops = [[NSMutableSet alloc] init];
-    
+
     [self _initializeStreams];
     
     // default handlers
@@ -567,13 +567,17 @@ static __strong NSData *CRLFCRLF;
         // If we're using pinned or anchor certs, don't validate the certificate chain
         if ([_urlRequest SR_SSLPinnedCertificates].count > 0 ||
             [_urlRequest SR_SSLAnchorCertificates].count > 0) {
+
             [SSLOptions setValue:[NSNumber numberWithBool:NO] forKey:(__bridge id)kCFStreamSSLValidatesCertificateChain];
+
+        } else {
+            // We have to use system certificate chain, but will disable it for debug builds.
+#if DEBUG
+            [SSLOptions setValue:[NSNumber numberWithBool:NO] forKey:(__bridge id)kCFStreamSSLValidatesCertificateChain];
+            NSLog(@"SocketRocket: In debug mode.  Allowing connection to any root cert");
+#endif
         }
 
-#if DEBUG
-        [SSLOptions setValue:[NSNumber numberWithBool:NO] forKey:(__bridge id)kCFStreamSSLValidatesCertificateChain];
-        NSLog(@"SocketRocket: In debug mode.  Allowing connection to any root cert");
-#endif
 
         [_outputStream setProperty:SSLOptions
                             forKey:(__bridge id)kCFStreamPropertySSLSettings];
