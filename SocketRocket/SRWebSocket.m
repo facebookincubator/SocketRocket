@@ -564,11 +564,12 @@ static __strong NSData *CRLFCRLF;
         
         [_outputStream setProperty:(__bridge id)kCFStreamSocketSecurityLevelNegotiatedSSL forKey:(__bridge id)kCFStreamPropertySocketSecurityLevel];
         
-        // If we're using pinned certs, don't validate the certificate chain
-        if ([_urlRequest SR_SSLPinnedCertificates].count) {
+        // If we're using pinned or anchor certs, don't validate the certificate chain
+        if ([_urlRequest SR_SSLPinnedCertificates].count > 0 ||
+            [_urlRequest SR_SSLAnchorCertificates].count > 0) {
             [SSLOptions setValue:[NSNumber numberWithBool:NO] forKey:(__bridge id)kCFStreamSSLValidatesCertificateChain];
         }
-        
+
 #if DEBUG
         [SSLOptions setValue:[NSNumber numberWithBool:NO] forKey:(__bridge id)kCFStreamSSLValidatesCertificateChain];
         NSLog(@"SocketRocket: In debug mode.  Allowing connection to any root cert");
@@ -1385,7 +1386,7 @@ static const size_t SRFrameHeaderOverhead = 32;
         NSArray *sslAnchorCerts = [_urlRequest SR_SSLAnchorCertificates];
 
         // If we have any pinned certificates, should prefer them and ignore anything else.
-        if (sslPinnedCerts) {
+        if (sslPinnedCerts.count > 0) {
             SecTrustRef trust = (__bridge SecTrustRef)[aStream propertyForKey:(__bridge id)kCFStreamPropertySSLPeerTrust];
             if (trust) {
                 NSInteger numCerts = SecTrustGetCertificateCount(trust);
@@ -1413,7 +1414,7 @@ static const size_t SRFrameHeaderOverhead = 32;
             }
         }
         // If we have anchor certificates, must use them instead of the system ones.
-        else if (sslAnchorCerts) {
+        else if (sslAnchorCerts.count > 0) {
 
             SecTrustRef trust = (__bridge SecTrustRef)[aStream propertyForKey:(__bridge id)kCFStreamPropertySSLPeerTrust];
             if (trust) {
