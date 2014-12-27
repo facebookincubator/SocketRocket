@@ -113,11 +113,11 @@ static NSString *newSHA1String(const char *bytes, size_t length) {
     
     NSData *data = [NSData dataWithBytes:md length:CC_SHA1_DIGEST_LENGTH];
     
-    if ([data respondsToSelector:@selector(base64EncodedStringWithOptions:)]) {
-        return [data base64EncodedStringWithOptions:0];
-    }
-    
+#if __IPHONE_OS_VERSION_MIN_REQUIRED >= __IPHONE_7_0
+    return [data base64EncodedStringWithOptions:0];
+#else
     return [data base64Encoding];
+#endif
 }
 
 @implementation NSData (SRWebSocket)
@@ -506,11 +506,11 @@ static __strong NSData *CRLFCRLF;
     NSMutableData *keyBytes = [[NSMutableData alloc] initWithLength:16];
     SecRandomCopyBytes(kSecRandomDefault, keyBytes.length, keyBytes.mutableBytes);
     
-    if ([keyBytes respondsToSelector:@selector(base64EncodedStringWithOptions:)]) {
-        _secKey = [keyBytes base64EncodedStringWithOptions:0];
-    } else {
-        _secKey = [keyBytes base64Encoding];
-    }
+#if __IPHONE_OS_VERSION_MIN_REQUIRED >= __IPHONE_7_0
+    _secKey = [keyBytes base64EncodedStringWithOptions:0];
+#else
+    _secKey = [keyBytes base64Encoding];
+#endif
     
     assert([_secKey length] == 24);
     
