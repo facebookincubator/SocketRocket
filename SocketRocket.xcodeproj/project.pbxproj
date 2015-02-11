@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		7E8F43711A8B641A000F5D01 /* SRWebSocketProtocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 7E8F43701A8B641A000F5D01 /* SRWebSocketProtocol.h */; };
+		7E8F43721A8B641A000F5D01 /* SRWebSocketProtocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 7E8F43701A8B641A000F5D01 /* SRWebSocketProtocol.h */; };
 		F6016C8814620EC70037BB3D /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F6A12CD3145122FC00C1D980 /* Security.framework */; };
 		F6016C8914620ECC0037BB3D /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F6A12CD3145122FC00C1D980 /* Security.framework */; };
 		F6016C8A1462143C0037BB3D /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F6A12CD51451231B00C1D980 /* CFNetwork.framework */; };
@@ -54,6 +56,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		7E8F43701A8B641A000F5D01 /* SRWebSocketProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SRWebSocketProtocol.h; sourceTree = "<group>"; };
 		F60CC29F14D4EA0500A005E4 /* SRTWebSocketOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SRTWebSocketOperation.h; sourceTree = "<group>"; };
 		F60CC2A014D4EA0500A005E4 /* SRTWebSocketOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SRTWebSocketOperation.m; sourceTree = "<group>"; };
 		F61A0DC71625F44D00365EBD /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Default-568h@2x.png"; path = "en.lproj/Default-568h@2x.png"; sourceTree = "<group>"; };
@@ -250,6 +253,7 @@
 				F6B208331450F597009315AF /* Supporting Files */,
 				F6A12CCF145119B700C1D980 /* SRWebSocket.h */,
 				F6A12CD0145119B700C1D980 /* SRWebSocket.m */,
+				7E8F43701A8B641A000F5D01 /* SRWebSocketProtocol.h */,
 			);
 			path = SocketRocket;
 			sourceTree = "<group>";
@@ -293,6 +297,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F668C8AA153E92F90044DBAC /* SRWebSocket.h in Headers */,
+				7E8F43721A8B641A000F5D01 /* SRWebSocketProtocol.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -301,6 +306,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F6A12CD1145119B700C1D980 /* SRWebSocket.h in Headers */,
+				7E8F43711A8B641A000F5D01 /* SRWebSocketProtocol.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
