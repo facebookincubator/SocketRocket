@@ -9,6 +9,10 @@
 /* Begin PBXBuildFile section */
 		7E8F43711A8B641A000F5D01 /* SRWebSocketProtocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 7E8F43701A8B641A000F5D01 /* SRWebSocketProtocol.h */; };
 		7E8F43721A8B641A000F5D01 /* SRWebSocketProtocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 7E8F43701A8B641A000F5D01 /* SRWebSocketProtocol.h */; };
+		7EF6B8C51A8E31A500547B2C /* SRErrorConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 7EF6B8C31A8E31A500547B2C /* SRErrorConstants.h */; };
+		7EF6B8C61A8E31A500547B2C /* SRErrorConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 7EF6B8C31A8E31A500547B2C /* SRErrorConstants.h */; };
+		7EF6B8C71A8E31A500547B2C /* SRErrorConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = 7EF6B8C41A8E31A500547B2C /* SRErrorConstants.m */; };
+		7EF6B8C81A8E31A500547B2C /* SRErrorConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = 7EF6B8C41A8E31A500547B2C /* SRErrorConstants.m */; };
 		F6016C8814620EC70037BB3D /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F6A12CD3145122FC00C1D980 /* Security.framework */; };
 		F6016C8914620ECC0037BB3D /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F6A12CD3145122FC00C1D980 /* Security.framework */; };
 		F6016C8A1462143C0037BB3D /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F6A12CD51451231B00C1D980 /* CFNetwork.framework */; };
@@ -57,6 +61,8 @@
 
 /* Begin PBXFileReference section */
 		7E8F43701A8B641A000F5D01 /* SRWebSocketProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SRWebSocketProtocol.h; sourceTree = "<group>"; };
+		7EF6B8C31A8E31A500547B2C /* SRErrorConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SRErrorConstants.h; sourceTree = "<group>"; };
+		7EF6B8C41A8E31A500547B2C /* SRErrorConstants.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SRErrorConstants.m; sourceTree = "<group>"; };
 		F60CC29F14D4EA0500A005E4 /* SRTWebSocketOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SRTWebSocketOperation.h; sourceTree = "<group>"; };
 		F60CC2A014D4EA0500A005E4 /* SRTWebSocketOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SRTWebSocketOperation.m; sourceTree = "<group>"; };
 		F61A0DC71625F44D00365EBD /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Default-568h@2x.png"; path = "en.lproj/Default-568h@2x.png"; sourceTree = "<group>"; };
@@ -254,6 +260,8 @@
 				F6A12CCF145119B700C1D980 /* SRWebSocket.h */,
 				F6A12CD0145119B700C1D980 /* SRWebSocket.m */,
 				7E8F43701A8B641A000F5D01 /* SRWebSocketProtocol.h */,
+				7EF6B8C31A8E31A500547B2C /* SRErrorConstants.h */,
+				7EF6B8C41A8E31A500547B2C /* SRErrorConstants.m */,
 			);
 			path = SocketRocket;
 			sourceTree = "<group>";
@@ -297,6 +305,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F668C8AA153E92F90044DBAC /* SRWebSocket.h in Headers */,
+				7EF6B8C61A8E31A500547B2C /* SRErrorConstants.h in Headers */,
 				7E8F43721A8B641A000F5D01 /* SRWebSocketProtocol.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -306,6 +315,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F6A12CD1145119B700C1D980 /* SRWebSocket.h in Headers */,
+				7EF6B8C51A8E31A500547B2C /* SRErrorConstants.h in Headers */,
 				7E8F43711A8B641A000F5D01 /* SRWebSocketProtocol.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -473,6 +483,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F6396B86153E67EC00345B5E /* SRWebSocket.m in Sources */,
+				7EF6B8C81A8E31A500547B2C /* SRErrorConstants.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -481,6 +492,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F6A12CD2145119B700C1D980 /* SRWebSocket.m in Sources */,
+				7EF6B8C71A8E31A500547B2C /* SRErrorConstants.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
