@@ -14,6 +14,7 @@
 //   limitations under the License.
 //
 
+#import <SocketRocket/SRWebSocketProtocol.h>
 #import <Foundation/Foundation.h>
 #import <Security/SecCertificate.h>
 
@@ -48,7 +49,7 @@ extern NSString *const SRHTTPResponseErrorKey;
 
 #pragma mark - SRWebSocket
 
-@interface SRWebSocket : NSObject <NSStreamDelegate>
+@interface SRWebSocket : NSObject <SRWebSocketProtocol, NSStreamDelegate>
 
 @property (nonatomic, weak) id <SRWebSocketDelegate> delegate;
 
