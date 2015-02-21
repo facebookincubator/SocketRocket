@@ -7,8 +7,17 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		7E3D22681A990986008BB677 /* SRErrorConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 7E3D22661A990986008BB677 /* SRErrorConstants.h */; };
+		7E3D22691A990986008BB677 /* SRErrorConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 7E3D22661A990986008BB677 /* SRErrorConstants.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		7E3D226A1A990986008BB677 /* SRErrorConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 7E3D22661A990986008BB677 /* SRErrorConstants.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		7E3D226B1A990986008BB677 /* SRErrorConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = 7E3D22671A990986008BB677 /* SRErrorConstants.m */; };
+		7E3D226C1A990986008BB677 /* SRErrorConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = 7E3D22671A990986008BB677 /* SRErrorConstants.m */; };
+		7E3D226D1A990986008BB677 /* SRErrorConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = 7E3D22671A990986008BB677 /* SRErrorConstants.m */; };
+		7E3D226F1A99098F008BB677 /* SocketRocket-Prefix.pch in Headers */ = {isa = PBXBuildFile; fileRef = 7E3D226E1A99098F008BB677 /* SocketRocket-Prefix.pch */; };
+		7E3D22701A99098F008BB677 /* SocketRocket-Prefix.pch in Headers */ = {isa = PBXBuildFile; fileRef = 7E3D226E1A99098F008BB677 /* SocketRocket-Prefix.pch */; };
+		7E3D22711A99098F008BB677 /* SocketRocket-Prefix.pch in Headers */ = {isa = PBXBuildFile; fileRef = 7E3D226E1A99098F008BB677 /* SocketRocket-Prefix.pch */; };
 		7E8F43711A8B641A000F5D01 /* SRWebSocketProtocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 7E8F43701A8B641A000F5D01 /* SRWebSocketProtocol.h */; };
-		7E8F43721A8B641A000F5D01 /* SRWebSocketProtocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 7E8F43701A8B641A000F5D01 /* SRWebSocketProtocol.h */; };
+		7E8F43721A8B641A000F5D01 /* SRWebSocketProtocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 7E8F43701A8B641A000F5D01 /* SRWebSocketProtocol.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		7EA7C00F1A9901FD00AFE63E /* SocketRocket-iOS.h in Headers */ = {isa = PBXBuildFile; fileRef = 7EA7C00E1A9901FD00AFE63E /* SocketRocket-iOS.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		7EA7C0151A9901FD00AFE63E /* SocketRocket.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7EA7C00A1A9901FC00AFE63E /* SocketRocket.framework */; };
 		7EA7C01C1A9901FD00AFE63E /* SocketRocket_iOSTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7EA7C01B1A9901FD00AFE63E /* SocketRocket_iOSTests.m */; };
@@ -71,6 +80,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		7E3D22661A990986008BB677 /* SRErrorConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SRErrorConstants.h; sourceTree = "<group>"; };
+		7E3D22671A990986008BB677 /* SRErrorConstants.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SRErrorConstants.m; sourceTree = "<group>"; };
+		7E3D226E1A99098F008BB677 /* SocketRocket-Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "SocketRocket-Prefix.pch"; path = "SocketRocket/SocketRocket-Prefix.pch"; sourceTree = "<group>"; };
 		7E8F43701A8B641A000F5D01 /* SRWebSocketProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SRWebSocketProtocol.h; sourceTree = "<group>"; };
 		7EA7C00A1A9901FC00AFE63E /* SocketRocket.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SocketRocket.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		7EA7C00D1A9901FD00AFE63E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -281,6 +293,7 @@
 		F6B208221450F597009315AF = {
 			isa = PBXGroup;
 			children = (
+				7E3D226E1A99098F008BB677 /* SocketRocket-Prefix.pch */,
 				F6B208321450F597009315AF /* SocketRocket */,
 				F6BDA807145900D200FE3253 /* SRWebSocketTests */,
 				F62417EA14D52F3C003CE997 /* TestChat */,
@@ -329,6 +342,8 @@
 				F6B208331450F597009315AF /* Supporting Files */,
 				F6A12CCF145119B700C1D980 /* SRWebSocket.h */,
 				F6A12CD0145119B700C1D980 /* SRWebSocket.m */,
+				7E3D22661A990986008BB677 /* SRErrorConstants.h */,
+				7E3D22671A990986008BB677 /* SRErrorConstants.m */,
 				7E8F43701A8B641A000F5D01 /* SRWebSocketProtocol.h */,
 			);
 			path = SocketRocket;
@@ -372,8 +387,10 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7E3D226A1A990986008BB677 /* SRErrorConstants.h in Headers */,
 				7EA7C00F1A9901FD00AFE63E /* SocketRocket-iOS.h in Headers */,
 				7EA7C0241A9902E600AFE63E /* SRWebSocket.h in Headers */,
+				7E3D22711A99098F008BB677 /* SocketRocket-Prefix.pch in Headers */,
 				7EA7C0251A9902EF00AFE63E /* SRWebSocketProtocol.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -382,7 +399,9 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7E3D22701A99098F008BB677 /* SocketRocket-Prefix.pch in Headers */,
 				F668C8AA153E92F90044DBAC /* SRWebSocket.h in Headers */,
+				7E3D22691A990986008BB677 /* SRErrorConstants.h in Headers */,
 				7E8F43721A8B641A000F5D01 /* SRWebSocketProtocol.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -391,7 +410,9 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7E3D226F1A99098F008BB677 /* SocketRocket-Prefix.pch in Headers */,
 				F6A12CD1145119B700C1D980 /* SRWebSocket.h in Headers */,
+				7E3D22681A990986008BB677 /* SRErrorConstants.h in Headers */,
 				7E8F43711A8B641A000F5D01 /* SRWebSocketProtocol.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -608,6 +629,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				7EA7C0231A9902D900AFE63E /* SRWebSocket.m in Sources */,
+				7E3D226D1A990986008BB677 /* SRErrorConstants.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -635,6 +657,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F6396B86153E67EC00345B5E /* SRWebSocket.m in Sources */,
+				7E3D226C1A990986008BB677 /* SRErrorConstants.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -643,6 +666,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F6A12CD2145119B700C1D980 /* SRWebSocket.m in Sources */,
+				7E3D226B1A990986008BB677 /* SRErrorConstants.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1079,6 +1103,7 @@
 				7EA7C01E1A9901FD00AFE63E /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		7EA7C0221A9901FD00AFE63E /* Build configuration list for PBXNativeTarget "SocketRocket-iOSTests" */ = {
 			isa = XCConfigurationList;
@@ -1087,6 +1112,7 @@
 				7EA7C0201A9901FD00AFE63E /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		F62417FC14D52F3C003CE997 /* Build configuration list for PBXNativeTarget "TestChat" */ = {
 			isa = XCConfigurationList;
