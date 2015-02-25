@@ -14,6 +14,7 @@
 //   limitations under the License.
 //
 
+#import <SocketRocket/SRWebSocketProtocol.h>
 #import <Foundation/Foundation.h>
 #import <Security/SecCertificate.h>
 
@@ -39,16 +40,13 @@ typedef enum SRStatusCode : NSInteger {
 
 @class SRWebSocket;
 
-extern NSString *const SRWebSocketErrorDomain;
-extern NSString *const SRHTTPResponseErrorKey;
-
 #pragma mark - SRWebSocketDelegate
 
 @protocol SRWebSocketDelegate;
 
 #pragma mark - SRWebSocket
 
-@interface SRWebSocket : NSObject <NSStreamDelegate>
+@interface SRWebSocket : NSObject <SRWebSocketProtocol, NSStreamDelegate>
 
 @property (nonatomic, weak) id <SRWebSocketDelegate> delegate;
 
