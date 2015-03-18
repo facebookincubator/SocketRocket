@@ -586,6 +586,26 @@ static __strong NSData *CRLFCRLF;
     
     _inputStream.delegate = self;
     _outputStream.delegate = self;
+    
+    NSString *networkServiceType;
+    switch (_urlRequest.networkServiceType) {
+        case NSURLNetworkServiceTypeVoIP:
+            networkServiceType = NSStreamNetworkServiceTypeVoIP;
+            break;
+        case NSURLNetworkServiceTypeVideo:
+            networkServiceType = NSStreamNetworkServiceTypeVideo;
+            break;
+        case NSURLNetworkServiceTypeBackground:
+            networkServiceType = NSStreamNetworkServiceTypeBackground;
+            break;
+        case NSURLNetworkServiceTypeVoice:
+            networkServiceType = NSStreamNetworkServiceTypeVoice;
+            break;
+        default:
+            break;
+    }
+    [_inputStream setProperty:networkServiceType forKey:NSStreamNetworkServiceType];
+    [_outputStream setProperty:networkServiceType forKey:NSStreamNetworkServiceType];
 }
 
 - (void)_connect;
