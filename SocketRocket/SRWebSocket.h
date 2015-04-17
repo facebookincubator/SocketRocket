@@ -48,6 +48,7 @@ extern NSString *const SRHTTPResponseErrorKey;
 
 @interface SRWebSocket : NSObject <NSStreamDelegate>
 
+@property (nonatomic) BOOL allowInsecureConnections;
 @property (nonatomic, weak) id <SRWebSocketDelegate> delegate;
 
 @property (nonatomic, readonly) SRReadyState readyState;

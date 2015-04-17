@@ -570,6 +570,7 @@ static __strong NSData *CRLFCRLF;
             port = 443;
         }
     }
+
     NSString *host = _url.host;
     
     CFReadStreamRef readStream = NULL;
@@ -617,8 +618,7 @@ static __strong NSData *CRLFCRLF;
     if (!_scheduledRunloops.count) {
         [self scheduleInRunLoop:[NSRunLoop SR_networkRunLoop] forMode:NSDefaultRunLoopMode];
     }
-    
-    
+
     [_outputStream open];
     [_inputStream open];
 }
