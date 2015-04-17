@@ -751,6 +751,16 @@ static __strong NSData *CRLFCRLF;
     });
 }
 
+- (void)sendString:(NSString *)message
+{
+    [self send:message];
+}
+
+- (void)sendData:(NSData *)message
+{
+    [self send:message];
+}
+
 - (void)sendPing:(NSData *)data;
 {
     NSAssert(self.readyState == SRStateOpen, @"Invalid State: Cannot call send: until connection is open");
@@ -785,7 +795,18 @@ static __strong NSData *CRLFCRLF;
 {
     SRFastLog(@"Received message");
     [self _performDelegateBlock:^{
-        [self.delegate webSocket:self didReceiveMessage:message];
+        if ([message isKindOfClass:[NSData class]] && [self.delegate respondsToSelector:@selector(webSocket:didReceiveData:)])
+        {
+            [self.delegate webSocket:self didReceiveData:(NSData *)message];
+        }
+        else if ([message isKindOfClass:[NSString class]] && [self.delegate respondsToSelector:@selector(webSocket:didReceiveString:)])
+        {
+            [self.delegate webSocket:self didReceiveString:(NSString *)message];
+        }
+        else
+        {
+            [self.delegate webSocket:self didReceiveMessage:message];
+        }
     }];
 }
 

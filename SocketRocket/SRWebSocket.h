@@ -105,6 +105,10 @@ extern NSString *const SRHTTPResponseErrorKey;
 // Send a UTF8 String or Data.
 - (void)send:(id)data;
 
+- (void)sendString:(NSString *)message;
+
+- (void)sendData:(NSData *)message;
+
 // Send Data (can be nil) in a ping message.
 - (void)sendPing:(NSData *)data;
 
@@ -124,6 +128,9 @@ extern NSString *const SRHTTPResponseErrorKey;
 - (void)webSocket:(SRWebSocket *)webSocket didFailWithError:(NSError *)error;
 - (void)webSocket:(SRWebSocket *)webSocket didCloseWithCode:(NSInteger)code reason:(NSString *)reason wasClean:(BOOL)wasClean;
 - (void)webSocket:(SRWebSocket *)webSocket didReceivePong:(NSData *)pongPayload;
+
+- (void)webSocket:(SRWebSocket *)webSocket didReceiveString:(NSString *)message;
+- (void)webSocket:(SRWebSocket *)webSocket didReceiveData:(NSData *)message;
 
 @end
 
