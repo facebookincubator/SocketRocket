@@ -737,11 +737,12 @@ static __strong NSData *CRLFCRLF;
     [self _pumpWriting];
 }
 
-- (void)send:(id)data;
+- (void)send:(id)data
 {
     NSAssert(self.readyState != SRStateConnecting, @"Invalid State: Cannot call send: until connection is open");
-    // TODO: maybe not copy this for performance
-    data = [data copy];
+    // We do not need the copy here.
+//    // TODO: maybe not copy this for performance
+//    data = [data copy];
     dispatch_async(_workQueue, ^{
         if ([data isKindOfClass:[NSString class]]) {
             [self _sendFrameWithOpcode:SROpCodeTextFrame data:[(NSString *)data dataUsingEncoding:NSUTF8StringEncoding]];
@@ -778,7 +779,7 @@ static __strong NSData *CRLFCRLF;
 {
     NSAssert(self.readyState == SRStateOpen, @"Invalid State: Cannot call send: until connection is open");
     // TODO: maybe not copy this for performance
-    data = [data copy] ?: [NSData data]; // It's okay for a ping to be empty
+    data = data ?: [NSData data]; // It's okay for a ping to be empty
     dispatch_async(_workQueue, ^{
         [self _sendFrameWithOpcode:SROpCodePing data:data];
     });
@@ -1316,11 +1317,11 @@ static const char CRLFCRLFBytes[] = {'\r', '\n', '\r', '\n'};
                 // Validate UTF8 stuff.
                 size_t currentDataSize = _currentFrameData.length;
                 if (_currentFrameOpcode == SROpCodeTextFrame && currentDataSize > 0) {
-                    // TODO: Optimize the crap out of this.  Don't really have to copy all the data each time
-                    
                     size_t scanSize = currentDataSize - _currentStringScanPosition;
-                    
-                    NSData *scan_data = [_currentFrameData subdataWithRange:NSMakeRange(_currentStringScanPosition, scanSize)];
+
+                    // TODO: If something breaks, it's this.
+                    NSData *scan_data = [NSData dataWithBytesNoCopy:(void *)(_currentFrameData.bytes + _currentStringScanPosition) length:scanSize];
+//                    NSData *scan_data = [_currentFrameData subdataWithRange:NSMakeRange(_currentStringScanPosition, scanSize)];
                     int32_t valid_utf8_size = validate_dispatch_data_partial_string(scan_data);
                     
                     if (valid_utf8_size == -1) {
