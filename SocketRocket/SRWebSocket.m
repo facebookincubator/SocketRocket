@@ -1152,21 +1152,32 @@ static const uint8_t SRPayloadLenMask   = 0x7F;
             _outputBuffer = [[NSMutableData alloc] initWithBytes:(char *)_outputBuffer.bytes + _outputBufferOffset length:_outputBuffer.length - _outputBufferOffset];
             _outputBufferOffset = 0;
         }
+    }
 
-        @synchronized (self) {
-            if ([_writeIdentifiers count] && [_outputBuffer length] == 0 && [self.delegate respondsToSelector:@selector(webSocket:writeDidFinishWithIdentifier:)]) {
-                for (id identifier in _writeIdentifiers) {
-                    [self _performDelegateBlock:^{
-                        [self.delegate webSocket:self writeDidFinishWithIdentifier:identifier];
-                    }];
-                }
+    @synchronized (self) {
+        BOOL isEmpty = NO;
 
-                [_writeIdentifiers removeAllObjects];
+        if (_outputBufferOffset == 0)
+        {
+            isEmpty = YES;
+        }
+        else if (_outputBufferOffset == [_outputBuffer length])
+        {
+            isEmpty = YES;
+        }
+
+        if ([_writeIdentifiers count] && isEmpty && [self.delegate respondsToSelector:@selector(webSocket:writeDidFinishWithIdentifier:)]) {
+            for (id identifier in _writeIdentifiers) {
+                [self _performDelegateBlock:^{
+                    [self.delegate webSocket:self writeDidFinishWithIdentifier:identifier];
+                }];
             }
+
+            [_writeIdentifiers removeAllObjects];
         }
     }
-    
-    if (_closeWhenFinishedWriting && 
+
+    if (_closeWhenFinishedWriting &&
         _outputBuffer.length - _outputBufferOffset == 0 && 
         (_inputStream.streamStatus != NSStreamStatusNotOpen &&
          _inputStream.streamStatus != NSStreamStatusClosed) &&
