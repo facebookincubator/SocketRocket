@@ -109,6 +109,12 @@ extern NSString *const SRHTTPResponseErrorKey;
 
 - (void)sendData:(NSData *)message;
 
+/**
+ *  Send data with an identifier in such a way that you will be notified when the write has completed.
+ *
+ *  @param message    The data.
+ *  @param identifier The identifier.
+ */
 - (void)sendPartialData:(NSData *)message withIdentifier:(id)identifier;
 
 // Send Data (can be nil) in a ping message.
@@ -120,16 +126,16 @@ extern NSString *const SRHTTPResponseErrorKey;
 
 @protocol SRWebSocketDelegate <NSObject>
 
-// message will either be an NSString if the server is using text
-// or NSData if the server is using binary.
-- (void)webSocket:(SRWebSocket *)webSocket didReceiveMessage:(id)message;
-
 @optional
 
 - (void)webSocketDidOpen:(SRWebSocket *)webSocket;
 - (void)webSocket:(SRWebSocket *)webSocket didFailWithError:(NSError *)error;
 - (void)webSocket:(SRWebSocket *)webSocket didCloseWithCode:(NSInteger)code reason:(NSString *)reason wasClean:(BOOL)wasClean;
 - (void)webSocket:(SRWebSocket *)webSocket didReceivePong:(NSData *)pongPayload;
+
+// message will either be an NSString if the server is using text
+// or NSData if the server is using binary.
+- (void)webSocket:(SRWebSocket *)webSocket didReceiveMessage:(id)message;
 
 - (void)webSocket:(SRWebSocket *)webSocket didReceiveString:(NSString *)message;
 - (void)webSocket:(SRWebSocket *)webSocket didReceiveData:(NSData *)message;
