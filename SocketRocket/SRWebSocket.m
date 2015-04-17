@@ -261,7 +261,7 @@ static __strong NSData *CRLFCRLF;
     CRLFCRLF = [[NSData alloc] initWithBytes:"\r\n\r\n" length:4];
 }
 
-- (id)initWithURLRequest:(NSURLRequest *)request protocols:(NSArray *)protocols allowsUntrustedSSLCertificates:(BOOL)allowsUntrustedSSLCertificates;
+- (instancetype)initWithURLRequest:(NSURLRequest *)request protocols:(NSArray *)protocols allowsUntrustedSSLCertificates:(BOOL)allowsUntrustedSSLCertificates;
 {
     self = [super init];
     if (self) {
@@ -278,22 +278,22 @@ static __strong NSData *CRLFCRLF;
     return self;
 }
 
-- (id)initWithURLRequest:(NSURLRequest *)request protocols:(NSArray *)protocols;
+- (instancetype)initWithURLRequest:(NSURLRequest *)request protocols:(NSArray *)protocols;
 {
     return [self initWithURLRequest:request protocols:protocols allowsUntrustedSSLCertificates:NO];
 }
 
-- (id)initWithURLRequest:(NSURLRequest *)request;
+- (instancetype)initWithURLRequest:(NSURLRequest *)request;
 {
     return [self initWithURLRequest:request protocols:nil];
 }
 
-- (id)initWithURL:(NSURL *)url;
+- (instancetype)initWithURL:(NSURL *)url;
 {
     return [self initWithURL:url protocols:nil];
 }
 
-- (id)initWithURL:(NSURL *)url protocols:(NSArray *)protocols;
+- (instancetype)initWithURL:(NSURL *)url protocols:(NSArray *)protocols;
 {
     NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:url];    
     return [self initWithURLRequest:request protocols:protocols];
@@ -314,7 +314,7 @@ static __strong NSData *CRLFCRLF;
         _secure = YES;
     }
     
-    _readyState = SR_CONNECTING;
+    _readyState = SRStateConnecting;
     _consumerStopped = YES;
     _webSocketVersion = 13;
     
@@ -386,7 +386,7 @@ static __strong NSData *CRLFCRLF;
 - (void)open;
 {
     assert(_url);
-    NSAssert(_readyState == SR_CONNECTING, @"Cannot call -(void)open on SRWebSocket more than once");
+    NSAssert(_readyState == SRStateConnecting, @"Cannot call -(void)open on SRWebSocket more than once");
 
     _selfRetain = self;
     
@@ -457,7 +457,7 @@ static __strong NSData *CRLFCRLF;
         _protocol = negotiatedProtocol;
     }
     
-    self.readyState = SR_OPEN;
+    self.readyState = SRStateOpen;
     
     if (!_didFail) {
         [self _readFrameNew];
@@ -648,13 +648,13 @@ static __strong NSData *CRLFCRLF;
 {
     assert(code);
     dispatch_async(_workQueue, ^{
-        if (self.readyState == SR_CLOSING || self.readyState == SR_CLOSED) {
+        if (self.readyState == SRStateClosing || self.readyState == SRStateClosed) {
             return;
         }
         
-        BOOL wasConnecting = self.readyState == SR_CONNECTING;
+        BOOL wasConnecting = self.readyState == SRStateConnecting;
         
-        self.readyState = SR_CLOSING;
+        self.readyState = SRStateClosing;
         
         SRFastLog(@"Closing with code %d reason %@", code, reason);
         
@@ -704,7 +704,7 @@ static __strong NSData *CRLFCRLF;
 - (void)_failWithError:(NSError *)error;
 {
     dispatch_async(_workQueue, ^{
-        if (self.readyState != SR_CLOSED) {
+        if (self.readyState != SRStateClosed) {
             _failed = YES;
             [self _performDelegateBlock:^{
                 if ([self.delegate respondsToSelector:@selector(webSocket:didFailWithError:)]) {
@@ -712,7 +712,7 @@ static __strong NSData *CRLFCRLF;
                 }
             }];
 
-            self.readyState = SR_CLOSED;
+            self.readyState = SRStateClosed;
             _selfRetain = nil;
 
             SRFastLog(@"Failing with error %@", error.localizedDescription);
@@ -735,7 +735,7 @@ static __strong NSData *CRLFCRLF;
 
 - (void)send:(id)data;
 {
-    NSAssert(self.readyState != SR_CONNECTING, @"Invalid State: Cannot call send: until connection is open");
+    NSAssert(self.readyState != SRStateConnecting, @"Invalid State: Cannot call send: until connection is open");
     // TODO: maybe not copy this for performance
     data = [data copy];
     dispatch_async(_workQueue, ^{
@@ -753,7 +753,7 @@ static __strong NSData *CRLFCRLF;
 
 - (void)sendPing:(NSData *)data;
 {
-    NSAssert(self.readyState == SR_OPEN, @"Invalid State: Cannot call send: until connection is open");
+    NSAssert(self.readyState == SRStateOpen, @"Invalid State: Cannot call send: until connection is open");
     // TODO: maybe not copy this for performance
     data = [data copy] ?: [NSData data]; // It's okay for a ping to be empty
     dispatch_async(_workQueue, ^{
@@ -855,7 +855,7 @@ static inline BOOL closeCodeIsValid(int closeCode) {
     
     [self assertOnWorkQueue];
     
-    if (self.readyState == SR_OPEN) {
+    if (self.readyState == SRStateOpen) {
         [self closeWithCode:1000 reason:nil];
     }
     dispatch_async(_workQueue, ^{
@@ -921,7 +921,7 @@ static inline BOOL closeCodeIsValid(int closeCode) {
 {
     assert(frame_header.opcode != 0);
     
-    if (self.readyState != SR_OPEN) {
+    if (self.readyState != SRStateOpen) {
         return;
     }
     
@@ -1207,7 +1207,7 @@ static const char CRLFCRLFBytes[] = {'\r', '\n', '\r', '\n'};
     
     BOOL didWork = NO;
     
-    if (self.readyState >= SR_CLOSING) {
+    if (self.readyState >= SRStateClosing) {
         return didWork;
     }
     
@@ -1446,12 +1446,12 @@ static const size_t SRFrameHeaderOverhead = 32;
         switch (eventCode) {
             case NSStreamEventOpenCompleted: {
                 SRFastLog(@"NSStreamEventOpenCompleted %@", aStream);
-                if (self.readyState >= SR_CLOSING) {
+                if (self.readyState >= SRStateClosing) {
                     return;
                 }
                 assert(_readBuffer);
                 
-                if (self.readyState == SR_CONNECTING && aStream == _inputStream) {
+                if (self.readyState == SRStateConnecting && aStream == _inputStream) {
                     [self didConnect];
                 }
                 [self _pumpWriting];
@@ -1476,8 +1476,8 @@ static const size_t SRFrameHeaderOverhead = 32;
                     [self _failWithError:aStream.streamError];
                 } else {
                     dispatch_async(_workQueue, ^{
-                        if (self.readyState != SR_CLOSED) {
-                            self.readyState = SR_CLOSED;
+                        if (self.readyState != SRStateClosed) {
+                            self.readyState = SRStateClosed;
                             _selfRetain = nil;
                         }
 

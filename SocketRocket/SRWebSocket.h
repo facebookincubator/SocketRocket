@@ -18,13 +18,13 @@
 #import <Security/SecCertificate.h>
 
 typedef NS_ENUM(NSInteger, SRReadyState) {
-    SR_CONNECTING   = 0,
-    SR_OPEN         = 1,
-    SR_CLOSING      = 2,
-    SR_CLOSED       = 3,
+    SRStateConnecting = 0,
+    SRStateOpen = 1,
+    SRStateClosing = 2,
+    SRStateClosed = 3,
 };
 
-typedef enum SRStatusCode : NSInteger {
+typedef NS_ENUM(NSInteger, SRStatusCode) {
     SRStatusCodeNormal = 1000,
     SRStatusCodeGoingAway = 1001,
     SRStatusCodeProtocolError = 1002,
@@ -35,9 +35,7 @@ typedef enum SRStatusCode : NSInteger {
     SRStatusCodeInvalidUTF8 = 1007,
     SRStatusCodePolicyViolated = 1008,
     SRStatusCodeMessageTooBig = 1009,
-} SRStatusCode;
-
-@class SRWebSocket;
+};
 
 extern NSString *const SRWebSocketErrorDomain;
 extern NSString *const SRHTTPResponseErrorKey;
@@ -53,7 +51,7 @@ extern NSString *const SRHTTPResponseErrorKey;
 @property (nonatomic, weak) id <SRWebSocketDelegate> delegate;
 
 @property (nonatomic, readonly) SRReadyState readyState;
-@property (nonatomic, readonly, retain) NSURL *url;
+@property (nonatomic, readonly) NSURL *url;
 
 
 @property (nonatomic, readonly) CFHTTPMessageRef receivedHTTPHeaders;
@@ -66,25 +64,25 @@ extern NSString *const SRHTTPResponseErrorKey;
 @property (nonatomic, readonly, copy) NSString *protocol;
 
 // Protocols should be an array of strings that turn into Sec-WebSocket-Protocol.
-- (id)initWithURLRequest:(NSURLRequest *)request protocols:(NSArray *)protocols allowsUntrustedSSLCertificates:(BOOL)allowsUntrustedSSLCertificates;
-- (id)initWithURLRequest:(NSURLRequest *)request protocols:(NSArray *)protocols;
-- (id)initWithURLRequest:(NSURLRequest *)request;
+- (instancetype)initWithURLRequest:(NSURLRequest *)request protocols:(NSArray *)protocols allowsUntrustedSSLCertificates:(BOOL)allowsUntrustedSSLCertificates;
+- (instancetype)initWithURLRequest:(NSURLRequest *)request protocols:(NSArray *)protocols;
+- (instancetype)initWithURLRequest:(NSURLRequest *)request;
 
 // Some helper constructors.
-- (id)initWithURL:(NSURL *)url protocols:(NSArray *)protocols allowsUntrustedSSLCertificates:(BOOL)allowsUntrustedSSLCertificates;
-- (id)initWithURL:(NSURL *)url protocols:(NSArray *)protocols;
-- (id)initWithURL:(NSURL *)url;
+- (instancetype)initWithURL:(NSURL *)url protocols:(NSArray *)protocols allowsUntrustedSSLCertificates:(BOOL)allowsUntrustedSSLCertificates;
+- (instancetype)initWithURL:(NSURL *)url protocols:(NSArray *)protocols;
+- (instancetype)initWithURL:(NSURL *)url;
 
 // Delegate queue will be dispatch_main_queue by default.
 // You cannot set both OperationQueue and dispatch_queue.
-- (void)setDelegateOperationQueue:(NSOperationQueue*) queue;
-- (void)setDelegateDispatchQueue:(dispatch_queue_t) queue;
+- (void)setDelegateOperationQueue:(NSOperationQueue *)queue;
+- (void)setDelegateDispatchQueue:(dispatch_queue_t)queue;
 
 // By default, it will schedule itself on +[NSRunLoop SR_networkRunLoop] using defaultModes.
 - (void)scheduleInRunLoop:(NSRunLoop *)aRunLoop forMode:(NSString *)mode;
 - (void)unscheduleFromRunLoop:(NSRunLoop *)aRunLoop forMode:(NSString *)mode;
 
-// SRWebSockets are intended for one-time-use only.  Open should be called once and only once.
+// SRWebSockets are intended for one-time-use only. Open should be called once and only once.
 - (void)open;
 
 - (void)close;
