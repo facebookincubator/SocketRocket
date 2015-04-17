@@ -48,12 +48,25 @@ extern NSString *const SRHTTPResponseErrorKey;
 
 @interface SRWebSocket : NSObject <NSStreamDelegate>
 
+/**
+ *  Set this to YES if you would like to allow invalid SSL certificates. This is not recommended and the default value is NO.
+ */
 @property (nonatomic) BOOL allowInsecureConnections;
+
+/**
+ *  Set and retrieve the delegate.
+ */
 @property (nonatomic, weak) id <SRWebSocketDelegate> delegate;
 
+/**
+ *  The current state of the connection.
+ */
 @property (nonatomic, readonly) SRReadyState readyState;
-@property (nonatomic, readonly) NSURL *url;
 
+/**
+ *  The connection's endpoint.
+ */
+@property (nonatomic, readonly) NSURL *url;
 
 @property (nonatomic, readonly) CFHTTPMessageRef receivedHTTPHeaders;
 
