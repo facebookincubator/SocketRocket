@@ -182,13 +182,11 @@ typedef void (^data_callback)(SRWebSocket *webSocket,  NSData *data);
 - (void)_closeWithProtocolError:(NSString *)message;
 - (void)_failWithError:(NSError *)error;
 
-- (void)_disconnect;
 
 - (void)_readFrameNew;
 - (void)_readFrameContinue;
 
 - (void)_pumpScanner;
-
 - (void)_pumpWriting;
 
 - (void)_addConsumerWithScanner:(stream_scanner)consumer callback:(data_callback)callback;
@@ -203,7 +201,9 @@ typedef void (^data_callback)(SRWebSocket *webSocket,  NSData *data);
 - (void)_SR_commonInit;
 
 - (void)_initializeStreams;
-- (void)_connect;
+
+- (void)disconnect;
+- (void)connect;
 
 @property (nonatomic) SRReadyState readyState;
 
@@ -399,7 +399,7 @@ static __strong NSData *CRLFCRLF;
 
     _selfRetain = self;
     
-    [self _connect];
+    [self connect];
 }
 
 // Calls block on delegate queue
@@ -588,7 +588,7 @@ static __strong NSData *CRLFCRLF;
     _outputStream.delegate = self;
 }
 
-- (void)_connect;
+- (void)connect;
 {
     if (!_scheduledRunloops.count) {
         [self scheduleInRunLoop:[NSRunLoop SR_networkRunLoop] forMode:NSDefaultRunLoopMode];
@@ -635,7 +635,7 @@ static __strong NSData *CRLFCRLF;
         SRFastLog(@"Closing with code %d reason %@", code, reason);
         
         if (wasConnecting) {
-            [self _disconnect];
+            [self disconnect];
             return;
         }
 
@@ -672,7 +672,7 @@ static __strong NSData *CRLFCRLF;
     [self _performDelegateBlock:^{
         [self closeWithCode:SRStatusCodeProtocolError reason:message];
         dispatch_async(_workQueue, ^{
-            [self _disconnect];
+            [self disconnect];
         });
     }];
 }
@@ -693,7 +693,7 @@ static __strong NSData *CRLFCRLF;
 
             SRFastLog(@"Failing with error %@", error.localizedDescription);
             
-            [self _disconnect];
+            [self disconnect];
         }
     });
 }
@@ -835,11 +835,11 @@ static inline BOOL closeCodeIsValid(int closeCode) {
         [self closeWithCode:1000 reason:nil];
     }
     dispatch_async(_workQueue, ^{
-        [self _disconnect];
+        [self disconnect];
     });
 }
 
-- (void)_disconnect;
+- (void)disconnect;
 {
     [self assertOnWorkQueue];
     SRFastLog(@"Trying to disconnect");
@@ -866,7 +866,7 @@ static inline BOOL closeCodeIsValid(int closeCode) {
             if (str == nil && frameData) {
                 [self closeWithCode:SRStatusCodeInvalidUTF8 reason:@"Text frames must be valid UTF-8"];
                 dispatch_async(_workQueue, ^{
-                    [self _disconnect];
+                    [self disconnect];
                 });
 
                 return;
@@ -1257,7 +1257,7 @@ static const char CRLFCRLFBytes[] = {'\r', '\n', '\r', '\n'};
                     if (valid_utf8_size == -1) {
                         [self closeWithCode:SRStatusCodeInvalidUTF8 reason:@"Text frames must be valid UTF-8"];
                         dispatch_async(_workQueue, ^{
-                            [self _disconnect];
+                            [self disconnect];
                         });
                         return didWork;
                     } else {
