@@ -247,6 +247,8 @@ typedef void (^data_callback)(SRWebSocket *webSocket,  NSData *data);
     
     NSArray *_requestedProtocols;
     SRIOConsumerPool *_consumerPool;
+
+    NSMutableSet *_writeIdentifiers;
 }
 
 @synthesize delegate = _delegate;
@@ -338,7 +340,9 @@ static __strong NSData *CRLFCRLF;
     _scheduledRunloops = [[NSMutableSet alloc] init];
     
     [self _initializeStreams];
-    
+
+    _writeIdentifiers = [[NSMutableSet alloc] init];
+
     // default handlers
 }
 
@@ -761,6 +765,15 @@ static __strong NSData *CRLFCRLF;
     [self send:message];
 }
 
+- (void)sendPartialData:(NSData *)message withIdentifier:(id)identifier
+{
+    @synchronized (self) {
+        [_writeIdentifiers addObject:identifier];
+    }
+
+    [self sendData:message];
+}
+
 - (void)sendPing:(NSData *)data;
 {
     NSAssert(self.readyState == SRStateOpen, @"Invalid State: Cannot call send: until connection is open");
@@ -1138,6 +1151,18 @@ static const uint8_t SRPayloadLenMask   = 0x7F;
             _outputBuffer = [[NSMutableData alloc] initWithBytes:(char *)_outputBuffer.bytes + _outputBufferOffset length:_outputBuffer.length - _outputBufferOffset];
             _outputBufferOffset = 0;
         }
+
+        @synchronized (self) {
+            if ([_writeIdentifiers count] && [_outputBuffer length] == 0 && [self.delegate respondsToSelector:@selector(webSocket:writeDidFinishWithIdentifier:)]) {
+                for (id identifier in _writeIdentifiers) {
+                    [self _performDelegateBlock:^{
+                        [self.delegate webSocket:self writeDidFinishWithIdentifier:identifier];
+                    }];
+                }
+
+                [_writeIdentifiers removeAllObjects];
+            }
+        }
     }
     
     if (_closeWhenFinishedWriting && 
@@ -1149,8 +1174,7 @@ static const uint8_t SRPayloadLenMask   = 0x7F;
             
         [_outputStream close];
         [_inputStream close];
-        
-        
+
         for (NSArray *runLoop in [_scheduledRunloops copy]) {
             [self unscheduleFromRunLoop:[runLoop objectAtIndex:0] forMode:[runLoop objectAtIndex:1]];
         }

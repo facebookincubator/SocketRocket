@@ -109,6 +109,8 @@ extern NSString *const SRHTTPResponseErrorKey;
 
 - (void)sendData:(NSData *)message;
 
+- (void)sendPartialData:(NSData *)message withIdentifier:(id)identifier;
+
 // Send Data (can be nil) in a ping message.
 - (void)sendPing:(NSData *)data;
 
@@ -131,6 +133,8 @@ extern NSString *const SRHTTPResponseErrorKey;
 
 - (void)webSocket:(SRWebSocket *)webSocket didReceiveString:(NSString *)message;
 - (void)webSocket:(SRWebSocket *)webSocket didReceiveData:(NSData *)message;
+
+- (void)webSocket:(SRWebSocket *)webSocket writeDidFinishWithIdentifier:(id)identifier;
 
 @end
 
