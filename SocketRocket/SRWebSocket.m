@@ -313,6 +313,8 @@ static __strong NSData *CRLFCRLF;
 
 - (void)_SR_commonInit;
 {
+    self.sendDataSafely = YES;
+    
     NSString *scheme = _url.scheme.lowercaseString;
     assert([scheme isEqualToString:@"ws"] || [scheme isEqualToString:@"http"] || [scheme isEqualToString:@"wss"] || [scheme isEqualToString:@"https"]);
     
@@ -346,8 +348,10 @@ static __strong NSData *CRLFCRLF;
     [self _initializeStreams];
 
     _writeIdentifiers = [[NSMutableSet alloc] init];
-
-    // default handlers
+    
+#ifdef DEBUG
+    self.allowInsecureConnections = YES;
+#endif
 }
 
 - (void)assertOnWorkQueue
@@ -744,9 +748,11 @@ static __strong NSData *CRLFCRLF;
 - (void)send:(id)data
 {
     NSAssert(self.readyState != SRReadyStateConnecting, @"Invalid State: Cannot call send: until connection is open");
-    // We do not need the copy here.
-//    // TODO: maybe not copy this for performance
-//    data = [data copy];
+    
+    if (self.sendDataSafely) {
+        data = [data copy];
+    }
+
     dispatch_async(_workQueue, ^{
         if ([data isKindOfClass:[NSString class]]) {
             [self _sendFrameWithOpcode:SROpCodeTextFrame data:[(NSString *)data dataUsingEncoding:NSUTF8StringEncoding]];
@@ -782,8 +788,16 @@ static __strong NSData *CRLFCRLF;
 - (void)sendPing:(NSData *)data
 {
     NSAssert(self.readyState == SRReadyStateOpen, @"Invalid State: Cannot call send: until connection is open");
-    // TODO: maybe not copy this for performance
-    data = data ?: [NSData data]; // It's okay for a ping to be empty
+    
+    if (!data)
+    {
+        data = [NSData data]; // It's okay for a ping to be empty
+    }
+    else if (self.sendDataSafely)
+    {
+        data = [data copy];
+    }
+
     dispatch_async(_workQueue, ^{
         [self _sendFrameWithOpcode:SROpCodePing data:data];
     });

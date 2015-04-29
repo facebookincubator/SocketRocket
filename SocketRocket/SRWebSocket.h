@@ -57,11 +57,6 @@ extern NSString *const SRHTTPResponseErrorKey;
 @interface SRWebSocket : NSObject <NSStreamDelegate>
 
 /**
- *  Set this to YES if you would like to allow invalid SSL certificates. This is not recommended and the default value is NO.
- */
-@property (nonatomic) BOOL allowInsecureConnections;
-
-/**
  *  Set and retrieve the delegate.
  */
 @property (nonatomic, weak) id <SRWebSocketDelegate> delegate;
@@ -84,6 +79,16 @@ extern NSString *const SRHTTPResponseErrorKey;
 // This returns the negotiated protocol.
 // It will be nil until after the handshake completes.
 @property (nonatomic, readonly, copy) NSString *protocol;
+
+/**
+ *  This property determine whether NSString/NSData objects are copied before being sent. The default value of this property is YES. Set this property to NO for a minor performance optimization if you know you are sending objects that won't change before they are written.
+ */
+@property (nonatomic) BOOL sendDataSafely;
+
+/**
+ *  Set this to YES if you would like to allow invalid SSL certificates. This is not recommended and the default value is NO. In DEBUG mode, this property will default to YES.
+ */
+@property (nonatomic) BOOL allowInsecureConnections;
 
 // Protocols should be an array of strings that turn into Sec-WebSocket-Protocol.
 - (instancetype)initWithURLRequest:(NSURLRequest *)request protocols:(NSArray *)protocols allowsUntrustedSSLCertificates:(BOOL)allowsUntrustedSSLCertificates;
