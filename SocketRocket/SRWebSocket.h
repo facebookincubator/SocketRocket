@@ -18,11 +18,19 @@
 #import <Security/SecCertificate.h>
 
 typedef NS_ENUM(NSInteger, SRReadyState) {
-    SRStateConnecting = 0,
-    SRStateOpen = 1,
-    SRStateClosing = 2,
-    SRStateClosed = 3,
+    SRReadyStateConnecting = 0,
+    SRReadyStateOpen = 1,
+    SRReadyStateClosing = 2,
+    SRReadyStateClosed = 3,
 };
+
+/**
+ *  Legacy SRReadyState constants. These map directly to the new constants.
+ */
+extern SRReadyState const SR_CONNECTING;
+extern SRReadyState const SR_OPEN;
+extern SRReadyState const SR_CLOSING;
+extern SRReadyState const SR_CLOSED;
 
 typedef NS_ENUM(NSInteger, SRStatusCode) {
     SRStatusCodeNormal = 1000,
