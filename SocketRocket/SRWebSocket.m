@@ -347,7 +347,7 @@ static __strong NSData *CRLFCRLF;
     _consumerPool = [[SRIOConsumerPool alloc] init];
     
     _scheduledRunloops = [[NSMutableSet alloc] init];
-    
+
     [self _initializeStreams];
     
     // default handlers
@@ -570,16 +570,21 @@ static __strong NSData *CRLFCRLF;
         
         [_outputStream setProperty:(__bridge id)kCFStreamSocketSecurityLevelNegotiatedSSL forKey:(__bridge id)kCFStreamPropertySocketSecurityLevel];
         
-        // If we're using pinned certs, don't validate the certificate chain
-        if ([_urlRequest SR_SSLPinnedCertificates].count) {
+        // If we're using pinned or anchor certs, don't validate the certificate chain
+        if ([_urlRequest SR_SSLPinnedCertificates].count > 0 ||
+            [_urlRequest SR_SSLAnchorCertificates].count > 0) {
+
             [SSLOptions setValue:[NSNumber numberWithBool:NO] forKey:(__bridge id)kCFStreamSSLValidatesCertificateChain];
-        }
-        
+
+        } else {
+            // We have to use system certificate chain, but will disable it for debug builds.
 #if DEBUG
-        [SSLOptions setValue:[NSNumber numberWithBool:NO] forKey:(__bridge id)kCFStreamSSLValidatesCertificateChain];
-        NSLog(@"SocketRocket: In debug mode.  Allowing connection to any root cert");
+            [SSLOptions setValue:[NSNumber numberWithBool:NO] forKey:(__bridge id)kCFStreamSSLValidatesCertificateChain];
+            NSLog(@"SocketRocket: In debug mode.  Allowing connection to any root cert");
 #endif
-        
+        }
+
+
         [_outputStream setProperty:SSLOptions
                             forKey:(__bridge id)kCFStreamPropertySSLSettings];
     }
@@ -1388,16 +1393,19 @@ static const size_t SRFrameHeaderOverhead = 32;
 {
     if (_secure && !_pinnedCertFound && (eventCode == NSStreamEventHasBytesAvailable || eventCode == NSStreamEventHasSpaceAvailable)) {
         
-        NSArray *sslCerts = [_urlRequest SR_SSLPinnedCertificates];
-        if (sslCerts) {
-            SecTrustRef secTrust = (__bridge SecTrustRef)[aStream propertyForKey:(__bridge id)kCFStreamPropertySSLPeerTrust];
-            if (secTrust) {
-                NSInteger numCerts = SecTrustGetCertificateCount(secTrust);
+        NSArray *sslPinnedCerts = [_urlRequest SR_SSLPinnedCertificates];
+        NSArray *sslAnchorCerts = [_urlRequest SR_SSLAnchorCertificates];
+
+        // If we have any pinned certificates, should prefer them and ignore anything else.
+        if (sslPinnedCerts.count > 0) {
+            SecTrustRef trust = (__bridge SecTrustRef)[aStream propertyForKey:(__bridge id)kCFStreamPropertySSLPeerTrust];
+            if (trust) {
+                NSInteger numCerts = SecTrustGetCertificateCount(trust);
                 for (NSInteger i = 0; i < numCerts && !_pinnedCertFound; i++) {
-                    SecCertificateRef cert = SecTrustGetCertificateAtIndex(secTrust, i);
+                    SecCertificateRef cert = SecTrustGetCertificateAtIndex(trust, i);
                     NSData *certData = CFBridgingRelease(SecCertificateCopyData(cert));
                     
-                    for (id ref in sslCerts) {
+                    for (id ref in sslPinnedCerts) {
                         SecCertificateRef trustedCert = (__bridge SecCertificateRef)ref;
                         NSData *trustedCertData = CFBridgingRelease(SecCertificateCopyData(trustedCert));
                         
@@ -1409,6 +1417,31 @@ static const size_t SRFrameHeaderOverhead = 32;
                 }
             }
             
+            if (!_pinnedCertFound) {
+                dispatch_async(_workQueue, ^{
+                    [self _failWithError:[NSError errorWithDomain:SRWebSocketErrorDomain code:23556 userInfo:[NSDictionary dictionaryWithObject:[NSString stringWithFormat:@"Invalid server cert"] forKey:NSLocalizedDescriptionKey]]];
+                });
+                return;
+            }
+        }
+        // If we have anchor certificates, must use them instead of the system ones.
+        else if (sslAnchorCerts.count > 0) {
+
+            SecTrustRef trust = (__bridge SecTrustRef)[aStream propertyForKey:(__bridge id)kCFStreamPropertySSLPeerTrust];
+            if (trust) {
+
+                SecTrustSetAnchorCertificates(trust, (__bridge CFArrayRef)sslAnchorCerts);
+                SecTrustSetAnchorCertificatesOnly(trust, true);
+
+                SecTrustResultType result;
+                OSStatus status = SecTrustEvaluate(trust, &result);
+
+                if (status == errSecSuccess && (result == kSecTrustResultProceed || result == kSecTrustResultUnspecified)) {
+                    // Certificate is signed by one of the anchors, allow it for this connection.
+                    _pinnedCertFound = YES;
+                }
+            }
+
             if (!_pinnedCertFound) {
                 dispatch_async(_workQueue, ^{
                     [self _failWithError:[NSError errorWithDomain:SRWebSocketErrorDomain code:23556 userInfo:[NSDictionary dictionaryWithObject:[NSString stringWithFormat:@"Invalid server cert"] forKey:NSLocalizedDescriptionKey]]];
@@ -1577,23 +1610,38 @@ static const size_t SRFrameHeaderOverhead = 32;
 
 @implementation  NSURLRequest (CertificateAdditions)
 
-- (NSArray *)SR_SSLPinnedCertificates;
+- (NSArray *)SR_SSLPinnedCertificates
 {
     return [NSURLProtocol propertyForKey:@"SR_SSLPinnedCertificates" inRequest:self];
+}
+
+- (NSArray *)SR_SSLAnchorCertificates
+{
+    return [NSURLProtocol propertyForKey:@"SR_SSLAnchorCertificates" inRequest:self];
 }
 
 @end
 
 @implementation  NSMutableURLRequest (CertificateAdditions)
 
-- (NSArray *)SR_SSLPinnedCertificates;
+- (NSArray *)SR_SSLPinnedCertificates
 {
     return [NSURLProtocol propertyForKey:@"SR_SSLPinnedCertificates" inRequest:self];
 }
 
-- (void)setSR_SSLPinnedCertificates:(NSArray *)SR_SSLPinnedCertificates;
+- (void)setSR_SSLPinnedCertificates:(NSArray *)SR_SSLPinnedCertificates
 {
     [NSURLProtocol setProperty:SR_SSLPinnedCertificates forKey:@"SR_SSLPinnedCertificates" inRequest:self];
+}
+
+- (NSArray *)SR_SSLAnchorCertificates
+{
+    return [NSURLProtocol propertyForKey:@"SR_SSLAnchorCertificates" inRequest:self];
+}
+
+- (void)setSR_SSLAnchorCertificates:(NSArray *)SR_SSLAnchorCertificates
+{
+    [NSURLProtocol setProperty:SR_SSLAnchorCertificates forKey:@"SR_SSLAnchorCertificates" inRequest:self];
 }
 
 @end
@@ -1693,7 +1741,7 @@ static inline int32_t validate_dispatch_data_partial_string(NSData *data) {
     for (int i = 0; i < maxCodepointSize; i++) {
         NSString *str = [[NSString alloc] initWithBytesNoCopy:(char *)data.bytes length:data.length - i encoding:NSUTF8StringEncoding freeWhenDone:NO];
         if (str) {
-            return data.length - i;
+            return (int32_t)(data.length - i);
         }
     }
     

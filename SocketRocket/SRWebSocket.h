@@ -113,6 +113,11 @@ extern NSString *const SRHTTPResponseErrorKey;
 
 @property (nonatomic, retain, readonly) NSArray *SR_SSLPinnedCertificates;
 
+// Unlike pinned certificates, anchors allow arbitrary certificates validation,
+// but only against the given anchors.
+// Should be an array of SecCertificateRef objects.
+@property (nonatomic, retain, readonly) NSArray *SR_SSLAnchorCertificates;
+
 @end
 
 #pragma mark - NSMutableURLRequest (CertificateAdditions)
@@ -120,6 +125,11 @@ extern NSString *const SRHTTPResponseErrorKey;
 @interface NSMutableURLRequest (CertificateAdditions)
 
 @property (nonatomic, retain) NSArray *SR_SSLPinnedCertificates;
+
+// Unlike pinned certificates, anchors allow arbitrary certificates validation,
+// but only against the given anchors.
+// Should be an array of SecCertificateRef objects.
+@property (nonatomic, retain) NSArray *SR_SSLAnchorCertificates;
 
 @end
 
