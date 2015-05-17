@@ -1389,7 +1389,7 @@ static BOOL evaluateServerTrust(SecTrustRef serverTrust) {
 
     OSStatus status = SecTrustEvaluate(serverTrust, &result);
     
-    isValid = ((result == kSecTrustResultUnspecified || result == kSecTrustResultProceed) && status == 0);
+    isValid = ((result == kSecTrustResultUnspecified) && status == 0);
 
     return isValid;
 }
