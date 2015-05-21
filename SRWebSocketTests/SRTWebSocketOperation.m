@@ -63,7 +63,10 @@
 
 - (void)webSocket:(SRWebSocket *)webSocket didReceiveMessage:(id)message;
 {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
     NSAssert(NO, @"Not implemented");
+#pragma clang diagnostic pop
 }
 
 - (void)webSocket:(SRWebSocket *)webSocket didFailWithError:(NSError *)error;
