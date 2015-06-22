@@ -180,7 +180,12 @@ b64_ntop(u_char const *src, size_t srclength, char *target, size_t targsize)
 	if (datalength >= targsize)
 		return (-1);
 	target[datalength] = '\0';	/* Returned value doesn't count \0. */
-	return (datalength);
+	
+    if (datalength > INT_MAX) {
+        return -1;
+    } else {
+        return (int)datalength;
+    }
 }
 #endif /* !defined(HAVE_B64_NTOP) && !defined(HAVE___B64_NTOP) */
 
