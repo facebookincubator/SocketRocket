@@ -1584,9 +1584,9 @@ static const size_t SRFrameHeaderOverhead = 32;
     }
     
     if (self.port) {
-        return [NSString stringWithFormat:@"%@://%@:%@/", scheme, self.host, self.port];
+        return [NSString stringWithFormat:@"%@://%@:%@", scheme, self.host, self.port];
     } else {
-        return [NSString stringWithFormat:@"%@://%@/", scheme, self.host];
+        return [NSString stringWithFormat:@"%@://%@", scheme, self.host];
     }
 }
 
