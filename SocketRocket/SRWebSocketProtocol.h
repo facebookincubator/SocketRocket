@@ -8,6 +8,8 @@
 
 #import <Foundation/Foundation.h>
 
+@protocol SRWebSocketDelegate;
+
 @protocol SRWebSocketProtocol <NSObject>
 
 - (void)open;
@@ -17,5 +19,8 @@
 
 // Send a UTF8 String or Data.
 - (void)send:(id)data;
+
+-(id<SRWebSocketDelegate>)delegate;
+-(void)setDelegate:(id<SRWebSocketDelegate>)value;
 
 @end
