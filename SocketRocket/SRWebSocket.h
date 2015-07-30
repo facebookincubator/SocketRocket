@@ -17,16 +17,30 @@
 #import <Foundation/Foundation.h>
 #import <Security/SecCertificate.h>
 
-typedef enum {
+typedef NS_ENUM(NSInteger, SRReadyState) {
     SR_CONNECTING   = 0,
     SR_OPEN         = 1,
     SR_CLOSING      = 2,
     SR_CLOSED       = 3,
-} SRReadyState;
+};
+
+typedef enum SRStatusCode : NSInteger {
+    SRStatusCodeNormal = 1000,
+    SRStatusCodeGoingAway = 1001,
+    SRStatusCodeProtocolError = 1002,
+    SRStatusCodeUnhandledType = 1003,
+    // 1004 reserved.
+    SRStatusNoStatusReceived = 1005,
+    // 1004-1006 reserved.
+    SRStatusCodeInvalidUTF8 = 1007,
+    SRStatusCodePolicyViolated = 1008,
+    SRStatusCodeMessageTooBig = 1009,
+} SRStatusCode;
 
 @class SRWebSocket;
 
 extern NSString *const SRWebSocketErrorDomain;
+extern NSString *const SRHTTPResponseErrorKey;
 
 #pragma mark - SRWebSocketDelegate
 
@@ -36,7 +50,7 @@ extern NSString *const SRWebSocketErrorDomain;
 
 @interface SRWebSocket : NSObject <NSStreamDelegate>
 
-@property (nonatomic, assign) id <SRWebSocketDelegate> delegate;
+@property (nonatomic, weak) id <SRWebSocketDelegate> delegate;
 
 @property (nonatomic, readonly) SRReadyState readyState;
 @property (nonatomic, readonly, retain) NSURL *url;
@@ -71,6 +85,9 @@ extern NSString *const SRWebSocketErrorDomain;
 // Send a UTF8 String or Data.
 - (void)send:(id)data;
 
+// Send Data (can be nil) in a ping message.
+- (void)sendPing:(NSData *)data;
+
 @end
 
 #pragma mark - SRWebSocketDelegate
@@ -86,6 +103,7 @@ extern NSString *const SRWebSocketErrorDomain;
 - (void)webSocketDidOpen:(SRWebSocket *)webSocket;
 - (void)webSocket:(SRWebSocket *)webSocket didFailWithError:(NSError *)error;
 - (void)webSocket:(SRWebSocket *)webSocket didCloseWithCode:(NSInteger)code reason:(NSString *)reason wasClean:(BOOL)wasClean;
+- (void)webSocket:(SRWebSocket *)webSocket didReceivePong:(NSData *)pongPayload;
 
 @end
 
