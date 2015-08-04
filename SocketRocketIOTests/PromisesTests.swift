@@ -51,11 +51,21 @@ class PromisesTests: XCTestCase {
             }
         }
         
-        let lastPromise = p
-            .then({ v in return .of(v + 4) } )
-            .then({ v in return v + 5 })
         
-        self.expectationWithPromise(lastPromise, wait: false) { v in v == 12 }
+        let lastPromise = p
+            .then() { v in .of(v + 4) }
+            .then() { v in v + 5 }
+            .then() { v -> Promise<Int> in
+                let resulting = Promise<Int>()
+                
+                dispatch_async(dispatch_get_main_queue()) {
+                    resulting.fulfill(v + 3)
+                }
+                
+                return resulting
+        }
+        
+        self.expectationWithPromise(lastPromise, wait: false) { v in v == 15 }
         
         self.waitForExpectations()
     }

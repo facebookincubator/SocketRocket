@@ -31,8 +31,10 @@ public class Promise<T> {
         self.didSetVal = true
     }
     
+    public typealias SupplierType = (supply: (T) -> Void) -> Void
+    
     // Supplier is called immediately. The function passed to it is a done
-    public convenience init(@noescape supplier: (supply: (T) -> Void) -> Void) {
+    public convenience init(@noescape supplier: SupplierType) {
         self.init()
         supplier(supply: self.fulfill)
     }
