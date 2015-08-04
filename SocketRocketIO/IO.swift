@@ -142,21 +142,20 @@ enum OSError: ErrorType {
 public protocol SockAddr {
     init()
     
-    mutating func setup(listenAddr: ListenType, listenPort: UInt16) throws
+    mutating func setup(listenAddr: Address, listenPort: UInt16) throws
     
     static var size : Int {get}
     static var addressFamily: Int32 { get }
 }
 
-public enum ListenType {
+public enum Address {
     case Loopback
     case Any
     case IPV6Addr(address: String)
     case IPV4Addr(address: String)
-    
 }
 extension sockaddr_in6: SockAddr {
-    public mutating func setup(listenAddr: ListenType, listenPort: UInt16) throws {
+    public mutating func setup(listenAddr: Address, listenPort: UInt16) throws {
         switch listenAddr {
         case .Any:
             self.sin6_addr = in6addr_any
@@ -184,7 +183,7 @@ extension sockaddr_in: SockAddr {
     public static let size = sizeof(sockaddr_in)
     public static let addressFamily = AF_INET
     
-    public mutating func setup(listenAddr: ListenType, listenPort: UInt16) throws {
+    public mutating func setup(listenAddr: Address, listenPort: UInt16) throws {
         switch listenAddr {
         case .Any:
             self.sin_addr = INADDR_ANY
@@ -210,26 +209,18 @@ extension SockAddr {
 //    }
 }
 
-protocol SocketProtocol {
-    typealias AddrType: SockAddr
-    
-    var addr: AddrType { get }
-    
-}
 
 let defaultBacklog: Int32 = 5
 
-//sockaddr_in
-public class Socket<T: SockAddr> : SocketProtocol {
-    typealias AddrType = T
-    
-    var addr = AddrType()
+// Wrapper around a raw socket. Can do ipv6 or ipv4
+public class Socket<T: SockAddr> {
+    var addr = T()
     
     var fd: dispatch_fd_t = -1
     
     // Initializes as a nonblocking socket and starts listening. DOes not create a dispatch source
-    public init(listenAddr: ListenType, listenPort: UInt16) throws {
-        fd = socket(AddrType.addressFamily, SOCK_STREAM, IPPROTO_TCP)
+    public init(address: Address, port: UInt16) throws {
+        fd = socket(T.addressFamily, SOCK_STREAM, IPPROTO_TCP)
         try OSError.throwIfNotSuccessLessThan0(fd)
         do {
             let flags = shim_fcntl(fd, F_GETFL, 0);
@@ -242,7 +233,7 @@ public class Socket<T: SockAddr> : SocketProtocol {
             
             try OSError.throwIfNotSuccessLessThan0(setsockopt(fd, SOL_SOCKET, SO_REUSEPORT, &val, socklen_t(sizeofValue(val))))
             
-            try addr.setup(listenAddr, listenPort: listenPort)
+            try addr.setup(address, listenPort: port)
             
             try OSError.throwIfNotSuccessLessThan0(shim_bind(fd, &addr, addr.dynamicType.size))
             
@@ -261,7 +252,7 @@ public class Socket<T: SockAddr> : SocketProtocol {
         
         let eventSource = dispatch_source_create(DISPATCH_SOURCE_TYPE_READ, UInt(fd), 0, workQueue.queue)
         dispatch_source_set_event_handler(eventSource) {
-            var remoteAddress = AddrType()
+            var remoteAddress = T()
             var len = socklen_t(remoteAddress.dynamicType.size);
             
             let native: dispatch_fd_t = shim_accept(self.fd, &remoteAddress, &len)
@@ -298,6 +289,43 @@ extension dispatch_data_t {
     var empty: Bool {
         get {
             return dispatch_data_empty === self
+        }
+    }
+}
+
+private var hints: addrinfo = {
+    var hints = addrinfo()
+    hints.ai_family = PF_UNSPEC
+    hints.ai_socktype = SOCK_STREAM
+    return hints
+}()
+
+public func getaddrinfoAsync(hostname: String, servname: String, workQueue: Queue = Queue.defaultGlobalQueue, callbackQueue: Queue, handler:(ErrorOptional<[addrinfo]>) -> ()) {
+    workQueue.dispatchAsync() {
+        
+        let val = ErrorOptional<[addrinfo]>.attempt() {
+            var ai: UnsafeMutablePointer<addrinfo> = nil
+            defer {
+                if ai != nil {
+                    freeaddrinfo(ai)
+                }
+            }
+            
+            // ai won't be set if it doesn't work
+            // TODO(lewis) propagate error up
+            getaddrinfo(hostname, servname, &hints, &ai)
+            var ret = [addrinfo]()
+            
+            var curAi = ai
+            while curAi != nil{
+                var mutatedAI = curAi.memory
+                let next = mutatedAI.ai_next
+                mutatedAI.ai_next = nil
+                ret.append(mutatedAI)
+                curAi = next
+            }
+            
+            return ret;
         }
     }
 }

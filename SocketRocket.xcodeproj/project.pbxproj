@@ -52,6 +52,10 @@
 		F69DAA521B6AF53F00B456D0 /* QueueTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F69DAA511B6AF53F00B456D0 /* QueueTests.swift */; };
 		F6A12CD1145119B700C1D980 /* SRWebSocket.h in Headers */ = {isa = PBXBuildFile; fileRef = F6A12CCF145119B700C1D980 /* SRWebSocket.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		F6A12CD2145119B700C1D980 /* SRWebSocket.mm in Sources */ = {isa = PBXBuildFile; fileRef = F6A12CD0145119B700C1D980 /* SRWebSocket.mm */; };
+		F6AD27211B70547200756377 /* Promise.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6AD27201B70547200756377 /* Promise.swift */; };
+		F6AD27231B70550C00756377 /* ErrorOptional.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6AD27221B70550C00756377 /* ErrorOptional.swift */; };
+		F6AD27251B705DAB00756377 /* Lock.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6AD27241B705DAB00756377 /* Lock.swift */; };
+		F6AD27271B707EFA00756377 /* PromisesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6AD27261B707EFA00756377 /* PromisesTests.swift */; };
 		F6AE451D145906A70022AF3C /* libSocketRocket.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F6B2082D1450F597009315AF /* libSocketRocket.a */; };
 		F6AE4520145906B20022AF3C /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F6B208301450F597009315AF /* Foundation.framework */; };
 		F6AE45241459071C0022AF3C /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F6A12CD51451231B00C1D980 /* CFNetwork.framework */; };
@@ -159,6 +163,10 @@
 		F6A12CD0145119B700C1D980 /* SRWebSocket.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SRWebSocket.mm; sourceTree = "<group>"; };
 		F6A12CD3145122FC00C1D980 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		F6A12CD51451231B00C1D980 /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
+		F6AD27201B70547200756377 /* Promise.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Promise.swift; sourceTree = "<group>"; };
+		F6AD27221B70550C00756377 /* ErrorOptional.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ErrorOptional.swift; sourceTree = "<group>"; };
+		F6AD27241B705DAB00756377 /* Lock.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Lock.swift; sourceTree = "<group>"; };
+		F6AD27261B707EFA00756377 /* PromisesTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PromisesTests.swift; sourceTree = "<group>"; };
 		F6AE4526145907D30022AF3C /* SenTestCase+SRTAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "SenTestCase+SRTAdditions.h"; sourceTree = "<group>"; };
 		F6AE4527145907D30022AF3C /* SenTestCase+SRTAdditions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "SenTestCase+SRTAdditions.m"; sourceTree = "<group>"; };
 		F6B2082D1450F597009315AF /* libSocketRocket.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libSocketRocket.a; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -318,6 +326,9 @@
 				F69DAA181B6AEF6900B456D0 /* Info.plist */,
 				F69DAA2B1B6AF09B00B456D0 /* IO.swift */,
 				F69DAA2D1B6AF0CF00B456D0 /* Queue.swift */,
+				F6AD27201B70547200756377 /* Promise.swift */,
+				F6AD27221B70550C00756377 /* ErrorOptional.swift */,
+				F6AD27241B705DAB00756377 /* Lock.swift */,
 			);
 			path = SocketRocketIO;
 			sourceTree = "<group>";
@@ -329,6 +340,7 @@
 				F69DAA241B6AEF6900B456D0 /* Info.plist */,
 				F69DAA511B6AF53F00B456D0 /* QueueTests.swift */,
 				F6191F5B1B6C5598003DF396 /* IOTests.swift */,
+				F6AD27261B707EFA00756377 /* PromisesTests.swift */,
 			);
 			path = SocketRocketIOTests;
 			sourceTree = "<group>";
@@ -723,7 +735,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				F69DAA2C1B6AF09B00B456D0 /* IO.swift in Sources */,
+				F6AD27251B705DAB00756377 /* Lock.swift in Sources */,
 				F69DAA2E1B6AF0CF00B456D0 /* Queue.swift in Sources */,
+				F6AD27231B70550C00756377 /* ErrorOptional.swift in Sources */,
+				F6AD27211B70547200756377 /* Promise.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -734,6 +749,7 @@
 				F6191F5C1B6C5598003DF396 /* IOTests.swift in Sources */,
 				F69DAA231B6AEF6900B456D0 /* SocketRocketIOTests.swift in Sources */,
 				F69DAA521B6AF53F00B456D0 /* QueueTests.swift in Sources */,
+				F6AD27271B707EFA00756377 /* PromisesTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1262,6 +1278,7 @@
 				F6191F501B6C4694003DF396 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		F62417FC14D52F3C003CE997 /* Build configuration list for PBXNativeTarget "TestChat" */ = {
 			isa = XCConfigurationList;

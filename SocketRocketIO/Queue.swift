@@ -10,20 +10,25 @@ import Foundation
 import Dispatch
 
 /// Simple wrapper around dispatch_queue_t
-public class Queue: NSObject {
+public class Queue {
     let queue: dispatch_queue_t
 
     // used to check current queue
-    private var ctxKeyValue: UnsafeMutablePointer<Void>
+    private var ctxKeyValue: UnsafeMutablePointer<Void> = nil
     
     /// same as dispatch_get_main_queue()
     public static let mainQueue = Queue(queue: dispatch_get_main_queue())
     
+    public static let defaultGlobalQueue = Queue(queue: dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0))
+    
     public required init(queue: dispatch_queue_t) {
         self.queue = queue
-        let destructor: dispatch_function_t! = nil
         
-        ctxKeyValue = malloc(1)
+        withUnsafeMutablePointer(&self.ctxKeyValue) { ptr in
+            self.ctxKeyValue = unsafeBitCast(ptr, UnsafeMutablePointer<Void>.self);
+        }
+
+        let destructor: dispatch_function_t! = nil
         dispatch_queue_set_specific(self.queue, ctxKeyValue, ctxKeyValue, destructor)
     }
     
@@ -34,7 +39,6 @@ public class Queue: NSObject {
     deinit {
         let destructor: dispatch_function_t! = nil
         dispatch_queue_set_specific(self.queue, ctxKeyValue, nil, destructor)
-        free(ctxKeyValue)
     }
     
     public func dispatchAsync(block: () -> Void) {

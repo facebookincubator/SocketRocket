@@ -10,22 +10,24 @@ import XCTest
 import SocketRocketIO
 
 class IOTests: XCTestCase {
-
     func testListen() {
-        
+        return
         do {
             let acceptExpectation = expectationWithDescription("waiting")
             
             let cancelGroup = dispatch_group_create()
             dispatch_group_enter(cancelGroup)
-            let s = try Socket<sockaddr_in>(listenAddr: .Loopback, listenPort: 9231)
-            let canceler = s.startAccepting(Queue.mainQueue, cancelHandler: {
-                dispatch_group_leave(cancelGroup)
-                }) {
+            let s = try Socket<sockaddr_in>(address: .Loopback, port: 9231)
+            let canceler = s.startAccepting(
+                Queue.mainQueue,
+                cancelHandler: {
+                    dispatch_group_leave(cancelGroup)
+                },
+                acceptHandler: {
                     (fd) -> Void in
                     close(fd)
                     acceptExpectation.fulfill()
-            }
+            })
             
             
             waitForExpectations()
@@ -37,11 +39,11 @@ class IOTests: XCTestCase {
             }
             canceler()
             waitForExpectations()
+            
 
             
         } catch let e  {
             XCTFail("\(e)")
         }
-        //        s.startAcceptin
     }
 }

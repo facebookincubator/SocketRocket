@@ -55,7 +55,6 @@ class QueueTests: XCTestCase {
 let defaultTimeout: NSTimeInterval = 10
 
 extension XCTestCase {
-
     func waitForExpectations() -> Void {
         waitForExpectationsWithTimeout(defaultTimeout, handler: nil)
     }
