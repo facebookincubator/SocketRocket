@@ -68,3 +68,9 @@ public enum ErrorOptional<T> {
     }
 }
 
+
+public enum Errors: ErrorType {
+    case MultiError([ErrorType])
+}
+
+

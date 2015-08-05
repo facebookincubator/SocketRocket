@@ -297,14 +297,13 @@ private var hints: addrinfo = {
 extension Queue {
     /// Used to dispatch synchronous operations on a specific queue
     func blockingPromise<T>(blockingFn: () throws -> T) -> Promise<T>  {
-        typealias P = Promise<T>
-        let p = P()
+        let (r, p) = Promise<T>.resolver()
         
         self.dispatchAsync {
             do {
-                p.fulfill(try blockingFn())
+                r.resolve(try blockingFn())
             } catch let e {
-                p.fulfill(e)
+                r.reject(e)
             }
         }
         

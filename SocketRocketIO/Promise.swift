@@ -131,6 +131,29 @@ extension Queue {
     }
 }
 
+public struct Resolver<T> {
+    public typealias ET = ErrorOptional<T>
+    
+    private typealias P = Promise<T>
+    private let promise: P
+    
+    private init(promise: P) {
+        self.promise = promise
+    }
+    
+    public func resolve(value: T) {
+        fulfill(ET(value))
+    }
+    
+    public func reject(error: ErrorType) {
+        fulfill(ET(error))
+    }
+    
+    public func fulfill(v: ET) {
+        promise.fulfill(v)
+    }
+}
+
 public class Promise<T> {
     /// Error optional type
     public typealias ET = ErrorOptional<T>
@@ -139,21 +162,29 @@ public class Promise<T> {
     
     let underlyingPromise: UnderlyingPromiseType
     
+    typealias PV = PromiseOrValue<T>
+    
     private init(underlyingPromise: UnderlyingPromiseType) {
         self.underlyingPromise = underlyingPromise
     }
     
-    public init(value: T) {
-        underlyingPromise = RawPromise(value: ET(value))
+    public class func resolve(value: T) -> Promise<T> {
+        return Promise<T>(underlyingPromise: RawPromise(value: ErrorOptional(value)))
     }
     
-    // Initializes a failed promise
-    public init(error: ErrorType) {
-        underlyingPromise = RawPromise(value: ET(error))
+    public class func reject(error: ErrorType) -> Promise<T> {
+        return Promise<T>(underlyingPromise: RawPromise(value: ErrorOptional(error)))
+    }
+    // Returns a promise and the resolver for it
+    public class func resolver() -> (Resolver<T>, Promise<T>) {
+        let p = Promise<T>()
+        let r = Resolver(promise: p)
+
+        return (r, p)
     }
     
     // An uninitialized one
-    public required init() {
+    private init() {
         underlyingPromise = UnderlyingPromiseType()
     }
 
@@ -164,7 +195,7 @@ public class Promise<T> {
             case let .Error(e):
                 error?(e)
                 // TODO: improve this .Not very efficient
-                return PromiseOrValue.Promised(Promise<R>(error: e))
+                return PromiseOrValue.Value(Promise<R>.ET(e))
             case let .Some(val):
                 return success(val)
             }
@@ -225,15 +256,7 @@ public class Promise<T> {
         }
     }
     
-    public func fulfill(value: T) {
-        self.fulfill(ET(value))
-    }
-    
-    public func fulfill(value: ET) {
+    private func fulfill(value: ET) {
         underlyingPromise.fulfill(value)
-    }
-    
-    public func fulfill(error: ErrorType) {
-        self.fulfill(ET(error))
     }
 }

@@ -28,7 +28,7 @@ class RawPromiseTests: XCTestCase {
 
 class PromisesTests: XCTestCase {
     func testAlreadyReady() {
-        let firstPromise = Promise(value: 3)
+        let firstPromise = Promise.resolve(3)
         
         let lastPromise = firstPromise
         
@@ -36,30 +36,30 @@ class PromisesTests: XCTestCase {
     }
     
     func testAlreadyReady_chained() {
-        let lastPromise = Promise(value: 3)
-            .thenSplit(success: { x in return .Promised(Promise(value: x + 4)) })
+        let lastPromise = Promise.resolve(3)
+            .thenSplit(success: { x in return .Promised(.resolve(x + 4)) })
             .thenSplit(success: { v in return .of(v + 5) })
         
         self.expectationWithPromise(lastPromise) { v in v == 12 }
     }
     
     func testNotReady_chained() {
-        let p = Promise<Int>()
+        let (r, p) = Promise<Int>.resolver()
         
         let lastPromise = p
-            .thenSplit(success: { v in return .Promised(Promise(value: v + 4)) })
+            .thenSplit(success: { v in return .Promised(.resolve(v + 4)) })
             .thenSplit(success: { v in return .of(v + 5) })
         
         self.expectationWithPromise(lastPromise, wait: false) { v in v == 12 }
         
-        p.fulfill(3)
+        r.resolve(3)
         
         self.waitForExpectations()
     }
     
     
     func testNotReady_chained2() {
-        let p = Promise<Int>()
+        let (r, p) = Promise<Int>.resolver()
         
         let lastPromise = p
             .thenSplit(success: { v in return .of(v + 4) })
@@ -75,14 +75,14 @@ class PromisesTests: XCTestCase {
         
         self.expectationWithPromise(lastPromise, wait: false) { v in v == 17 }
         
-        p.fulfill(3)
+        r.resolve(3)
         
         self.waitForExpectations()
     }
     
     
     func testDispatchesOnQueue_dispatchesOnQue() {
-        let p = Promise<Int>()
+        let (r, p) = Promise<Int>.resolver()
         
         let e1 = self.expectationWithDescription("1")
         let e2 = self.expectationWithDescription("2")
@@ -105,13 +105,13 @@ class PromisesTests: XCTestCase {
         
         self.expectationWithPromise(lastPromise, wait: false) { v in v == 7 }
         
-        p.fulfill(3)
+        r.resolve(3)
         
         self.waitForExpectations()
     }
 
     func testErrorHandling() {
-        self.expectationWithFailingPromise(Promise<Int>(error: OSError.OSError(status: 0))) { v in
+        self.expectationWithFailingPromise(Promise<Int>.reject(OSError.OSError(status: 0))) { v in
             switch v {
             case let OSError.OSError(status):
                 return status == 0
@@ -120,7 +120,7 @@ class PromisesTests: XCTestCase {
             }
         }
         
-        let lastPromise = Promise(value: 3)
+        let lastPromise = Promise.resolve(3)
             .thenSplit { v in return .of(v + 4) }
             .thenSplit { v in return .of(v + 5) }
             .then { val -> ErrorOptional<Int> in
@@ -133,7 +133,7 @@ class PromisesTests: XCTestCase {
     }
     
     func testOkChecked() {
-        let lastPromise = Promise(value: 3)
+        let lastPromise = Promise.resolve(3)
             .thenSplit { v in return .of(v + 4) }
             .thenSplit { v in return .of(v + 5) }
             .thenChecked { v throws in
@@ -146,7 +146,7 @@ class PromisesTests: XCTestCase {
     }
     
     func testFailedChecked() {
-        let lastPromise = Promise(value: 3)
+        let lastPromise = Promise.resolve(3)
             .thenSplit { v in return .of(v + 4) }
             .thenSplit { v in return .of(v + 5) }
             .thenChecked { _ throws -> Int in
@@ -164,7 +164,7 @@ class PromisesTests: XCTestCase {
     }
     
     func testFailedCascade() {
-        let lastPromise = Promise(value: 3)
+        let lastPromise = Promise.resolve(3)
             .thenChecked { _ throws -> Int in
                 throw OSError.OSError(status: 32)
             }
