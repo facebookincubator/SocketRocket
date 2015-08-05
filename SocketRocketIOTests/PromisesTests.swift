@@ -159,8 +159,6 @@ extension XCTestCase {
     func expectationWithPromise<T>(promise: RawPromise<T>, wait: Bool = true, file: String = __FILE__, line: UInt = __LINE__, predicate: (T) -> Bool = { _ in true}) -> XCTestExpectation {
         
         let description = "Waiting for promise \(promise) to fulfill"
-        
-        
         let expectation = self.expectationWithDescription(description)
         
         promise.then { v in
@@ -176,7 +174,6 @@ extension XCTestCase {
         
         return expectation
     }
-
     
     // Terminates a promise and returns an XCTestExpectation for it
     func expectationWithPromise<T>(promise: Promise<T>, wait: Bool = true, file: String = __FILE__, line: UInt = __LINE__, predicate: (T) -> Bool = { _ in true}) -> XCTestExpectation {

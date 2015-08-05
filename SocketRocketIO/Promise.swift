@@ -139,13 +139,6 @@ public class Promise<T> {
     public required init() {
         underlyingPromise = UnderlyingPromiseType()
     }
-    
-    //   TODO(lewis): Make this more efficient
-    public func then<R>(handler: ET -> R) -> Promise<R> {
-        return then { val in
-            return ErrorOptional(handler(val))
-        }
-    }
 
     // splits the call based one rror or success
     public func thenSplit<R>(success: T -> PromiseOrValue<R>, error: ((ErrorType) -> ())? = nil) -> Promise<R> {
