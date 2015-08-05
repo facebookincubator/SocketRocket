@@ -31,7 +31,6 @@ public protocol IO {
 }
 
 
-
 public class RawIO: IO {
     private let channel: dispatch_io_t
     
@@ -279,12 +278,6 @@ public class Socket<T: SockAddr> {
     }
 }
 
-
-//extension DataHandler {
-//    func wrap()  -> dispatch_io_handler_t {
-//
-//    }
-//}
 extension dispatch_data_t {
     var empty: Bool {
         get {
@@ -300,32 +293,48 @@ private var hints: addrinfo = {
     return hints
 }()
 
-public func getaddrinfoAsync(hostname: String, servname: String, workQueue: Queue = Queue.defaultGlobalQueue, callbackQueue: Queue, handler:(ErrorOptional<[addrinfo]>) -> ()) {
-    workQueue.dispatchAsync() {
+
+extension Queue {
+    /// Used to dispatch synchronous operations on a specific queue
+    func blockingPromise<T>(blockingFn: () throws -> T) -> Promise<T>  {
+        typealias P = Promise<T>
+        let p = P()
         
-        let val = ErrorOptional<[addrinfo]>.attempt() {
-            var ai: UnsafeMutablePointer<addrinfo> = nil
-            defer {
-                if ai != nil {
-                    freeaddrinfo(ai)
-                }
+        self.dispatchAsync {
+            do {
+                p.fulfill(try blockingFn())
+            } catch let e {
+                p.fulfill(e)
             }
-            
-            // ai won't be set if it doesn't work
-            // TODO(lewis) propagate error up
-            getaddrinfo(hostname, servname, &hints, &ai)
-            var ret = [addrinfo]()
-            
-            var curAi = ai
-            while curAi != nil{
-                var mutatedAI = curAi.memory
-                let next = mutatedAI.ai_next
-                mutatedAI.ai_next = nil
-                ret.append(mutatedAI)
-                curAi = next
-            }
-            
-            return ret;
         }
+        
+        return p
+    }
+}
+
+public func getaddrinfoAsync(hostname: String, servname: String, workQueue: Queue = Queue.defaultGlobalQueue) -> Promise<[addrinfo]> {
+    return workQueue.blockingPromise {
+        var ai: UnsafeMutablePointer<addrinfo> = nil
+        defer {
+            if ai != nil {
+                freeaddrinfo(ai)
+            }
+        }
+        
+        // ai won't be set if it doesn't work
+        // TODO(lewis) propagate error up
+        try OSError.throwIfNotSuccess(getaddrinfo(hostname, servname, &hints, &ai))
+        var ret = [addrinfo]()
+        
+        var curAi = ai
+        while curAi != nil {
+            var mutatedAI = curAi.memory
+            let next = mutatedAI.ai_next
+            mutatedAI.ai_next = nil
+            ret.append(mutatedAI)
+            curAi = next
+        }
+        
+        return ret;
     }
 }

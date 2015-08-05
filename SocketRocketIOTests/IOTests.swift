@@ -6,10 +6,38 @@
 //
 //
 
+
+enum FailureError: ErrorType {
+    case Failure
+}
+
 import XCTest
-import SocketRocketIO
+@testable import SocketRocketIO
 
 class IOTests: XCTestCase {
+    func testGetAddrInfoAsync() {
+        let promise: Promise<[addrinfo]>  = getaddrinfoAsync("squareup.com", servname: "443")
+            .thenChecked { v in
+                let v = try v.checkedGet()
+                XCTAssertGreaterThan(v.count, 0)
+                return v
+            }
+            .thenChecked(Queue.mainQueue) { (v: ErrorOptional<[addrinfo]>) throws in
+                guard Queue.mainQueue.isCurrentQueue() else {
+                    throw FailureError.Failure
+                }
+                return try v.checkedGet()
+        }
+        
+        
+        self.expectationWithPromise(promise)
+    }
+    
+    func testGetAddrInfoAsyncFailure() {
+        let promise: Promise<[addrinfo]>  = getaddrinfoAsync("", servname: "")
+        self.expectationWithFailingPromise(promise)
+    }
+    
     func testListen() {
         return
         do {
@@ -39,9 +67,6 @@ class IOTests: XCTestCase {
             }
             canceler()
             waitForExpectations()
-            
-
-            
         } catch let e  {
             XCTFail("\(e)")
         }

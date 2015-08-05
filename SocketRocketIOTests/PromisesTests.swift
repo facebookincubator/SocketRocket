@@ -18,8 +18,8 @@ class RawPromiseTests: XCTestCase {
     
     func testAlreadyReady_chained() {
         let lastPromise = RawPromise(value: 3)
-            .then({ x in return .Value(x + 4) })
-            .then({ v in return .Value(v + 5) })
+            .then(nil) { x in return .Value(x + 4) }
+            .then(nil) { v in return .Value(v + 5) }
         
         self.expectationWithPromise(lastPromise) { v in v == 12 }
     }
@@ -37,8 +37,8 @@ class PromisesTests: XCTestCase {
     
     func testAlreadyReady_chained() {
         let lastPromise = Promise(value: 3)
-            .thenSplit({ x in return .Promised(Promise(value: x + 4)) })
-            .thenSplit({ v in return .of(v + 5) })
+            .thenSplit(success: { x in return .Promised(Promise(value: x + 4)) })
+            .thenSplit(success: { v in return .of(v + 5) })
         
         self.expectationWithPromise(lastPromise) { v in v == 12 }
     }
@@ -47,8 +47,8 @@ class PromisesTests: XCTestCase {
         let p = Promise<Int>()
         
         let lastPromise = p
-            .thenSplit({ v in return .Promised(Promise(value: v + 4)) })
-            .thenSplit({ v in return .of(v + 5) })
+            .thenSplit(success: { v in return .Promised(Promise(value: v + 4)) })
+            .thenSplit(success: { v in return .of(v + 5) })
         
         self.expectationWithPromise(lastPromise, wait: false) { v in v == 12 }
         
@@ -62,8 +62,8 @@ class PromisesTests: XCTestCase {
         let p = Promise<Int>()
         
         let lastPromise = p
-            .thenSplit({ v in return .of(v + 4) })
-            .thenSplit({ v in return .of(v + 5) })
+            .thenSplit(success: { v in return .of(v + 4) })
+            .thenSplit(success: { v in return .of(v + 5) })
             .then { val -> ErrorOptional<Int> in
                 switch val {
                 case .Error:
@@ -74,6 +74,36 @@ class PromisesTests: XCTestCase {
         }
         
         self.expectationWithPromise(lastPromise, wait: false) { v in v == 17 }
+        
+        p.fulfill(3)
+        
+        self.waitForExpectations()
+    }
+    
+    
+    func testDispatchesOnQueue_dispatchesOnQue() {
+        let p = Promise<Int>()
+        
+        let e1 = self.expectationWithDescription("1")
+        let e2 = self.expectationWithDescription("2")
+        
+        let q1 = Queue.defaultGlobalQueue
+        let q2 = Queue(label: "random queue")
+        
+        
+        let lastPromise = p
+            .thenChecked(q1) { v throws -> Int in
+                XCTAssertTrue(q1.isCurrentQueue())
+                e1.fulfill()
+                return try v.checkedGet() + 2
+            }
+            .thenChecked(q2) { v throws -> Int in
+                XCTAssertTrue(q2.isCurrentQueue())
+                e2.fulfill()
+                return try v.checkedGet() + 2
+            }
+        
+        self.expectationWithPromise(lastPromise, wait: false) { v in v == 7 }
         
         p.fulfill(3)
         
@@ -91,8 +121,8 @@ class PromisesTests: XCTestCase {
         }
         
         let lastPromise = Promise(value: 3)
-            .thenSplit({ v in return .of(v + 4) })
-            .thenSplit({ v in return .of(v + 5) })
+            .thenSplit { v in return .of(v + 4) }
+            .thenSplit { v in return .of(v + 5) }
             .then { val -> ErrorOptional<Int> in
                 return .Error(OSError.OSError(status: 1))
         }
@@ -104,11 +134,11 @@ class PromisesTests: XCTestCase {
     
     func testOkChecked() {
         let lastPromise = Promise(value: 3)
-            .thenSplit({ v in return .of(v + 4) })
-            .thenSplit({ v in return .of(v + 5) })
-            .thenChecked({ v throws in
-                return v + 3
-            })
+            .thenSplit { v in return .of(v + 4) }
+            .thenSplit { v in return .of(v + 5) }
+            .thenChecked { v throws in
+                return try v.checkedGet() + 3
+            }
         
         self.expectationWithPromise(lastPromise) { v in
             return v == 15
@@ -117,11 +147,11 @@ class PromisesTests: XCTestCase {
     
     func testFailedChecked() {
         let lastPromise = Promise(value: 3)
-            .thenSplit({ v in return .of(v + 4) })
-            .thenSplit({ v in return .of(v + 5) })
-            .thenChecked({ _ throws -> Int in
+            .thenSplit { v in return .of(v + 4) }
+            .thenSplit { v in return .of(v + 5) }
+            .thenChecked { _ throws -> Int in
                 throw OSError.OSError(status: 32)
-            })
+            }
         
         self.expectationWithFailingPromise(lastPromise) { v in
             switch v {
@@ -135,14 +165,15 @@ class PromisesTests: XCTestCase {
     
     func testFailedCascade() {
         let lastPromise = Promise(value: 3)
-            .thenChecked({ _ throws -> Int in
+            .thenChecked { _ throws -> Int in
                 throw OSError.OSError(status: 32)
-            })
-            .thenSplit({ v in return .of(v + 4) })
-            .thenSplit({ v in return .of(v + 5) })
-            .thenChecked({ _ throws -> Int in
+            }
+            .thenSplit { v in return .of(v + 4) }
+            .thenSplit { v in return .of(v + 5) }
+            .thenChecked { v throws -> Int in
+                try v.checkedGet()
                 throw OSError.OSError(status: 55)
-            })
+            }
         
         self.expectationWithFailingPromise(lastPromise) { v in
             switch v {
@@ -161,7 +192,7 @@ extension XCTestCase {
         let description = "Waiting for promise \(promise) to fulfill"
         let expectation = self.expectationWithDescription(description)
         
-        promise.then { v in
+        promise.then(nil) { v in
             if !predicate(v)  {
                 XCTFail("Predicate failed for promise \(promise) for value \(v)", file:file, line:line)
             }
