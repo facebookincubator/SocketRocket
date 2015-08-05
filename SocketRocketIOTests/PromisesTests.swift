@@ -23,21 +23,6 @@ class RawPromiseTests: XCTestCase {
         
         self.expectationWithPromise(lastPromise) { v in v == 12 }
     }
-    
-    func testNotReady_chained() {
-        let p = Promise<Int>()
-        
-        let lastPromise = p
-            .thenSplit({ v in return .Value(v + 4) })
-            .thenSplit({ v in return .Value(v + 5) })
-        
-        self.expectationWithPromise(lastPromise, wait: false) { v in v == 12 }
-        
-        p.fulfill(3)
-        
-        self.waitForExpectations()
-    }
-    
 }
 
 
@@ -53,7 +38,7 @@ class PromisesTests: XCTestCase {
     func testAlreadyReady_chained() {
         let lastPromise = Promise(value: 3)
             .thenSplit({ x in return .Promised(Promise(value: x + 4)) })
-            .thenSplit({ v in return .Value(v + 5) })
+            .thenSplit({ v in return .of(v + 5) })
         
         self.expectationWithPromise(lastPromise) { v in v == 12 }
     }
@@ -63,7 +48,7 @@ class PromisesTests: XCTestCase {
         
         let lastPromise = p
             .thenSplit({ v in return .Promised(Promise(value: v + 4)) })
-            .thenSplit({ v in return .Value(v + 5) })
+            .thenSplit({ v in return .of(v + 5) })
         
         self.expectationWithPromise(lastPromise, wait: false) { v in v == 12 }
         
@@ -73,33 +58,101 @@ class PromisesTests: XCTestCase {
     }
     
     
+    func testNotReady_chained2() {
+        let p = Promise<Int>()
+        
+        let lastPromise = p
+            .thenSplit({ v in return .of(v + 4) })
+            .thenSplit({ v in return .of(v + 5) })
+            .then { val -> ErrorOptional<Int> in
+                switch val {
+                case .Error:
+                    preconditionFailure("Should not get here")
+                case let .Some(v):
+                    return .Some(v + 5)
+                }
+        }
+        
+        self.expectationWithPromise(lastPromise, wait: false) { v in v == 17 }
+        
+        p.fulfill(3)
+        
+        self.waitForExpectations()
+    }
+
+    func testErrorHandling() {
+        self.expectationWithFailingPromise(Promise<Int>(error: OSError.OSError(status: 0))) { v in
+            switch v {
+            case let OSError.OSError(status):
+                return status == 0
+            default:
+                return false
+            }
+        }
+        
+        let lastPromise = Promise(value: 3)
+            .thenSplit({ v in return .of(v + 4) })
+            .thenSplit({ v in return .of(v + 5) })
+            .then { val -> ErrorOptional<Int> in
+                return .Error(OSError.OSError(status: 1))
+        }
+
+        self.expectationWithFailingPromise(lastPromise)
+
+
+    }
     
+    func testOkChecked() {
+        let lastPromise = Promise(value: 3)
+            .thenSplit({ v in return .of(v + 4) })
+            .thenSplit({ v in return .of(v + 5) })
+            .thenChecked({ v throws in
+                return v + 3
+            })
+        
+        self.expectationWithPromise(lastPromise) { v in
+            return v == 15
+        }
+    }
     
-//    func testNotReady_withSupplierBlock() {
-//        let p = Promise<Int>() { supply in
-//            dispatch_async(dispatch_get_main_queue()) {
-//                supply(3)
-//            }
-//        }
-//        
-//        
-//        let lastPromise = p
-//            .then() { v in .of(v + 4) }
-//            .then() { v in v + 5 }
-//            .then() { v -> Promise<Int> in
-//                let resulting = Promise<Int>()
-//                
-//                dispatch_async(dispatch_get_main_queue()) {
-//                    resulting.fulfill(v + 3)
-//                }
-//                
-//                return resulting
-//        }
-//        
-//        self.expectationWithPromise(lastPromise, wait: false) { v in v == 15 }
-//        
-//        self.waitForExpectations()
-//    }
+    func testFailedChecked() {
+        let lastPromise = Promise(value: 3)
+            .thenSplit({ v in return .of(v + 4) })
+            .thenSplit({ v in return .of(v + 5) })
+            .thenChecked({ _ throws -> Int in
+                throw OSError.OSError(status: 32)
+            })
+        
+        self.expectationWithFailingPromise(lastPromise) { v in
+            switch v {
+            case let OSError.OSError(status):
+                return status == 32
+            default:
+                return false
+            }
+        }
+    }
+    
+    func testFailedCascade() {
+        let lastPromise = Promise(value: 3)
+            .thenChecked({ _ throws -> Int in
+                throw OSError.OSError(status: 32)
+            })
+            .thenSplit({ v in return .of(v + 4) })
+            .thenSplit({ v in return .of(v + 5) })
+            .thenChecked({ _ throws -> Int in
+                throw OSError.OSError(status: 55)
+            })
+        
+        self.expectationWithFailingPromise(lastPromise) { v in
+            switch v {
+            case let OSError.OSError(status):
+                return status == 32
+            default:
+                return false
+            }
+        }
+    }
 }
 
 extension XCTestCase {
@@ -152,5 +205,34 @@ extension XCTestCase {
         
         return expectation
     }
+    
+    // Terminates a promise and returns an XCTestExpectation for it
+    func expectationWithFailingPromise<T>(promise: Promise<T>, wait: Bool = true, file: String = __FILE__, line: UInt = __LINE__, predicate: (ErrorType) -> Bool = { _ in true}) -> XCTestExpectation {
+        
+        let description = "Waiting for promise \(promise) to fulfill"
+        
+        
+        let expectation = self.expectationWithDescription(description)
+        
+        promise.then { v in
+            switch v {
+            case let .Error(e):
+                if !predicate(e)  {
+                    XCTFail("Predicate failed for promise \(promise) for value \(v)", file:file, line:line)
+                }
+            case .Some:
+                XCTFail("Expected error for promise, but got value promise \(promise) for value \(v)", file:file, line:line)
+                
+            }
+            expectation.fulfill()
+        }
+        
+        if wait {
+            self.waitForExpectations()
+        }
+        
+        return expectation
+    }
+
 }
 

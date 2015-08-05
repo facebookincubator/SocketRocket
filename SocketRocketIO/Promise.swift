@@ -37,16 +37,24 @@ private struct CountdownLatch {
 
 // Represents a return type that can either be a promise or a value
 enum RawPromiseOrValue<V> {
-    case Promised(P: RawPromise<V>)
+    case Promised(RawPromise<V>)
     case Value(V)
 }
 
+extension RawPromise {
 
+}
 
 // Represents a return type that can either be a promise or a value
 public enum PromiseOrValue<V> {
-    case Promised(Promise<V>)
-    case Value(V)
+    public typealias P = Promise<V>
+    
+    case Promised(P)
+    case Value(P.ET)
+    
+    static func of<V>(val: V) -> PromiseOrValue<V> {
+        return .Value(ErrorOptional<V>(val))
+    }
 }
 
 /// Promise that has error handling. Our promises are built on this
@@ -58,8 +66,9 @@ class RawPromise<T> {
     
     typealias ResultType = T
     typealias PV = RawPromiseOrValue<T>
-    
-    required init () {
+  
+    init () {
+        
     }
     
     init(value: T) {
@@ -104,31 +113,31 @@ class RawPromise<T> {
     }
 }
 
-public class Promise<T> : RawPromise<ErrorOptional<T>> {
+
+public class Promise<T> {
     /// Error optional type
     public typealias ET = ErrorOptional<T>
-
-
+    
+    typealias UnderlyingPromiseType = RawPromise<ET>
+    
+    let underlyingPromise: UnderlyingPromiseType
+    
+    private init(underlyingPromise: UnderlyingPromiseType) {
+        self.underlyingPromise = underlyingPromise
+    }
+    
     public init(value: T) {
-        super.init(value: ET(value))
+        underlyingPromise = RawPromise(value: ET(value))
     }
     
     // Initializes a failed promise
     public init(error: ErrorType) {
-        super.init(value: ET(error))
-    }
-    
-    public typealias SupplierType = (supply: (ET) -> Void) -> Void
-    
-    // Supplier is called immediately. The function passed to it is a done
-    public convenience init(@noescape supplier: SupplierType) {
-        self.init()
-        supplier(supply: self.fulfill)
+        underlyingPromise = RawPromise(value: ET(error))
     }
     
     // An uninitialized one
     public required init() {
-        super.init()
+        underlyingPromise = UnderlyingPromiseType()
     }
     
     //   TODO(lewis): Make this more efficient
@@ -153,44 +162,56 @@ public class Promise<T> : RawPromise<ErrorOptional<T>> {
     }
     
     public func then<R>(handler: ET -> PromiseOrValue<R>) -> Promise<R> {
-        let p = Promise<R>()
+        typealias RET = Promise<R>.ET
         
-        super.then { val in
+        // Not super efficient since it makes an extra promise, but oh well
+        let newRaw: RawPromise<RET> = underlyingPromise.then { (val: ET) in
             switch handler(val) {
             case let .Promised(promise):
-                promise.then(p.fulfill)
-            case let .Value(v):
-                p.fulfill(v)
+                return .Promised(promise.underlyingPromise)
+            case let .Value(value):
+                return .Value(value)
             }
         }
-
-        return p
+        
+        return Promise<R>(underlyingPromise: newRaw)
     }
     
-    //    // TODO(lewis): Make this more efficient
+    /// Terminating
+    func then(handler: ET -> Void)  {
+        self.underlyingPromise.then(handler)
+    }
+
     public func then<R>(handler: ET -> Promise<R>.ET) -> Promise<R> {
-        let p = Promise<R>()
+        typealias RET = Promise<R>.ET
         
-        super.then { val in
-            p.fulfill(handler(val))
+        // Not super efficient since it makes an extra promise, but oh well
+        let newRaw: RawPromise<RET> = underlyingPromise.then { (val: ET) in
+           return .Value(handler(val))
         }
         
-        return p
+        return Promise<R>(underlyingPromise: newRaw)
     }
     
     /// Catches an error and propagates it in the optitional
-    public func thenChecked<R>(handler: ET throws -> R) -> Promise<R> {
+    /// Only called if there's not an error. Otherwise the handler skipped
+    public func thenChecked<R>(handler: T throws -> R, error: ((ErrorType) -> ())? = nil) -> Promise<R> {
         return then() { val -> ErrorOptional<R> in
-            do {
-                let newVal = try handler(val)
-                return ErrorOptional(newVal)
-            } catch let e {
-                return ErrorOptional(e)
+            switch val {
+            case let .Error(e):
+                error?(e)
+                return .Error(e)
+            case let .Some(v):
+                do {
+                    return ErrorOptional(try handler(v))
+                } catch let e {
+                    return ErrorOptional(e)
+                }
             }
         }
     }
     
     public func fulfill(value: T) {
-        super.fulfill(ET(value))
+        underlyingPromise.fulfill(ET(value))
     }
 }
