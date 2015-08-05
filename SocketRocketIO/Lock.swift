@@ -17,10 +17,19 @@ extension Lock {
     mutating func withLock<Result>(fn: () -> Result) -> Result {
         lock()
         defer {
-         unlock()
+            unlock()
         }
         return fn()
     }
+    
+    mutating func withLock(fn: () -> Void) {
+        lock()
+        defer {
+            unlock()
+        }
+        fn()
+    }
+    
 
     mutating func withLock<Result>(fn: () throws -> Result) throws -> Result {
         lock()
