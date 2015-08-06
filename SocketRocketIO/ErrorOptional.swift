@@ -56,15 +56,10 @@ public enum ErrorOptional<T> {
     // Will catch the first error and return with error wrapped in error optinal
     static func attempt(block: () throws -> T) -> ErrorOptional<T> {
         do {
-            return try ErrorOptional(block())
+            return .Some(try block())
         } catch let e {
-            return ErrorOptional(e)
+            return .Error(e)
         }
-    }
-    
-    // Will make it overload if there's no throws
-    static func attempt(block: () -> T) -> ErrorOptional<T> {
-        return ErrorOptional(block())
     }
 }
 

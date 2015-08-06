@@ -25,7 +25,6 @@ class RawPromiseTests: XCTestCase {
     }
 }
 
-
 class PromisesTests: XCTestCase {
     func testAlreadyReady() {
         let firstPromise = Promise.resolve(3)
@@ -111,10 +110,10 @@ class PromisesTests: XCTestCase {
     }
 
     func testErrorHandling() {
-        self.expectationWithFailingPromise(Promise<Int>.reject(OSError.OSError(status: 0))) { v in
+        self.expectationWithFailingPromise(Promise<Int>.reject(POSIXError.ENOEXEC)) { v in
             switch v {
-            case let OSError.OSError(status):
-                return status == 0
+            case POSIXError.ENOEXEC:
+                return true
             default:
                 return false
             }
@@ -124,11 +123,10 @@ class PromisesTests: XCTestCase {
             .thenSplit { v in return .of(v + 4) }
             .thenSplit { v in return .of(v + 5) }
             .then { val -> ErrorOptional<Int> in
-                return .Error(OSError.OSError(status: 1))
+                return .Error(POSIXError.ENODATA)
         }
 
         self.expectationWithFailingPromise(lastPromise)
-
 
     }
     
@@ -150,13 +148,13 @@ class PromisesTests: XCTestCase {
             .thenSplit { v in return .of(v + 4) }
             .thenSplit { v in return .of(v + 5) }
             .thenChecked { _ throws -> Int in
-                throw OSError.OSError(status: 32)
+                throw POSIXError.ENOENT
             }
         
         self.expectationWithFailingPromise(lastPromise) { v in
             switch v {
-            case let OSError.OSError(status):
-                return status == 32
+            case POSIXError.ENOENT:
+                return true
             default:
                 return false
             }
@@ -166,19 +164,19 @@ class PromisesTests: XCTestCase {
     func testFailedCascade() {
         let lastPromise = Promise.resolve(3)
             .thenChecked { _ throws -> Int in
-                throw OSError.OSError(status: 32)
+                throw POSIXError.ECANCELED
             }
             .thenSplit { v in return .of(v + 4) }
             .thenSplit { v in return .of(v + 5) }
             .thenChecked { v throws -> Int in
                 try v.checkedGet()
-                throw OSError.OSError(status: 55)
+                throw POSIXError.ENOENT
             }
         
         self.expectationWithFailingPromise(lastPromise) { v in
             switch v {
-            case let OSError.OSError(status):
-                return status == 32
+            case POSIXError.ECANCELED:
+                return true
             default:
                 return false
             }

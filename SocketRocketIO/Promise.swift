@@ -16,13 +16,25 @@ private struct CountdownLatch {
     private var action: (() -> ())! = nil
     private var fired = false
     
-    init(count: Int32) {
+    private let allowsNegative: Bool
+    
+    /// Returns true if the latch is guaranteed to be fulfilled.
+    /// This is useful for allowing negatives and avoiding the barrier
+    var isMaybeFulfilled: Bool {
+        get {
+            return count <= 0
+        }
+    }
+    
+    /// :param allowNegative: If this is set, it will not error on negative values and only call the action once
+    init(count: Int32, allowsNegative: Bool = false) {
         self.count = count
+        self.allowsNegative = allowsNegative
     }
     
     mutating func decrement() {
         let newCount = withUnsafeMutablePointer(&count, OSAtomicDecrement32Barrier)
-        precondition(newCount >= 0, "Cannot count down more than the initialized times")
+        precondition(self.allowsNegative || newCount >= 0, "Cannot count down more than the initialized times")
         
         precondition(!fired)
         if newCount == 0 {
@@ -60,7 +72,7 @@ public enum PromiseOrValue<V> {
 /// Promise that has error handling. Our promises are built on this
 class RawPromise<T> {
     // This is decremented when the value is set or the handler is set
-    private var latch = CountdownLatch(count: 2)
+    private var latch = CountdownLatch(count: 2, allowsNegative: false)
     
     private var val: T! = nil
     
@@ -134,10 +146,10 @@ extension Queue {
 public struct Resolver<T> {
     public typealias ET = ErrorOptional<T>
     
-    private typealias P = Promise<T>
+    typealias P = Promise<T>
     private let promise: P
     
-    private init(promise: P) {
+    init(promise: P) {
         self.promise = promise
     }
     
@@ -149,10 +161,20 @@ public struct Resolver<T> {
         fulfill(ET(error))
     }
     
+    /// resolves with the return value. Otherwise if it throws, it will return as an error type
+    public func attemptResolve(block: () throws -> T) {
+        fulfill(ET.attempt { return try block() })
+    }
+    
     public func fulfill(v: ET) {
         promise.fulfill(v)
     }
 }
+
+
+/// Useful for stuff that can only succeed and not return any errors
+public typealias VoidPromiseType = Promise<Void>
+public typealias VoidResolverType = Resolver<Void>
 
 public class Promise<T> {
     /// Error optional type
@@ -163,6 +185,10 @@ public class Promise<T> {
     let underlyingPromise: UnderlyingPromiseType
     
     typealias PV = PromiseOrValue<T>
+    
+    typealias ValueType = T
+    
+    
     
     private init(underlyingPromise: UnderlyingPromiseType) {
         self.underlyingPromise = underlyingPromise
@@ -175,16 +201,16 @@ public class Promise<T> {
     public class func reject(error: ErrorType) -> Promise<T> {
         return Promise<T>(underlyingPromise: RawPromise(value: ErrorOptional(error)))
     }
+    
     // Returns a promise and the resolver for it
     public class func resolver() -> (Resolver<T>, Promise<T>) {
         let p = Promise<T>()
         let r = Resolver(promise: p)
-
         return (r, p)
     }
     
     // An uninitialized one
-    private init() {
+    init() {
         underlyingPromise = UnderlyingPromiseType()
     }
 
@@ -260,3 +286,4 @@ public class Promise<T> {
         underlyingPromise.fulfill(value)
     }
 }
+

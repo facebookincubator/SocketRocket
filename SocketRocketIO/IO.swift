@@ -121,19 +121,43 @@ private func dataHandlerToIoHandler(handler: DataHandler) -> dispatch_io_handler
     }
 }
 
-enum OSError: ErrorType {
-    case OSError(status: Int32)
+
+
+/// Wraps errors. Has an uknown type if it cant resolve to an oserror
+enum Error: ErrorType {
+    case Unknown(status: Int32)
+    
+    /// For functions that return negative value on error and expect errno to be set
+    static func checkReturnCode(returnCode: Int32) -> ErrorType? {
+        guard returnCode < 0 else {
+            return nil
+        }
+        return errorFromStatusCode(errno)
+    }
+
+    /// Returns an error type based on status code
+    static func errorFromStatusCode(status: Int32) -> ErrorType? {
+        guard status != 0 else {
+            return nil
+        }
+        
+        if let e = POSIXError(rawValue: status) {
+            return e
+        }
+        
+        return Error.Unknown(status: status)
+    }
     
     static func throwIfNotSuccess(status: Int32) throws  {
-        if status != 0 {
-            throw OSError(status: status)
+        if let e = errorFromStatusCode(status) {
+            throw e
         }
     }
     
     // Same as above, but checks if less than 0, and uses errno as the varaible
-    static func throwIfNotSuccessLessThan0(status: Int32) throws  {
-        if status < 0 {
-            throw OSError(status: errno)
+    static func throwIfNotSuccessLessThan0(returnCode: Int32) throws  {
+        if let e = checkReturnCode(returnCode) {
+            throw e
         }
     }
 }
@@ -159,7 +183,7 @@ extension sockaddr_in6: SockAddr {
         case .Any:
             self.sin6_addr = in6addr_any
         case let .IPV6Addr(address: address):
-            try OSError.throwIfNotSuccess(inet_pton(self.dynamicType.addressFamily, address, &self.sin6_addr))
+            try Error.throwIfNotSuccess(inet_pton(self.dynamicType.addressFamily, address, &self.sin6_addr))
         case .IPV4Addr:
             fatalError("Cannot listen to IPV4Address in an ipv6 socket")
         case .Loopback:
@@ -187,7 +211,7 @@ extension sockaddr_in: SockAddr {
         case .Any:
             self.sin_addr = INADDR_ANY
         case let .IPV4Addr(address: address):
-            try OSError.throwIfNotSuccess(inet_pton(self.dynamicType.addressFamily, address, &self.sin_addr))
+            try Error.throwIfNotSuccess(inet_pton(self.dynamicType.addressFamily, address, &self.sin_addr))
         case .IPV6Addr:
             fatalError("Cannot listen to IPV6Address in an ipv4 socket")
         case .Loopback:
@@ -220,23 +244,23 @@ public class Socket<T: SockAddr> {
     // Initializes as a nonblocking socket and starts listening. DOes not create a dispatch source
     public init(address: Address, port: UInt16) throws {
         fd = socket(T.addressFamily, SOCK_STREAM, IPPROTO_TCP)
-        try OSError.throwIfNotSuccessLessThan0(fd)
+        try Error.throwIfNotSuccessLessThan0(fd)
         do {
             let flags = shim_fcntl(fd, F_GETFL, 0);
-            try OSError.throwIfNotSuccessLessThan0(shim_fcntl(fd, F_SETFL, flags | O_NONBLOCK))
+            try Error.throwIfNotSuccessLessThan0(shim_fcntl(fd, F_SETFL, flags | O_NONBLOCK))
             
             
             var val: Int32 = 1;
             
-            try OSError.throwIfNotSuccessLessThan0(setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &val, socklen_t(sizeofValue(val))))
+            try Error.throwIfNotSuccessLessThan0(setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &val, socklen_t(sizeofValue(val))))
             
-            try OSError.throwIfNotSuccessLessThan0(setsockopt(fd, SOL_SOCKET, SO_REUSEPORT, &val, socklen_t(sizeofValue(val))))
+            try Error.throwIfNotSuccessLessThan0(setsockopt(fd, SOL_SOCKET, SO_REUSEPORT, &val, socklen_t(sizeofValue(val))))
             
             try addr.setup(address, listenPort: port)
             
-            try OSError.throwIfNotSuccessLessThan0(shim_bind(fd, &addr, addr.dynamicType.size))
+            try Error.throwIfNotSuccessLessThan0(shim_bind(fd, &addr, addr.dynamicType.size))
             
-            try OSError.throwIfNotSuccessLessThan0(listen(fd, defaultBacklog))
+            try Error.throwIfNotSuccessLessThan0(listen(fd, defaultBacklog))
         } catch let e {
             close(fd)
             self.fd = -1
@@ -300,11 +324,7 @@ extension Queue {
         let (r, p) = Promise<T>.resolver()
         
         self.dispatchAsync {
-            do {
-                r.resolve(try blockingFn())
-            } catch let e {
-                r.reject(e)
-            }
+            r.attemptResolve { return try blockingFn()}
         }
         
         return p
@@ -322,7 +342,7 @@ public func getaddrinfoAsync(hostname: String, servname: String, workQueue: Queu
         
         // ai won't be set if it doesn't work
         // TODO(lewis) propagate error up
-        try OSError.throwIfNotSuccess(getaddrinfo(hostname, servname, &hints, &ai))
+        try Error.throwIfNotSuccess(getaddrinfo(hostname, servname, &hints, &ai))
         var ret = [addrinfo]()
         
         var curAi = ai

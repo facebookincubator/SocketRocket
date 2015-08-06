@@ -1,0 +1,5 @@
+hello
+this
+is a file
+
+I like to read from it
