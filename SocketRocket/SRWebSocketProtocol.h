@@ -12,6 +12,8 @@
 
 @protocol SRWebSocketProtocol <NSObject>
 
+- (NSInteger)readyState;
+
 - (void)open;
 
 - (void)close;
