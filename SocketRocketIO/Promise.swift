@@ -188,8 +188,6 @@ public class Promise<T> {
     
     typealias ValueType = T
     
-    
-    
     private init(underlyingPromise: UnderlyingPromiseType) {
         self.underlyingPromise = underlyingPromise
     }

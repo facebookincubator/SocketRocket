@@ -16,4 +16,11 @@ extension dispatch_data_t {
             return applier(buffer)
         }
     }
+    
+    func apply(applier: UnsafeBufferPointer<UInt8> -> ()) -> Bool {
+        return self.apply { d -> Bool in
+            applier(d)
+            return true
+        }
+    }
 }

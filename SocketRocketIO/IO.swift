@@ -126,6 +126,8 @@ private func dataHandlerToIoHandler(handler: DataHandler) -> dispatch_io_handler
 /// Wraps errors. Has an uknown type if it cant resolve to an oserror
 enum Error: ErrorType {
     case Unknown(status: Int32)
+    case CodecError
+    case UTF8DecodeError
     
     /// For functions that return negative value on error and expect errno to be set
     static func checkReturnCode(returnCode: Int32) -> ErrorType? {
