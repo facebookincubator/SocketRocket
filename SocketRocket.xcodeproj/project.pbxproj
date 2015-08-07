@@ -68,6 +68,10 @@
 		F6BDA8161459016900FE3253 /* SRTAutobahnTests.m in Sources */ = {isa = PBXBuildFile; fileRef = F6BDA8151459016900FE3253 /* SRTAutobahnTests.m */; };
 		F6C41C98145F7C6100641356 /* libicucore.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = F6C41C95145F7C4700641356 /* libicucore.dylib */; };
 		F6E95FF01B72DA580019AAF0 /* QueueStreamable.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6E95FEE1B72D8080019AAF0 /* QueueStreamable.swift */; };
+		F6FC407A1B74872D0007246E /* Unicode.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6FC40791B74872D0007246E /* Unicode.swift */; };
+		F6FC407C1B7487630007246E /* UnicodeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6FC407B1B7487630007246E /* UnicodeTests.swift */; };
+		F6FC407E1B751F330007246E /* Concurrent.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6FC407D1B751F330007246E /* Concurrent.swift */; };
+		F6FC40801B75244A0007246E /* ConcurrentTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6FC407F1B75244A0007246E /* ConcurrentTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -186,6 +190,10 @@
 		F6BDA8151459016900FE3253 /* SRTAutobahnTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SRTAutobahnTests.m; sourceTree = "<group>"; };
 		F6C41C95145F7C4700641356 /* libicucore.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libicucore.dylib; path = usr/lib/libicucore.dylib; sourceTree = SDKROOT; };
 		F6E95FEE1B72D8080019AAF0 /* QueueStreamable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = QueueStreamable.swift; path = SocketRocketIOTests/QueueStreamable.swift; sourceTree = SOURCE_ROOT; };
+		F6FC40791B74872D0007246E /* Unicode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Unicode.swift; sourceTree = "<group>"; };
+		F6FC407B1B7487630007246E /* UnicodeTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UnicodeTests.swift; sourceTree = "<group>"; };
+		F6FC407D1B751F330007246E /* Concurrent.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Concurrent.swift; sourceTree = "<group>"; };
+		F6FC407F1B75244A0007246E /* ConcurrentTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConcurrentTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -339,6 +347,8 @@
 				F6AD27241B705DAB00756377 /* Lock.swift */,
 				F6E95FEE1B72D8080019AAF0 /* QueueStreamable.swift */,
 				F6AD390A1B73FE52001D93F5 /* Extensions.swift */,
+				F6FC40791B74872D0007246E /* Unicode.swift */,
+				F6FC407D1B751F330007246E /* Concurrent.swift */,
 			);
 			path = SocketRocketIO;
 			sourceTree = "<group>";
@@ -353,6 +363,8 @@
 				F6191F5B1B6C5598003DF396 /* IOTests.swift */,
 				F6AD27261B707EFA00756377 /* PromisesTests.swift */,
 				F6A2077D1B73E5EA002C359E /* QueueStreamableTests.swift */,
+				F6FC407B1B7487630007246E /* UnicodeTests.swift */,
+				F6FC407F1B75244A0007246E /* ConcurrentTests.swift */,
 			);
 			path = SocketRocketIOTests;
 			sourceTree = "<group>";
@@ -747,6 +759,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F6FC407E1B751F330007246E /* Concurrent.swift in Sources */,
 				F69DAA2C1B6AF09B00B456D0 /* IO.swift in Sources */,
 				F6E95FF01B72DA580019AAF0 /* QueueStreamable.swift in Sources */,
 				F6AD27251B705DAB00756377 /* Lock.swift in Sources */,
@@ -754,6 +767,7 @@
 				F6AD27231B70550C00756377 /* ErrorOptional.swift in Sources */,
 				F6AD27211B70547200756377 /* Promise.swift in Sources */,
 				F6AD390B1B73FE52001D93F5 /* Extensions.swift in Sources */,
+				F6FC407A1B74872D0007246E /* Unicode.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -764,8 +778,10 @@
 				F6191F5C1B6C5598003DF396 /* IOTests.swift in Sources */,
 				F6A2077E1B73E5EA002C359E /* QueueStreamableTests.swift in Sources */,
 				F69DAA231B6AEF6900B456D0 /* SocketRocketIOTests.swift in Sources */,
+				F6FC407C1B7487630007246E /* UnicodeTests.swift in Sources */,
 				F69DAA521B6AF53F00B456D0 /* QueueTests.swift in Sources */,
 				F6AD27271B707EFA00756377 /* PromisesTests.swift in Sources */,
+				F6FC40801B75244A0007246E /* ConcurrentTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

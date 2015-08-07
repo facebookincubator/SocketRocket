@@ -1,0 +1,172 @@
+//
+//  UnicodeTests.swift
+//  SocketRocket
+//
+//  Created by Mike Lewis on 8/6/15.
+//
+//
+
+import XCTest
+@testable import SocketRocketIO
+
+struct SourceInfo {
+    let line: UInt
+    let file: String
+    
+    init(line: UInt = __LINE__, file: String = __FILE__) {
+        self.line = line
+        self.file = file
+    }
+}
+
+typealias SI = SourceInfo
+
+class UnicodeTests: XCTestCase {
+    func testCodeUnits() {
+        let s  = "💩1💩"
+        
+        
+        var data = [UInt8]()
+        
+        for s in s.unicodeScalars {
+            UTF8.encode(s) { (cu) -> () in
+                data.append(cu)
+            }
+        }
+        
+        XCTAssertEqualT(try UTF8.numValidCodeUnits(data.generate()), 9)
+        XCTAssertEqualT(try UTF8.numValidCodeUnits(data[0..<8].generate()), 5)
+        XCTAssertEqualT(try UTF8.numValidCodeUnits(data[0..<5].generate()), 5)
+        XCTAssertEqualT(try UTF8.numValidCodeUnits(data[0..<4].generate()), 4)
+        XCTAssertEqualT(try UTF8.numValidCodeUnits(data[0..<3].generate()), 0)
+    }
+    
+    
+    func testDecoding() {
+        var uc = UTF8()
+        
+        let s  = "💩1💩"
+        
+        var data = [UInt8]()
+        
+        for s in s.unicodeScalars {
+            UTF8.encode(s) { (cu) -> () in
+                data.append(cu)
+            }
+        }
+        
+        XCTAssertEqual(data.count, 9)
+        
+        var c = RawUTF8Codec<ArraySlice<UInt8>, ArraySlice<UInt8>.Generator>()
+        
+        var buff = String()
+        
+        func accumulate(slice: ArraySlice<UInt8>, line: UInt = __LINE__, file: String = __FILE__) {
+            do {
+                buff += try c.code(ValueOrEnd.Value(slice))
+            } catch let e {
+                XCTFail("\(e)", line:line, file:file)
+            }
+        }
+        
+        
+        accumulate(data[0..<2])
+        accumulate(data[2..<3])
+        accumulate(data[3..<8])
+        accumulate(data[8..<9])
+        
+        
+        do {
+            let r = try c.code(.End)
+            XCTAssertEqual("", r)
+        } catch let e {
+            XCTFail("\(e)")
+        }
+        
+        XCTAssertEqual(buff, s)
+    }
+    
+    
+    func testDecoding_errorHandling() {
+        var uc = UTF8()
+        
+        let s  = "💩1💩"
+        
+        var data = [UInt8]()
+        
+        for s in s.unicodeScalars {
+            UTF8.encode(s) { (cu) -> () in
+                data.append(cu)
+            }
+        }
+        
+        XCTAssertEqual(data.count, 9)
+        
+        var c = RawUTF8Codec<ArraySlice<UInt8>, ArraySlice<UInt8>.Generator>()
+        
+        var buff = String()
+        
+        func accumulate(slice: ArraySlice<UInt8>, line: UInt = __LINE__, file: String = __FILE__) {
+            do {
+                let v = try c.code(ValueOrEnd.Value(slice))
+                buff += v
+            } catch let e {
+                XCTFail("\(e)", line:line, file:file)
+            }
+        }
+        
+        accumulate(data[0..<2])
+        accumulate(data[2..<3])
+        accumulate(data[3..<8])
+        
+        do {
+            try c.code(.End)
+            XCTFail("Should except")
+        } catch {
+        }
+    }
+    
+    
+    func doTestAccumulateSplit(data: [UInt8], var splitPoints: [Int], si: SI = SI()) {
+        var c = RawUTF8Codec<ArraySlice<UInt8>, ArraySlice<UInt8>.Generator>()
+        
+        var buff = String()
+        
+        func accumulate(slice: ArraySlice<UInt8>, si: SI) {
+            do {
+                let v = try c.code(ValueOrEnd.Value(slice))
+                buff += v
+            } catch let e {
+                XCTFail("\(e)")
+                XCTFail("\(e) (from here)", line:si.line, file:si.file)
+            }
+        }
+        
+        splitPoints.sortInPlace()
+        
+        var lastIdx = data.startIndex
+        
+        for sp in splitPoints {
+            let newIdx = data.startIndex.advancedBy(sp)
+            accumulate(data[lastIdx..<newIdx], si: si)
+            lastIdx = newIdx
+        }
+        
+        do {
+            try c.code(.End)
+        } catch {
+            XCTFail("Should not except")
+        }
+
+    }
+    
+    func doTestAccumulateSplit(string: String, splitPoints: [Int], si: SI = SI()) {
+        var data = [UInt8]()
+        for s in string.unicodeScalars {
+            UTF8.encode(s) { (cu) -> () in
+                data.append(cu)
+            }
+        }
+        doTestAccumulateSplit(data, splitPoints: splitPoints, si: si)
+    }
+}

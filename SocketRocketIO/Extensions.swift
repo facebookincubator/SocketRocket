@@ -23,4 +23,22 @@ extension dispatch_data_t {
             return true
         }
     }
+    func apply(applier: UnsafeBufferPointer<UInt8> throws -> ()) throws -> Bool {
+        var error: ErrorType? = nil
+        let ret = self.apply { d -> Bool in
+            do {
+                try applier(d)
+                return true
+            } catch let e {
+                error = e
+                return false
+            }
+        }
+        
+        if let e = error {
+            throw e
+        }
+        
+        return ret
+    }
 }

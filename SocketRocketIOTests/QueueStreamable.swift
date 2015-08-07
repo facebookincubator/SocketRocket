@@ -17,7 +17,7 @@ public enum MoreOrEnd<T> {
 
 
 
-protocol AsyncBaseStream {
+public protocol AsyncBaseStream {
     /// The type we operate on
     typealias Element
     
@@ -25,23 +25,47 @@ protocol AsyncBaseStream {
     /// that the operation completed
     ///
     /// One should call then on the handler to make sure it terminates
-    typealias ResultPromise = VoidPromiseType
+    typealias ResultPromise: VoidPromiseType = VoidPromiseType
 }
 
-protocol AsyncReadable : AsyncBaseStream {
-    typealias Handler = (Element) -> ()
+public protocol AsyncReadable : AsyncBaseStream {
     
     /// reads data until eof or size is reached. handler is invoked on the queue in order (and non-reentrant)
     /// 
     /// The return value of this indicates when the operation is done or if it failed
-    mutating func read(size: Int, queue: Queue, handler: Handler) -> ResultPromise
+    mutating func read(size: Int, queue: Queue, handler: (Element) throws -> ()) -> VoidPromiseType
 }
 
 protocol AsyncWritable : AsyncBaseStream {
     /// Writes data to the stream
     ///
     /// THe return value of this indicates when the operation is done or if it failed
-    func write(data: Element) -> ResultPromise
+    mutating func write(data: Element) -> ResultPromise
+    
+    /// Closes the stream
+    mutating func close() -> ResultPromise
+}
+
+public extension AsyncReadable where Element: RangeReplaceableCollectionType  {
+    /// Buffers everything into one result
+    mutating func readAll(size: Int, queue: Queue) -> Promise<Element> {
+        var buffer = Element()
+        
+        let vp = read(size, queue: queue) {  (v: Element) -> () in
+            buffer.extend(v)
+        }
+        
+        let (r, p) = Promise<Element>.resolver()
+        
+        vp.then { (voidP: ErrorOptional<Void>) -> () in
+            r.attemptResolve {
+                try voidP.checkedGet()
+                return buffer
+            }
+        }
+        
+        return p
+    }
 }
 
 
@@ -65,19 +89,26 @@ protocol Codec {
     typealias OutType
     
     // TODO(lewis): Maybe make this take chunks more for input
-    mutating func code(input: ValueOrEnd<InType>) throws -> ValueOrEnd<OutType>
+    mutating func code(input: ValueOrEnd<InType>) throws -> OutType
 }
 
 
 struct EncodedReadable<C: Codec, R: AsyncReadable where R.Element == C.InType>: AsyncReadable {
     typealias Element = C.OutType
-    typealias Handler = (Element) -> ()
+    typealias Handler = (Element) throws -> ()
     
-    private let input: R
+    private var input: R
     private var codec: C
     
-    func read(size: Int, queue: Queue, handler: Handler) -> VoidPromiseType {
-        return VoidPromiseType.reject(POSIXError.ENOENT)
+    mutating func read(size: Int, queue: Queue, handler: Handler) -> VoidPromiseType {
+        let otherP = input.read(size, queue: queue) { (e) -> () in
+            try handler(self.codec.code(.Value(e)))
+        }
+        
+        return otherP.thenChecked { (vo: ErrorOptional<Void>) -> Void  in
+            try handler(self.codec.code(.End))
+            try vo.checkedGet()
+        }
     }
 }
 
@@ -87,212 +118,79 @@ extension AsyncReadable {
     }
 }
 
-extension UTF8 {
-    /// Returns number of code units. Throws if its not the first bite of a unicode charactser
-    /// result includes selve
-    static func numCodeUnits(first: CodeUnit) throws -> Int {
-        guard first & 0b1100_0000 != 0b1000_0000  else {
-            throw Error.UTF8DecodeError
-        }
-        
-        // If the first bit is 0, its a single code-point
-        if first & 0b1000_0000 == 0b0000_0000 {
-            return 1
-        }
-        
-        if first & 0b1110_0000 == 0b1100_0000 {
-            return 2
-        }
-        
-        if first & 0b1111_0000 == 0b1110_0000 {
-            return 3
-        }
-        
-        if first & 0b1111_1000 == 0b1111_0000 {
-            return 4
-        }
-        
-        throw Error.UTF8DecodeError
-    }
+/// For testing
+/// Probably not super efficient
+struct Loopback<T where T: RangeReplaceableCollectionType, T.Index.Distance == Int> : AsyncReadable, AsyncWritable {
+    typealias Element = T
+    typealias ResultPromise = VoidPromiseType
+    typealias Handler = (Element) throws -> ()
     
-    /// Returns the number of valid codeunits from the generator
-    static func numValidCodeUnits<G: GeneratorType where G.Element == CodeUnit>(var g: G) throws -> Int {
-        var numValidCodeUnits = 0
-        outOfCharacters:
-            for var c = g.next(); c != nil; c = g.next() {
-                let numCodeUnits = try UTF8.numCodeUnits(c!)
-                for _ in 0..<(numCodeUnits - 1) {
-                    if g.next() == nil {
-                        break outOfCharacters
-                    }
-                }
-                numValidCodeUnits += numCodeUnits
-        }
-
-        return numValidCodeUnits
-    }
-}
-
-struct RawUTF8Codec<CT: CollectionType, GT: GeneratorType where CT.Generator == GT, GT.Element == UInt8, CT.Index.Distance == Int, CT.Index: RandomAccessIndexType, CT.Generator.Element == UInt8, CT.SubSequence.Generator.Element == UInt8> : Codec {
-    typealias InType = CT
-    typealias OutType = String
+    let queue: Queue
     
-    typealias CodeUnit = UInt8
+    var closed = false
     
-    typealias UnicodeCodec = UTF8
+    var buffer = Element()
     
+    var neededPromsises = [(size: Int, resolver: Resolver<Void>, handler: Handler)]()
     
-    var outputBuffer = String()
-    
-    /// Used to buffer unfinished UTF8 Sequences
-    var inputBuffer = [CodeUnit]()
-    
-    /// Consumes to our outputbuffer
-    mutating func consume<G: GeneratorType where G.Element == CodeUnit>(var g: G) throws  {
-        var uc = UTF8()
-        
-        while true {
-            switch uc.decode(&g) {
-            case .EmptyInput:
-                return
-            case .Error:
-                throw Error.UTF8DecodeError
-            case let .Result(scalar):
-                outputBuffer.append(scalar)
-            }
-        }
-    }
-
-
-    mutating func code(input: ValueOrEnd<InType>) throws -> ValueOrEnd<OutType> {
-        defer {
-            outputBuffer.removeAll(keepCapacity: true)
-        }
-        
-        switch input {
-        case .End:
-            if inputBuffer.isEmpty {
-                return .End
-            } else {
-                throw Error.UTF8DecodeError
-            }
-        case let .Value(v):
-            let totalSize = inputBuffer.count + v.count
-            
-            outputBuffer.reserveCapacity(totalSize)
-            
-            let g = inputBuffer.generate() + v.generate()
-            
-            let numValidCodeUnits = try UTF8.numValidCodeUnits(g)
-
-            let numUnfinished = totalSize - numValidCodeUnits
-            
-            
-            // If this happens, we didn't get enough for even one character
-            if numUnfinished == totalSize {
-                inputBuffer += v
-                return ValueOrEnd.Value("")
-            }
-            
-            if numUnfinished > 0 {
-                let truncatedG = v[v.startIndex..<v.endIndex.advancedBy(-numUnfinished)].generate()
-                let g = inputBuffer.generate() + truncatedG
-                
-                try consume(g)
-            } else {
-                try consume(g)
-            }
-            
-            inputBuffer.removeAll(keepCapacity: true)
-            if numUnfinished > 0 {
-                inputBuffer += v[v.endIndex.advancedBy(-numUnfinished)..<v.endIndex]
-            }
-
-            
-            return .Value(outputBuffer)
-        }
-    }
-}
-
-extension DispatchIO: AsyncReadable {
-    typealias Element = UnsafeBufferPointer<UInt8>
-    
-    func read(size: Int, queue: Queue, handler: (Element) -> ()) -> VoidPromiseType {
+    mutating func read(size: Int, queue: Queue, handler: Handler) -> VoidPromiseType {
         let (r, p) = VoidPromiseType.resolver()
         
-        dispatch_io_read(io, 0, size, queue.queue) { finished, data, error in
-            guard error == 0 else {
-                r.reject(Error.errorFromStatusCode(error)!)
-                return
-            }
-            
-            data.apply { d in
-                handler(d)
-            }
-            
-            if finished {
-                r.resolve(Void())
-            }
+        queue.dispatchAsync {
+            self.neededPromsises.append((size: size, resolver: r, handler: handler))
+            self.produce()
         }
 
         return p
     }
-}
+    
+    mutating func write(data: Element) -> ResultPromise {
+        let (r, p) = VoidPromiseType.resolver()
+        
+        queue.dispatchAsync {
+            precondition(!self.closed)
+            self.buffer.extend(data)
+            r.resolve()
+            self.produce()
+        }
 
-//struct Coder<InType, OutType> {
-//}
+        return p
+    }
+    
+    mutating func produce() {
+        while !neededPromsises.isEmpty && buffer.isEmpty {
+            let (size, resolver, handler) = neededPromsises[0]
+            
+            let numBytes = min(size, buffer.count)
+            
+            let newSize = size - numBytes
+            
+            if newSize == 0 {
+                resolver.resolve()
+                neededPromsises.removeAtIndex(0)
+            } else {
+                neededPromsises[0] = (newSize, resolver, handler)
+            }
+        }
+    }
+    
+    mutating func close() -> ResultPromise {
+        let (r, p) = VoidPromiseType.resolver()
+
+        queue.dispatchAsync {
+            r.resolve()
+            self.closed = true
+        }
+        
+        return p
+    }
+}
 
 extension Queue {
     static let defaultCleanupQueue = Queue.defaultGlobalQueue
 }
 
-//public struct IOReaderWrapper: AsyncReadable {
-//    public let io: dispatch_io_t
-//    
-//    public typealias ChunkType = dispatch_data_t
-//    
-//    public let completed: VoidPromiseType
-//    
-//    public typealias StreamPromise = Promise<MoreOrEnd<ChunkType>>
-//    typealias SP = Promise<MoreOrEnd<ChunkType>>
-//    
-//    /// Makes a reader from a root IO
-//    /// :param readqueue: this is the queue all reads are performed on
-//    init(baseIO: dispatch_io_t) {
-//        let (resolver, completed) = VoidPromiseType.resolver()
-//        self.completed = completed
-//        io = dispatch_io_create_with_io(DISPATCH_IO_STREAM, baseIO, Queue.defaultCleanupQueue.queue) { code in
-//            resolver.attemptResolve {
-//                try Error.throwIfNotSuccess(code)
-//            }
-//        }
-//    }
-//
-//    public func read(size: Int, queue: Queue) -> StreamPromise {
-//        var (r, p) = streamingResolver(ChunkType.self)
-//        
-//        dispatch_io_read(io, 0, size, queue.queue) { finished, data, error in
-//            guard error == 0 else {
-//                r.reject(Error.errorFromStatusCode(error)!)
-//                return
-//            }
-//            
-//            if !data.empty {
-//                r.produce(data)
-//            }
-//            
-//            if finished {
-//                r.end()
-//            }
-//        }
-//        
-//        return p
-//    }
-//}
-//extension dispatch_io {
-//    
-//}
-
+/// Chains two generators together
 struct ChainedGenerator<L: GeneratorType, R: GeneratorType, T where L.Element == R.Element, T == L.Element>: GeneratorType, SequenceType {
     typealias Element = T
     

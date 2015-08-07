@@ -11,12 +11,12 @@ import Foundation
 
 /// Calls block when counts down to zero
 /// Cannot count down to more than 0
-private struct CountdownLatch {
-    private var count: Int32
-    private var action: (() -> ())! = nil
-    private var fired = false
+struct CountdownLatch {
+    var count: Int32
+    var action: (() -> ())! = nil
+    var fired = false
     
-    private let allowsNegative: Bool
+    let allowsNegative: Bool
     
     /// Returns true if the latch is guaranteed to be fulfilled.
     /// This is useful for allowing negatives and avoiding the barrier
