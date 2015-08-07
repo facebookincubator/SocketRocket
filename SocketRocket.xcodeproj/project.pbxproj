@@ -63,6 +63,7 @@
 		F6AE4520145906B20022AF3C /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F6B208301450F597009315AF /* Foundation.framework */; };
 		F6AE45241459071C0022AF3C /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F6A12CD51451231B00C1D980 /* CFNetwork.framework */; };
 		F6AE4528145907D30022AF3C /* SenTestCase+SRTAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = F6AE4527145907D30022AF3C /* SenTestCase+SRTAdditions.m */; };
+		F6B24CB61B75364100664E0B /* Error.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6B24CB51B75364100664E0B /* Error.swift */; };
 		F6BDA806145900D200FE3253 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F6B208301450F597009315AF /* Foundation.framework */; };
 		F6BDA80C145900D200FE3253 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = F6BDA80A145900D200FE3253 /* InfoPlist.strings */; };
 		F6BDA8161459016900FE3253 /* SRTAutobahnTests.m in Sources */ = {isa = PBXBuildFile; fileRef = F6BDA8151459016900FE3253 /* SRTAutobahnTests.m */; };
@@ -183,6 +184,7 @@
 		F6B2082D1450F597009315AF /* libSocketRocket.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libSocketRocket.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		F6B208301450F597009315AF /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		F6B208341450F597009315AF /* SocketRocket-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SocketRocket-Prefix.pch"; sourceTree = "<group>"; };
+		F6B24CB51B75364100664E0B /* Error.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Error.swift; sourceTree = "<group>"; };
 		F6BDA802145900D200FE3253 /* SRWebSocketTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SRWebSocketTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		F6BDA809145900D200FE3253 /* SRWebSocketTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "SRWebSocketTests-Info.plist"; sourceTree = "<group>"; };
 		F6BDA80B145900D200FE3253 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
@@ -349,6 +351,7 @@
 				F6AD390A1B73FE52001D93F5 /* Extensions.swift */,
 				F6FC40791B74872D0007246E /* Unicode.swift */,
 				F6FC407D1B751F330007246E /* Concurrent.swift */,
+				F6B24CB51B75364100664E0B /* Error.swift */,
 			);
 			path = SocketRocketIO;
 			sourceTree = "<group>";
@@ -767,6 +770,7 @@
 				F6AD27231B70550C00756377 /* ErrorOptional.swift in Sources */,
 				F6AD27211B70547200756377 /* Promise.swift in Sources */,
 				F6AD390B1B73FE52001D93F5 /* Extensions.swift in Sources */,
+				F6B24CB61B75364100664E0B /* Error.swift in Sources */,
 				F6FC407A1B74872D0007246E /* Unicode.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

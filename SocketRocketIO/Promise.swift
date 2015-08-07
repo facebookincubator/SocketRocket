@@ -9,53 +9,8 @@
 import Foundation
 
 
-/// Calls block when counts down to zero
-/// Cannot count down to more than 0
-struct CountdownLatch {
-    var count: Int32
-    var action: (() -> ())! = nil
-    var fired = false
-    
-    let allowsNegative: Bool
-    
-    /// Returns true if the latch is guaranteed to be fulfilled.
-    /// This is useful for allowing negatives and avoiding the barrier
-    var isMaybeFulfilled: Bool {
-        get {
-            return count <= 0
-        }
-    }
-    
-    /// :param allowNegative: If this is set, it will not error on negative values and only call the action once
-    init(count: Int32, allowsNegative: Bool = false) {
-        self.count = count
-        self.allowsNegative = allowsNegative
-    }
-    
-    mutating func decrement() {
-        let newCount = withUnsafeMutablePointer(&count, OSAtomicDecrement32Barrier)
-        precondition(self.allowsNegative || newCount >= 0, "Cannot count down more than the initialized times")
-        
-        precondition(!fired)
-        if newCount == 0 {
-            action()
-            fired = true
-        }
-    }
-}
-
 // Only part of a promise protocol. It defines that it can be terminated
 
-
-// Represents a return type that can either be a promise or a value
-enum RawPromiseOrValue<V> {
-    case Promised(RawPromise<V>)
-    case Value(V)
-}
-
-extension RawPromise {
-
-}
 
 // Represents a return type that can either be a promise or a value
 public enum PromiseOrValue<V> {
@@ -69,63 +24,7 @@ public enum PromiseOrValue<V> {
     }
 }
 
-/// Promise that has error handling. Our promises are built on this
-class RawPromise<T> {
-    // This is decremented when the value is set or the handler is set
-    private var latch = CountdownLatch(count: 2, allowsNegative: false)
-    
-    private var val: T! = nil
-    
-    typealias ResultType = T
-    typealias PV = RawPromiseOrValue<T>
-  
-    init () {
-        
-    }
-    
-    init(value: T) {
-        self.val = value
-        precondition(self.val != nil)
-        latch.count = 1
-    }
-    
-    /// Fulfills the promise. Calls handler if its ready
-    func fulfill(value: T) {
-        precondition(val == nil, "Should only set value once")
-        self.val = value
-        latch.decrement()
-    }
-    
-    /// Terminating
-    func then(queue: Queue?, handler: T -> Void)  {
-        precondition(latch.action == nil)
-        latch.action = wrap(queue) {
-            precondition(self.val != nil)
-            handler(self.val)
-        }
-        latch.decrement()
-    }
-    
-    func then<R>(queue: Queue?, handler: T -> RawPromise<R>.PV) -> RawPromise<R> {
-        let p = RawPromise<R>()
-        precondition(latch.action == nil)
-        self.then(queue) { val in
-            switch handler(val) {
-            case let .Value(value):
-                p.fulfill(value)
-            case let .Promised(subPromise):
-                subPromise.then(nil) { value in
-                    p.fulfill(value)
-                }
-            }
-        }
-        return p
-    }
-}
-
-
-
-func wrap(queue: Queue?, fn:() -> ()) -> () -> () {
+func wrap<T>(queue: Queue?, fn:(T) -> ()) -> (T) -> () {
     if let q = queue {
         return q.wrap(fn)
     }
@@ -136,9 +35,11 @@ func wrap(queue: Queue?, fn:() -> ()) -> () -> () {
 extension Queue {
     /// wraps a void function and returns a new one. When
     /// the new one is called it will be dispatched on the sender
-    func wrap(fn:() -> ()) -> () -> () {
-        return {
-            self.dispatchAsync(fn)
+    func wrap<T>(fn:(T) -> ()) -> (T) -> () {
+        return { v in
+            self.dispatchAsync {
+                fn(v)
+            }
         }
     }
 }
@@ -180,24 +81,24 @@ public class Promise<T> {
     /// Error optional type
     public typealias ET = ErrorOptional<T>
     
-    typealias UnderlyingPromiseType = RawPromise<ET>
+    typealias PG = PGroup<T>
     
-    let underlyingPromise: UnderlyingPromiseType
+    var pgroup: PG
     
     typealias PV = PromiseOrValue<T>
     
     typealias ValueType = T
     
-    private init(underlyingPromise: UnderlyingPromiseType) {
-        self.underlyingPromise = underlyingPromise
+    private init(pgroup: PG) {
+        self.pgroup = pgroup
     }
     
     public class func resolve(value: T) -> Promise<T> {
-        return Promise<T>(underlyingPromise: RawPromise(value: ErrorOptional(value)))
+        return Promise<T>(pgroup: PGroup<T>.resolve(value))
     }
     
     public class func reject(error: ErrorType) -> Promise<T> {
-        return Promise<T>(underlyingPromise: RawPromise(value: ErrorOptional(error)))
+        return Promise<T>(pgroup: PGroup<T>.reject(error))
     }
     
     // Returns a promise and the resolver for it
@@ -209,7 +110,7 @@ public class Promise<T> {
     
     // An uninitialized one
     init() {
-        underlyingPromise = UnderlyingPromiseType()
+        pgroup = PG()
     }
 
     // splits the call based one rror or success
@@ -227,35 +128,33 @@ public class Promise<T> {
     }
     
     public func then<R>(queue: Queue? = nil, handler: ET -> PromiseOrValue<R>) -> Promise<R> {
-        typealias RET = Promise<R>.ET
+        let (r, p) = Promise<R>.resolver()
         
-        // Not super efficient since it makes an extra promise, but oh well
-        let newRaw: RawPromise<RET> = underlyingPromise.then(queue) { (val: ET) in
-            switch handler(val) {
-            case let .Promised(promise):
-                return .Promised(promise.underlyingPromise)
-            case let .Value(value):
-                return .Value(value)
+        self.then(queue) { v -> Void in
+            switch handler(v) {
+            case let .Promised(prom):
+                prom.then(handler: r.fulfill)
+            case let .Value(val):
+                r.fulfill(val)
             }
         }
         
-        return Promise<R>(underlyingPromise: newRaw)
+        return p
     }
     
     /// Terminating
     func then(queue: Queue? = nil, handler: ET -> Void)  {
-        self.underlyingPromise.then(queue, handler: handler)
+        self.pgroup.then(wrap(queue, fn: handler))
     }
 
     public func then<R>(queue: Queue? = nil, handler: ET -> Promise<R>.ET) -> Promise<R> {
-        typealias RET = Promise<R>.ET
+        let (r, p) = Promise<R>.resolver()
         
-        // Not super efficient since it makes an extra promise, but oh well
-        let newRaw: RawPromise<RET> = underlyingPromise.then(queue) { (val: ET) in
-           return .Value(handler(val))
+        self.then(queue) { v -> Void in
+            r.fulfill(handler(v))
         }
         
-        return Promise<R>(underlyingPromise: newRaw)
+        return p
     }
     
     /// Catches an error and propagates it in the optitional
@@ -281,7 +180,9 @@ public class Promise<T> {
     }
     
     private func fulfill(value: ET) {
-        underlyingPromise.fulfill(value)
+        pgroup.fulfill(value)
     }
 }
+
+
 

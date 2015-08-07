@@ -10,21 +10,6 @@
 import XCTest
 
 
-class RawPromiseTests: XCTestCase {
-    func testAlreadyReady() {
-        let promise = RawPromise(value: 2)
-        self.expectationWithPromise(promise) { v in v == 2 }
-    }
-    
-    func testAlreadyReady_chained() {
-        let lastPromise = RawPromise(value: 3)
-            .then(nil) { x in return .Value(x + 4) }
-            .then(nil) { v in return .Value(v + 5) }
-        
-        self.expectationWithPromise(lastPromise) { v in v == 12 }
-    }
-}
-
 class PromisesTests: XCTestCase {
     func testAlreadyReady() {
         let firstPromise = Promise.resolve(3)
@@ -185,25 +170,6 @@ class PromisesTests: XCTestCase {
 }
 
 extension XCTestCase {
-    func expectationWithPromise<T>(promise: RawPromise<T>, wait: Bool = true, file: String = __FILE__, line: UInt = __LINE__, predicate: (T) -> Bool = { _ in true}) -> XCTestExpectation {
-        
-        let description = "Waiting for promise \(promise) to fulfill"
-        let expectation = self.expectationWithDescription(description)
-        
-        promise.then(nil) { v in
-            if !predicate(v)  {
-                XCTFail("Predicate failed for promise \(promise) for value \(v)", file:file, line:line)
-            }
-            expectation.fulfill()
-        }
-        
-        if wait {
-            self.waitForExpectations()
-        }
-        
-        return expectation
-    }
-    
     // Terminates a promise and returns an XCTestExpectation for it
     func expectationWithPromise<T>(promise: Promise<T>, wait: Bool = true, file: String = __FILE__, line: UInt = __LINE__, predicate: (T) -> Bool = { _ in true}) -> XCTestExpectation {
 

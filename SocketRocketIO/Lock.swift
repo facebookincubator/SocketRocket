@@ -14,24 +14,7 @@ protocol Lock {
 }
 
 extension Lock {
-    mutating func withLock<Result>(fn: () -> Result) -> Result {
-        lock()
-        defer {
-            unlock()
-        }
-        return fn()
-    }
-    
-    mutating func withLock(fn: () -> Void) {
-        lock()
-        defer {
-            unlock()
-        }
-        fn()
-    }
-    
-
-    mutating func withLock<Result>(fn: () throws -> Result) throws -> Result {
+    mutating func withLock<Result>(@noescape fn: () throws  -> Result) rethrows -> Result {
         lock()
         defer {
             unlock()
