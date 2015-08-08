@@ -7,25 +7,9 @@
 //
 
 
-/// These are basically promises that won't terminate until they hit the end
-public enum MoreOrEnd<T> {
-    public typealias ValueTuple = (T, Promise<MoreOrEnd<T>>)
-    indirect case More(ValueTuple)
-    case End
-}
-
-
-
-
 public protocol AsyncBaseStream {
     /// The type we operate on
-    typealias Element
-    
-    /// Reads and writes return this value. This promise indicates
-    /// that the operation completed
-    ///
-    /// One should call then on the handler to make sure it terminates
-    typealias ResultPromise: VoidPromiseType = VoidPromiseType
+    typealias Collection: CollectionType
 }
 
 public protocol AsyncReadable : AsyncBaseStream {
@@ -33,29 +17,30 @@ public protocol AsyncReadable : AsyncBaseStream {
     /// reads data until eof or size is reached. handler is invoked on the queue in order (and non-reentrant)
     /// 
     /// The return value of this indicates when the operation is done or if it failed
-    mutating func read(size: Int, queue: Queue, handler: (Element) throws -> ()) -> VoidPromiseType
+    mutating func read(size: Collection.Index.Distance, queue: Queue, handler: (AnyRandomAccessCollection<Collection.Generator.Element>) throws -> ()) -> VoidPromiseType
 }
 
-protocol AsyncWritable : AsyncBaseStream {
+public protocol AsyncWritable : AsyncBaseStream {
     /// Writes data to the stream
     ///
     /// THe return value of this indicates when the operation is done or if it failed
-    mutating func write(data: Element) -> ResultPromise
+    mutating func write<C: CollectionType where C.Generator.Element == Collection.Generator.Element>(data: C) -> VoidPromiseType
     
     /// Closes the stream
-    mutating func close() -> ResultPromise
+    mutating func close() -> VoidPromiseType
+
 }
 
-public extension AsyncReadable where Element: RangeReplaceableCollectionType  {
+public extension AsyncReadable where Collection: RangeReplaceableCollectionType, Collection.Index.Distance == Int  {
     /// Buffers everything into one result
-    mutating func readAll(size: Int, queue: Queue) -> Promise<Element> {
-        var buffer = Element()
+    mutating func readAll(size: Collection.Index.Distance = Collection.Index.Distance.max , queue: Queue) -> Promise<Collection> {
+        var buffer = Collection()
         
-        let vp = read(size, queue: queue) {  (v: Element) -> () in
+        let vp = read(size, queue: queue) {  (v) -> () in
             buffer.extend(v)
         }
         
-        let (r, p) = Promise<Element>.resolver()
+        let (r, p) = Promise<Collection>.resolver()
         
         vp.then { (voidP: ErrorOptional<Void>) -> () in
             r.attemptResolve {
@@ -85,55 +70,85 @@ enum ValueOrEnd<V> {
 }
 
 protocol Codec {
-    typealias InType
-    typealias OutType
+    typealias InType: CollectionType
+    typealias OutType: CollectionType
     
     // TODO(lewis): Maybe make this take chunks more for input
-    mutating func code(input: ValueOrEnd<InType>) throws -> OutType
+    mutating func code(input: ValueOrEnd<AnyRandomAccessCollection<InType.Generator.Element>>) throws -> OutType
 }
 
+extension Codec where InType.Index : RandomAccessIndexType, InType: CollectionType {
+    mutating func code(input: ValueOrEnd<InType>) throws -> OutType {
+        switch input {
+        case let .Value(v):
+            let cc = AnyRandomAccessCollection<InType.Generator.Element>(v)
+            return try self.code(ValueOrEnd<AnyRandomAccessCollection<InType.Generator.Element>>.Value(cc))
+        case .End:
+            return try self.code(ValueOrEnd<AnyRandomAccessCollection<InType.Generator.Element>>.End)
+        }
+    }
+}
 
-struct EncodedReadable<C: Codec, R: AsyncReadable where R.Element == C.InType>: AsyncReadable {
-    typealias Element = C.OutType
-    typealias Handler = (Element) throws -> ()
+//
+struct EncodedReadable<C: Codec,
+                        R: AsyncReadable
+                    where R.Collection == C.InType,
+                        C.InType.Index.Distance == C.OutType.Index.Distance,
+                C.OutType.Index: RandomAccessIndexType
+>: AsyncReadable {
+    typealias Collection = C.OutType
     
     private var input: R
     private var codec: C
     
-    mutating func read(size: Int, queue: Queue, handler: Handler) -> VoidPromiseType {
-        let otherP = input.read(size, queue: queue) { (e) -> () in
-            try handler(self.codec.code(.Value(e)))
-        }
-        
-        return otherP.thenChecked { (vo: ErrorOptional<Void>) -> Void  in
-            try handler(self.codec.code(.End))
+    mutating func read(size: Collection.Index.Distance, queue: Queue, handler: (AnyRandomAccessCollection<Collection.Generator.Element>) throws -> ()) -> VoidPromiseType {
+        return input.read(size, queue: queue) { (e) -> () in
+            let coded = try self.codec.code(ValueOrEnd.Value(e))
+            try handler(AnyRandomAccessCollection(coded))
+        }.thenChecked { (vo: ErrorOptional<Void>) -> Void  in
+            try handler(AnyRandomAccessCollection(self.codec.code(.End)))
             try vo.checkedGet()
         }
     }
 }
+//
+//extension AsyncReadable {
+//    func encode<C: Codec where C.InType == Collection>(codec: C) -> EncodedReadable<C, Self> {
+//        return EncodedReadable(input: self, codec: codec)
+//    }
+//}
 
-extension AsyncReadable {
-    func encode<C: Codec where C.InType == Element>(codec: C) -> EncodedReadable<C, Self> {
-        return EncodedReadable(input: self, codec: codec)
-    }
-}
+
 
 /// For testing
 /// Probably not super efficient
-struct Loopback<T where T: RangeReplaceableCollectionType, T.Index.Distance == Int> : AsyncReadable, AsyncWritable {
-    typealias Element = T
-    typealias ResultPromise = VoidPromiseType
-    typealias Handler = (Element) throws -> ()
+public class Loopback<T: RangeReplaceableCollectionType
+        where
+            T.Index: RandomAccessIndexType,
+            T.Index.Distance == Int,
+            T.SubSequence.Generator.Element == T.Generator.Element,
+            T.SubSequence.Index : RandomAccessIndexType,
+            T.SubSequence: CollectionType
+> : AsyncReadable, AsyncWritable {
+    public typealias Collection = T
+    public typealias ResultPromise = VoidPromiseType
+    public typealias Handler = (AnyRandomAccessCollection<T.Generator.Element>) throws -> ()
+    
+    public typealias Distance = Collection.Index.Distance
     
     let queue: Queue
     
     var closed = false
     
-    var buffer = Element()
+    var buffer = Collection()
     
-    var neededPromsises = [(size: Int, resolver: Resolver<Void>, handler: Handler)]()
+    var neededPromsises = [(size: Distance, resolver: Resolver<Void>, handler: Handler)]()
     
-    mutating func read(size: Int, queue: Queue, handler: Handler) -> VoidPromiseType {
+    public init(queue: Queue) {
+        self.queue = queue
+    }
+    
+    public func read(size: Collection.Index.Distance, queue: Queue, handler: (AnyRandomAccessCollection<Collection.Generator.Element>) throws -> ()) -> VoidPromiseType {
         let (r, p) = VoidPromiseType.resolver()
         
         queue.dispatchAsync {
@@ -144,42 +159,69 @@ struct Loopback<T where T: RangeReplaceableCollectionType, T.Index.Distance == I
         return p
     }
     
-    mutating func write(data: Element) -> ResultPromise {
+    public func write<C: CollectionType where C.Generator.Element == Collection.Generator.Element>(data: C) -> VoidPromiseType {
         let (r, p) = VoidPromiseType.resolver()
         
+        let data = Collection() + data
         queue.dispatchAsync {
             precondition(!self.closed)
             self.buffer.extend(data)
             r.resolve()
-            self.produce()
+            self.queue.dispatchAsync {
+                self.produce()
+            }
         }
-
+ 
         return p
     }
     
-    mutating func produce() {
-        while !neededPromsises.isEmpty && buffer.isEmpty {
-            let (size, resolver, handler) = neededPromsises[0]
-            
-            let numBytes = min(size, buffer.count)
-            
-            let newSize = size - numBytes
-            
-            if newSize == 0 {
-                resolver.resolve()
-                neededPromsises.removeAtIndex(0)
-            } else {
-                neededPromsises[0] = (newSize, resolver, handler)
+    func produce() {
+        do {
+            while neededPromsises.count > 0 && buffer.count > 0 {
+                let (size, resolver, handler) = neededPromsises[0]
+                
+                let numBytes = min(size, buffer.count)
+                
+                let newSize = size - numBytes
+                
+                let usedRange = buffer.startIndex..<buffer.startIndex.advancedBy(numBytes)
+                let slice = buffer[usedRange]
+                let newC = AnyRandomAccessCollection<T.SubSequence.Generator.Element>(slice)
+                precondition(slice.count > 0)
+                precondition(newC.count > 0)
+                try handler(newC)
+                
+                buffer.replaceRange(usedRange, with: Collection())
+                
+                if newSize == 0 {
+                    resolver.resolve()
+                    neededPromsises.removeAtIndex(0)
+                } else {
+                    neededPromsises[0] = (newSize, resolver, handler)
+                }
             }
+            
+            if closed && buffer.isEmpty {
+                for p in self.neededPromsises {
+                    p.resolver.resolve()
+                }
+                self.neededPromsises.removeAll()
+            }
+        } catch let e {
+            for p in self.neededPromsises {
+                p.resolver.reject(e)
+            }
+            self.neededPromsises.removeAll()
         }
     }
     
-    mutating func close() -> ResultPromise {
+    public func close() -> ResultPromise {
         let (r, p) = VoidPromiseType.resolver()
 
         queue.dispatchAsync {
-            r.resolve()
             self.closed = true
+            self.produce()
+            r.resolve()
         }
         
         return p
@@ -204,7 +246,6 @@ struct ChainedGenerator<L: GeneratorType, R: GeneratorType, T where L.Element ==
     init(lhs: L, rhs: R) {
         l = lhs
         r = rhs
-        
     }
     
     mutating func next() -> Element? {

@@ -55,7 +55,7 @@ extension UTF8 {
 
 struct RawUTF8Codec<CT: CollectionType, GT: GeneratorType where CT.Generator == GT, GT.Element == UInt8, CT.Index.Distance == Int, CT.Index: RandomAccessIndexType, CT.Generator.Element == UInt8, CT.SubSequence.Generator.Element == UInt8> : Codec {
     typealias InType = CT
-    typealias OutType = String
+    typealias OutType = String.UnicodeScalarView
     
     typealias CodeUnit = UInt8
     
@@ -84,7 +84,7 @@ struct RawUTF8Codec<CT: CollectionType, GT: GeneratorType where CT.Generator == 
     }
     
     
-    mutating func code(input: ValueOrEnd<InType>) throws -> OutType {
+    mutating func code(input: ValueOrEnd<AnyRandomAccessCollection<InType.Generator.Element>>) throws -> OutType {
         defer {
             outputBuffer.removeAll(keepCapacity: true)
         }
@@ -92,18 +92,16 @@ struct RawUTF8Codec<CT: CollectionType, GT: GeneratorType where CT.Generator == 
         switch input {
         case .End:
             if inputBuffer.isEmpty {
-                return ""
+                return "".unicodeScalars
             } else {
                 throw Error.UTF8DecodeError
             }
         case let .Value(v):
             let totalSize = inputBuffer.count + v.count
             
-            outputBuffer.reserveCapacity(totalSize)
+            outputBuffer.reserveCapacity(Int(totalSize))
             
-            let g = inputBuffer.generate() + v.generate()
-            
-            let numValidCodeUnits = try UTF8.numValidCodeUnits(g)
+            let numValidCodeUnits = try UTF8.numValidCodeUnits(inputBuffer.generate() + v.generate())
             
             let numUnfinished = totalSize - numValidCodeUnits
             
@@ -111,7 +109,7 @@ struct RawUTF8Codec<CT: CollectionType, GT: GeneratorType where CT.Generator == 
             // If this happens, we didn't get enough for even one character
             if numUnfinished == totalSize {
                 inputBuffer += v
-                return ""
+                return "".unicodeScalars
             }
             
             if numUnfinished > 0 {
@@ -120,7 +118,7 @@ struct RawUTF8Codec<CT: CollectionType, GT: GeneratorType where CT.Generator == 
                 
                 try consume(g)
             } else {
-                try consume(g)
+                try consume(inputBuffer.generate() + v.generate())
             }
             
             inputBuffer.removeAll(keepCapacity: true)
@@ -128,15 +126,15 @@ struct RawUTF8Codec<CT: CollectionType, GT: GeneratorType where CT.Generator == 
                 inputBuffer += v[v.endIndex.advancedBy(-numUnfinished)..<v.endIndex]
             }
             
-            return outputBuffer
+            return outputBuffer.unicodeScalars
         }
     }
 }
 
 extension DispatchIO: AsyncReadable {
-    typealias Element = UnsafeBufferPointer<UInt8>
+    typealias Collection = UnsafeBufferPointer<UInt8>
     
-    func read(size: Int, queue: Queue, handler: (Element) throws -> ()) -> VoidPromiseType {
+    func read(size: Collection.Index.Distance, queue: Queue, handler: (AnyRandomAccessCollection<Collection.Generator.Element>) throws -> ()) -> VoidPromiseType {
         let (r, p) = VoidPromiseType.resolver()
         
         dispatch_io_read(io, 0, size, queue.queue) { finished, data, error in
@@ -147,7 +145,7 @@ extension DispatchIO: AsyncReadable {
             
             do {
                 try data.apply { d in
-                    try handler(d)
+                    try handler(AnyRandomAccessCollection(d))
                 }
             } catch let e {
                 // TODO(don't double-call this error)

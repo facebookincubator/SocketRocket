@@ -47,34 +47,30 @@ class QueueStreamableTests: XCTestCase {
         let f = streamer.read(Int.max, queue: readQueue) { v in
             
         }
-        
-        
+
         dispatch_io_close(streamer.io, DISPATCH_IO_STOP)
         
         dispatch_resume(readQueue.queue)
         
-        
         expectationWithFailingPromise(f)
     }
     
-    
-    func testCodeUnits() {
-        let s  = "💩1💩"
+    func testLoopback() {
+        let q = Queue(label: "loopbackQueue")
         
+        var l = Loopback<[UInt8]>(queue: q)
         
-        var data = [UInt8]()
-        
-        for s in s.unicodeScalars {
-            UTF8.encode(s) { (cu) -> () in
-                data.append(cu)
-            }
+        let p = l.readAll(queue: q).thenChecked { v in
+            let v = try v.checkedGet()
+            XCTAssertEqual(v, [UInt8]("OMG PONIESI LIKE TO EAT PONIES".utf8))
         }
         
-        XCTAssertEqualT(try UTF8.numValidCodeUnits(data.generate()), 9)
-        XCTAssertEqualT(try UTF8.numValidCodeUnits(data[0..<8].generate()), 5)
-        XCTAssertEqualT(try UTF8.numValidCodeUnits(data[0..<5].generate()), 5)
-        XCTAssertEqualT(try UTF8.numValidCodeUnits(data[0..<4].generate()), 4)
-        XCTAssertEqualT(try UTF8.numValidCodeUnits(data[0..<3].generate()), 0)
+        l.write([UInt8]("OMG PONIES".utf8))
+        l.write([UInt8]("I LIKE TO EAT PONIES".utf8))
+        
+        expectationWithPromise(l.close(), wait: false)
+
+        expectationWithPromise(p)
     }
 }
 
