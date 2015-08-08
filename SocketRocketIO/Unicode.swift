@@ -41,7 +41,11 @@ extension UTF8 {
             for var c = g.next(); c != nil; c = g.next() {
                 let numCodeUnits = try UTF8.numCodeUnits(c!)
                 for _ in 0..<(numCodeUnits - 1) {
-                    if g.next() == nil {
+                    if let c = g.next() {
+                        guard UTF8.isContinuation(c) else {
+                            throw Error.UTF8DecodeError
+                        }
+                    } else {
                         break outOfCharacters
                     }
                 }

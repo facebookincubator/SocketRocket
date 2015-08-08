@@ -111,14 +111,6 @@ struct EncodedReadable<C: Codec,
         }
     }
 }
-//
-//extension AsyncReadable {
-//    func encode<C: Codec where C.InType == Collection>(codec: C) -> EncodedReadable<C, Self> {
-//        return EncodedReadable(input: self, codec: codec)
-//    }
-//}
-
-
 
 /// For testing
 /// Probably not super efficient
