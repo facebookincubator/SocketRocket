@@ -40,7 +40,7 @@ public extension AsyncReadable where Collection: RangeReplaceableCollectionType,
             buffer.extend(v)
         }
         
-        let (r, p) = Promise<Collection>.resolver()
+        let (r, p) = Promise<Collection>.resolver(queue)
         
         vp.then { (voidP: ErrorOptional<Void>) -> () in
             r.attemptResolve {
@@ -141,7 +141,7 @@ public class Loopback<T: RangeReplaceableCollectionType
     }
     
     public func read(size: Collection.Index.Distance, queue: Queue, handler: (AnyRandomAccessCollection<Collection.Generator.Element>) throws -> ()) -> VoidPromiseType {
-        let (r, p) = VoidPromiseType.resolver()
+        let (r, p) = VoidPromiseType.resolver(queue)
         
         queue.dispatchAsync {
             self.neededPromsises.append((size: size, resolver: r, handler: handler))
@@ -152,7 +152,7 @@ public class Loopback<T: RangeReplaceableCollectionType
     }
     
     public func write<C: CollectionType where C.Generator.Element == Collection.Generator.Element>(data: C) -> VoidPromiseType {
-        let (r, p) = VoidPromiseType.resolver()
+        let (r, p) = VoidPromiseType.resolver(queue)
         
         let data = Collection() + data
         queue.dispatchAsync {
@@ -208,7 +208,7 @@ public class Loopback<T: RangeReplaceableCollectionType
     }
     
     public func close() -> ResultPromise {
-        let (r, p) = VoidPromiseType.resolver()
+        let (r, p) = VoidPromiseType.resolver(self.queue)
 
         queue.dispatchAsync {
             self.closed = true

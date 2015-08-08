@@ -40,119 +40,93 @@ extension Int32 {
     }
 }
 
-
-
-/// Building block for a
-enum PState<V> {
-    case Pending
-    case Fulfilled(V)
-    case Rejected(ErrorType)
-}
-
-struct PGroup<T> {
+class PGroup<T> {
     /// TODO: remove locking somehow
     typealias LockType = OSSpinLock
     
     typealias Handler = (ErrorOptional<T>) -> ()
     
-    private var lock = LockType()
-    
+    let queue: Queue
+
     // These should only be mutated inside a lock
     private var result: PromiseOrValue<T>? = nil
     
     // these are blocks enqueued while we don't have a result. Should be called when we actually fulfill
     private var pendingHandlers = [Handler]()
     
-    var state = PState<T>.Pending
-    
-    mutating func cancel() -> Bool {
-        return reject(Error.Canceled)
+    func cancel() {
+        reject(Error.Canceled)
     }
     
-    mutating func reject(e: ErrorType) -> Bool {
-        return fulfill(.Value(.Error(e)))
+    func reject(error: ErrorType) {
+        fulfill(.Value(.Error(error)))
     }
     
-    mutating func resolve(v: T) -> Bool {
-        return fulfill(.Value(ErrorOptional(v)))
+    func resolve(value: T) {
+        fulfill(.Value(ErrorOptional(value)))
     }
     
-    /// Resolves a block to either a handler or something else
-    private func doStuffWithResult(handlers: [Handler]) {
-        switch result! {
-        case let .Promised(p):
-            for h in handlers {
-                p.then(handler: h)
-            }
-        case let .Value(v):
-            for h in handlers {
-                h(v)
-            }
-        }
-    }
-    
-    mutating func fulfill(v: PromiseOrValue<T>) -> Bool {
-        guard result == nil else {
-            return false
-        }
+    private func flushHandlers() {
+        precondition(queue.isCurrentQueue())
         
-        let blocksToRun: [Handler]? = lock.withLock() {
-            guard self.result == nil else {
-                return nil
-            }
-            
-            self.result = v
-            
-            let ret = self.pendingHandlers
-            self.pendingHandlers.removeAll()
-            return ret
-        }
-        
-        guard let b = blocksToRun else {
-            return false
-        }
-        
-        doStuffWithResult(b)
-        
-        return true
-    }
-    
-    /// Adds a handler. Called immediately if result is set. Otherwise it will enqueue
-    mutating func then(h: Handler) -> Void {
-        // If we have a result, return it
-        if self.result != nil {
-            doStuffWithResult([h])
+        guard let result = self.result else {
             return
         }
         
-        let valueAgain: PromiseOrValue<T>? = lock.withLock {
-            if let r = result {
-                return r
+        switch result {
+        case let .Promised(resultPromise):
+            let pendingHandlersCopy = self.pendingHandlers
+            
+            resultPromise.then { v in
+                self.queue.dispatchAsync {
+                    for h in pendingHandlersCopy {
+                        h(v)
+                    }
+                }
+            }
+        case let .Value(resultValue):
+            for h in self.pendingHandlers {
+                h(resultValue)
+            }
+        }
+        self.pendingHandlers.removeAll()
+    }
+    
+    func fulfill(result: PromiseOrValue<T>) {
+        queue.dispatchAsync {
+            // Do nothing if it has already been fulfilled
+            guard self.result == nil else {
+                return
             }
             
+            self.result = result
+            self.flushHandlers()
+        }
+    }
+    
+    /// Adds a handler. Called immediately if result is set. Otherwise it will enqueue
+    func then(h: Handler) -> Void {
+        queue.dispatchAsync {
             self.pendingHandlers.append(h)
-            
-            return nil
-        }
-        
-        if valueAgain != nil {
-            doStuffWithResult([h])
+            self.flushHandlers()
         }
     }
     
-    init () {
-        
+    /// :param queue: Queue that the handlers will be invoked on in order
+    init(queue: Queue) {
+        self.queue = queue
     }
     
-    private init(result: ErrorOptional<T>) {
+    private init(queue: Queue, result: ErrorOptional<T>) {
+        self.queue = queue
         self.result = .Value(result)
     }
     
-    static func resolve<T>(v: T) -> PGroup<T> {
-        return PGroup<T>(result: ErrorOptional<T>(v))
+    static func resolve<T>(queue: Queue, value: T) -> PGroup<T> {
+        return PGroup<T>(queue: queue, result: ErrorOptional<T>(value))
     }
     
-    static func reject<T>(error: ErrorType) -> PGroup<T> {
-        return PGroup<T>(result: ErrorOptional<T>(error))
+    static func reject<T>(queue: Queue, error: ErrorType) -> PGroup<T> {
+        return PGroup<T>(queue: queue, result: ErrorOptional<T>(error))
     }
 }

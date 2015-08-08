@@ -280,11 +280,12 @@ private var hints: addrinfo = {
 
 extension Queue {
     /// Used to dispatch synchronous operations on a specific queue
-    func blockingPromise<T>(blockingFn: () throws -> T) -> Promise<T>  {
-        let (r, p) = Promise<T>.resolver()
+    /// :param queue: queue that promise is constructed with. If nil, will use self.
+    func blockingPromise<T>(queue: Queue? = nil, blockingFn: () throws -> T) -> Promise<T>  {
+        let (r, p) = Promise<T>.resolver(queue ?? self)
         
         self.dispatchAsync {
-            r.attemptResolve { return try blockingFn()}
+            r.attemptResolve(blockingFn)
         }
         
         return p

@@ -24,7 +24,7 @@ public enum PromiseOrValue<V> {
     }
 }
 
-func wrap<T>(queue: Queue?, fn:(T) -> ()) -> (T) -> () {
+func maybeWrap<T>(queue: Queue?, fn:(T) -> ()) -> (T) -> () {
     if let q = queue {
         return q.wrap(fn)
     }
@@ -94,6 +94,12 @@ public class Promise<T> {
     typealias PG = PGroup<T>
     
     var pgroup: PG
+
+    var queue: Queue {
+        get  {
+            return self.pgroup.queue
+        }
+    }
     
     typealias PV = PromiseOrValue<T>
     
@@ -103,29 +109,32 @@ public class Promise<T> {
         self.pgroup = pgroup
     }
     
-    public class func resolve(value: T) -> Promise<T> {
-        return Promise<T>(pgroup: PGroup<T>.resolve(value))
+    public class func resolve(queue: Queue, value: T) -> Promise<T> {
+        return Promise<T>(pgroup: PGroup<T>.resolve(queue, value: value))
     }
     
-    public class func reject(error: ErrorType) -> Promise<T> {
-        return Promise<T>(pgroup: PGroup<T>.reject(error))
+    public class func reject(queue: Queue, error: ErrorType) -> Promise<T> {
+        return Promise<T>(pgroup: PGroup<T>.reject(queue, error: error))
     }
     
-    // Returns a promise and the resolver for it
-    public class func resolver() -> (Resolver<T>, Promise<T>) {
-        let p = Promise<T>()
+    /// Returns a promise and the resolver for it
+    ///
+    /// :param queue: The queue the then handlers will be invoked on in order.
+    ///                 then functions take an optional queue that will be called out to
+    public class func resolver(queue: Queue) -> (Resolver<T>, Promise<T>) {
+        let p = Promise<T>(queue: queue)
         let r = Resolver(promise: p)
         return (r, p)
     }
     
     // An uninitialized one
-    init() {
-        pgroup = PG()
+    init(queue: Queue) {
+        pgroup = PG(queue: queue)
     }
 
     // splits the call based one rror or success
     public func thenSplit<R>(queue: Queue? = nil, error: ((ErrorType) -> ())? = nil, success: T -> PromiseOrValue<R>) -> Promise<R> {
-        return self.then { (r:ET) -> PromiseOrValue<R> in
+        return self.then(queue) { (r:ET) -> PromiseOrValue<R> in
             switch r {
             case let .Error(e):
                 error?(e)
@@ -138,10 +147,9 @@ public class Promise<T> {
     }
     
     public func then<R>(queue: Queue? = nil, handler: ET -> PromiseOrValue<R>) -> Promise<R> {
-        let (r, p) = Promise<R>.resolver()
+        let (r, p) = Promise<R>.resolver(queue ?? self.queue)
         
         self.then(queue) { v -> Void in
-//            pgroup.fulfill(handler(v))
             let newV = handler(v)
             r.fulfill(newV)
         }
@@ -149,13 +157,16 @@ public class Promise<T> {
         return p
     }
     
-    /// Terminating
+
+    /// Will call a handler on the queue that this promise was constructed with
     func then(queue: Queue? = nil, handler: ET -> Void)  {
-        self.pgroup.then(wrap(queue, fn: handler))
+        self.pgroup.then(maybeWrap(queue, fn: handler))
     }
 
+    /// Will call handler after promise is fulfilled. if queue is left nil, 
+    /// handler will be called on this queue and promise will be constructed with this queue
     public func then<R>(queue: Queue? = nil, handler: ET -> Promise<R>.ET) -> Promise<R> {
-        let (r, p) = Promise<R>.resolver()
+        let (r, p) = Promise<R>.resolver(queue ?? self.queue)
         
         self.then(queue) { v -> Void in
             r.fulfill(handler(v))
@@ -170,18 +181,15 @@ public class Promise<T> {
     ///
     /// Example:
     ///
-    /// p.thenChecked{ v throws in
+    /// p.thenChecked{ v in
     ///     return try v.checkedGet() + 3
     /// }
     public func thenChecked<R>(queue: Queue? = nil, handler: ET throws -> R) -> Promise<R> {
-        typealias RP = Promise<R>
-        typealias RET = RP.ET
-        
         return self.then(queue) { val -> ErrorOptional<R> in
             do {
-                return RET(try handler(val))
+                return ErrorOptional(try handler(val))
             } catch let e {
-                return RET(e)
+                return ErrorOptional(e)
             }
         }
     }

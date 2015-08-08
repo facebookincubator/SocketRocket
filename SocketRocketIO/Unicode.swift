@@ -139,7 +139,7 @@ extension DispatchIO: AsyncReadable {
     typealias Collection = UnsafeBufferPointer<UInt8>
     
     func read(size: Collection.Index.Distance, queue: Queue, handler: (AnyRandomAccessCollection<Collection.Generator.Element>) throws -> ()) -> VoidPromiseType {
-        let (r, p) = VoidPromiseType.resolver()
+        let (r, p) = VoidPromiseType.resolver(queue)
         
         dispatch_io_read(io, 0, size, queue.queue) { finished, data, error in
             guard error == 0 else {

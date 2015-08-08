@@ -12,7 +12,7 @@ import XCTest
 
 class PromisesTests: XCTestCase {
     func testAlreadyReady() {
-        let firstPromise = Promise.resolve(3)
+        let firstPromise = Promise.resolve(Queue.mainQueue, value: 3)
         
         let lastPromise = firstPromise
         
@@ -20,18 +20,18 @@ class PromisesTests: XCTestCase {
     }
     
     func testAlreadyReady_chained() {
-        let lastPromise = Promise.resolve(3)
-            .thenSplit(success: { x in return .Promised(.resolve(x + 4)) })
+        let lastPromise = Promise.resolve(Queue.mainQueue, value: 3)
+            .thenSplit(success: { x in return .Promised(.resolve(Queue.mainQueue, value: x + 4)) })
             .thenSplit(success: { v in return .of(v + 5) })
         
         self.expectationWithPromise(lastPromise) { v in v == 12 }
     }
     
     func testNotReady_chained() {
-        let (r, p) = Promise<Int>.resolver()
+        let (r, p) = Promise<Int>.resolver(Queue.mainQueue)
         
         let lastPromise = p
-            .thenSplit(success: { v in return .Promised(.resolve(v + 4)) })
+            .thenSplit(success: { v in return .Promised(.resolve(Queue.mainQueue, value: v + 4)) })
             .thenSplit(success: { v in return .of(v + 5) })
         
         self.expectationWithPromise(lastPromise, wait: false) { v in v == 12 }
@@ -43,7 +43,7 @@ class PromisesTests: XCTestCase {
     
     
     func testNotReady_chained2() {
-        let (r, p) = Promise<Int>.resolver()
+        let (r, p) = Promise<Int>.resolver(Queue.mainQueue)
         
         let lastPromise = p
             .thenSplit(success: { v in return .of(v + 4) })
@@ -66,7 +66,7 @@ class PromisesTests: XCTestCase {
     
     
     func testDispatchesOnQueue_dispatchesOnQue() {
-        let (r, p) = Promise<Int>.resolver()
+        let (r, p) = Promise<Int>.resolver(Queue.mainQueue)
         
         let e1 = self.expectationWithDescription("1")
         let e2 = self.expectationWithDescription("2")
@@ -93,9 +93,66 @@ class PromisesTests: XCTestCase {
         
         self.waitForExpectations()
     }
+    
+    func testDispatchesOnQueue_dispatchesOnQueWithPromises() {
+        let e1 = self.expectationWithDescription("1")
+        let e2 = self.expectationWithDescription("2")
+        
+        let q1 = Queue.defaultGlobalQueue
+        let q2 = Queue(label: "random queue")
+        
+        let (r, p) = Promise<Int>.resolver(q1)
+
+        let lastPromise = p
+            .thenChecked { v throws -> Int in
+                XCTAssertTrue(q1.isCurrentQueue())
+                e1.fulfill()
+                return try v.checkedGet() + 2
+            }
+            .then(q2) { v -> PromiseOrValue<Int> in
+                XCTAssertTrue(q2.isCurrentQueue())
+                e2.fulfill()
+                return PromiseOrValue.Promised(Promise.resolve(q1, value: v.orNil! + 3))
+            }
+            .thenChecked { v throws -> Int in
+                XCTAssertTrue(q2.isCurrentQueue())
+                return try v.checkedGet() + 2
+            }
+            .thenChecked { v throws -> Int in
+                XCTAssertTrue(q2.isCurrentQueue())
+                return try v.checkedGet() + 2
+        }
+        
+        let p2 = p
+            .thenChecked { v throws -> Int in
+                XCTAssertTrue(q1.isCurrentQueue())
+                return try v.checkedGet() + 2
+            }
+            .then(q2) { v -> PromiseOrValue<Int> in
+                XCTAssertTrue(q2.isCurrentQueue())
+                return PromiseOrValue.Promised(Promise.resolve(q1, value: v.orNil! + 3))
+            }
+            .thenChecked { v throws -> Int in
+                XCTAssertTrue(q2.isCurrentQueue())
+                return try v.checkedGet() + 2
+            }
+            .thenChecked { v throws -> Int in
+                XCTAssertTrue(q2.isCurrentQueue())
+                return try v.checkedGet() + 2
+            }
+        
+        
+        self.expectationWithPromise(p2, wait: false)
+        self.expectationWithPromise(lastPromise, wait: false) { v in v == 12 }
+        
+        r.resolve(3)
+        
+        self.waitForExpectations()
+    }
+
 
     func testErrorHandling() {
-        self.expectationWithFailingPromise(Promise<Int>.reject(POSIXError.ENOEXEC)) { v in
+        self.expectationWithFailingPromise(Promise<Int>.reject(Queue.mainQueue, error: POSIXError.ENOEXEC)) { v in
             switch v {
             case POSIXError.ENOEXEC:
                 return true
@@ -104,7 +161,7 @@ class PromisesTests: XCTestCase {
             }
         }
         
-        let lastPromise = Promise.resolve(3)
+        let lastPromise = Promise.resolve(Queue.mainQueue, value: 3)
             .thenSplit { v in return .of(v + 4) }
             .thenSplit { v in return .of(v + 5) }
             .then { val -> ErrorOptional<Int> in
@@ -116,7 +173,7 @@ class PromisesTests: XCTestCase {
     }
     
     func testOkChecked() {
-        let lastPromise = Promise.resolve(3)
+        let lastPromise = Promise.resolve(Queue.mainQueue, value: 3)
             .thenSplit { v in return .of(v + 4) }
             .thenSplit { v in return .of(v + 5) }
             .thenChecked { v throws in
@@ -129,7 +186,7 @@ class PromisesTests: XCTestCase {
     }
     
     func testFailedChecked() {
-        let lastPromise = Promise.resolve(3)
+        let lastPromise = Promise.resolve(Queue.mainQueue, value: 3)
             .thenSplit { v in return .of(v + 4) }
             .thenSplit { v in return .of(v + 5) }
             .thenChecked { _ throws -> Int in
@@ -147,7 +204,7 @@ class PromisesTests: XCTestCase {
     }
     
     func testFailedCascade() {
-        let lastPromise = Promise.resolve(3)
+        let lastPromise = Promise.resolve(.mainQueue, value: 3)
             .thenChecked { _ throws -> Int in
                 throw POSIXError.ECANCELED
             }

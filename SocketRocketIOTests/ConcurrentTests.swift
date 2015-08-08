@@ -39,16 +39,9 @@ class ConcurrentTests: XCTestCase {
         dispatch_group_leave(g)
         waitForExpectations()
     }
-    
-    func testPerformanceExample() {
-        // This is an example of a performance test case.
-        self.measureBlock {
-            // Put the code you want to measure the time of here.
-        }
-    }
-    
+
     func testPGroup_noerr() {
-        var p = PGroup<Int>()
+        var p = PGroup<Int>(queue: Queue.mainQueue)
         
         p.resolve(3)
         
@@ -64,8 +57,8 @@ class ConcurrentTests: XCTestCase {
     }
 
     func testPGroup_after() {
-        var p = PGroup<Int>()
-        
+        let p = PGroup<Int>(queue: Queue.mainQueue)
+
         for i in 0..<20 {
             let e = self.expectationWithDescription("e \(i)")
             p.then { v in
@@ -79,14 +72,14 @@ class ConcurrentTests: XCTestCase {
                 }
             }
         }
-        
+
         p.resolve(3)
-        
+
         self.waitForExpectations()
     }
     
     func testPGroup_calledOnce() {
-        var p = PGroup<Int>()
+        let p = PGroup<Int>(queue: Queue.mainQueue)
         
         for i in 0..<20 {
             let e = self.expectationWithDescription("e \(i)")
@@ -110,7 +103,7 @@ class ConcurrentTests: XCTestCase {
     }
     
     func testPGroup_canceled() {
-        var p = PGroup<Int>()
+        var p = PGroup<Int>(queue: Queue.mainQueue)
         
         for i in 0..<20 {
             let e = self.expectationWithDescription("e \(i)")
