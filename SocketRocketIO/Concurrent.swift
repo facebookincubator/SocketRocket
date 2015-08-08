@@ -58,7 +58,7 @@ struct PGroup<T> {
     private var lock = LockType()
     
     // These should only be mutated inside a lock
-    private var result: ErrorOptional<T>? = nil
+    private var result: PromiseOrValue<T>? = nil
     
     // these are blocks enqueued while we don't have a result. Should be called when we actually fulfill
     private var pendingHandlers = [Handler]()
@@ -70,10 +70,28 @@ struct PGroup<T> {
     }
     
     mutating func reject(e: ErrorType) -> Bool {
-        return fulfill(.Error(e))
+        return fulfill(.Value(.Error(e)))
     }
     
-    mutating func fulfill(v: ErrorOptional<T>) -> Bool {
+    mutating func resolve(v: T) -> Bool {
+        return fulfill(.Value(ErrorOptional(v)))
+    }
+    
+    /// Resolves a block to either a handler or something else
+    private func doStuffWithResult(handlers: [Handler]) {
+        switch result! {
+        case let .Promised(p):
+            for h in handlers {
+                p.then(handler: h)
+            }
+        case let .Value(v):
+            for h in handlers {
+                h(v)
+            }
+        }
+    }
+    
+    mutating func fulfill(v: PromiseOrValue<T>) -> Bool {
         guard result == nil else {
             return false
         }
@@ -94,9 +112,7 @@ struct PGroup<T> {
             return false
         }
         
-        for bl in b {
-            bl(v)
-        }
+        doStuffWithResult(b)
         
         return true
     }
@@ -104,12 +120,12 @@ struct PGroup<T> {
     /// Adds a handler. Called immediately if result is set. Otherwise it will enqueue
     mutating func then(h: Handler) -> Void {
         // If we have a result, return it
-        if let v = self.result {
-            h(v)
+        if self.result != nil {
+            doStuffWithResult([h])
             return
         }
         
-        let valueAgain: ErrorOptional<T>? = lock.withLock {
+        let valueAgain: PromiseOrValue<T>? = lock.withLock {
             if let r = result {
                 return r
             }
@@ -119,8 +135,8 @@ struct PGroup<T> {
             return nil
         }
         
-        if let v = valueAgain {
-            h(v)
+        if valueAgain != nil {
+            doStuffWithResult([h])
         }
     }
     
@@ -129,7 +145,7 @@ struct PGroup<T> {
     }
     
     private init(result: ErrorOptional<T>) {
-        self.result = result
+        self.result = .Value(result)
     }
     
     static func resolve<T>(v: T) -> PGroup<T> {

@@ -50,7 +50,7 @@ class ConcurrentTests: XCTestCase {
     func testPGroup_noerr() {
         var p = PGroup<Int>()
         
-        p.fulfill(ErrorOptional(3))
+        p.resolve(3)
         
         for i in 0..<20 {
             let e = self.expectationWithDescription("e \(i)")
@@ -80,7 +80,7 @@ class ConcurrentTests: XCTestCase {
             }
         }
         
-        p.fulfill(ErrorOptional(3))
+        p.resolve(3)
         
         self.waitForExpectations()
     }
@@ -102,9 +102,9 @@ class ConcurrentTests: XCTestCase {
         }
         
         
-        p.fulfill(ErrorOptional(3))
-        p.fulfill(ErrorOptional(4))
-        p.fulfill(ErrorOptional(Error.Canceled))
+        p.resolve(3)
+        p.resolve(4)
+        p.reject(Error.Canceled)
         
         self.waitForExpectations()
     }
@@ -126,9 +126,10 @@ class ConcurrentTests: XCTestCase {
         }
         
         p.cancel()
-        p.fulfill(ErrorOptional(3))
-        p.fulfill(ErrorOptional(4))
-        p.fulfill(ErrorOptional(Error.Canceled))
+
+        p.resolve(3)
+        p.resolve(4)
+        p.reject(Error.Canceled)
         
         self.waitForExpectations()
     }

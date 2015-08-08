@@ -70,6 +70,16 @@ public struct Resolver<T> {
     public func fulfill(v: ET) {
         promise.fulfill(v)
     }
+    
+    // Used for chaining the promise
+    public func fulfill(p: Promise<T>) {
+        promise.fulfill(p)
+    }
+    
+    // Used for chaining the promise
+    public func fulfill(p: PromiseOrValue<T>) {
+        promise.fulfill(p)
+    }
 }
 
 
@@ -131,12 +141,9 @@ public class Promise<T> {
         let (r, p) = Promise<R>.resolver()
         
         self.then(queue) { v -> Void in
-            switch handler(v) {
-            case let .Promised(prom):
-                prom.then(handler: r.fulfill)
-            case let .Value(val):
-                r.fulfill(val)
-            }
+//            pgroup.fulfill(handler(v))
+            let newV = handler(v)
+            r.fulfill(newV)
         }
         
         return p
@@ -180,7 +187,15 @@ public class Promise<T> {
     }
     
     private func fulfill(value: ET) {
-        pgroup.fulfill(value)
+        pgroup.fulfill(.Value(value))
+    }
+    
+    private func fulfill(promise: Promise<T>) {
+        pgroup.fulfill(.Promised(promise))
+    }
+    
+    private func fulfill(promise: PromiseOrValue<T>) {
+        pgroup.fulfill(promise)
     }
 }
 
