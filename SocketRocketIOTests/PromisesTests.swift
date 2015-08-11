@@ -64,7 +64,6 @@ class PromisesTests: XCTestCase {
         self.waitForExpectations()
     }
     
-    
     func testDispatchesOnQueue_dispatchesOnQue() {
         let (r, p) = Promise<Int>.resolver(Queue.mainQueue)
         

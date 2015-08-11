@@ -8,30 +8,6 @@
 
 import Foundation
 
-
-/// This is a nonblocking once. THis means that the once block
-/// may fire after the callers that don't get it succeed
-/// This is unlike the behavior of dispatch_once
-struct Once {
-    var count: Int32 = 0
-    
-    /// If this is the first one to call this, will invoke the block
-    ///
-    /// :param: bit This structure can be used for more than one bit. We allow the first 16 bits to be used
-    ///
-    /// :return: true if the block is ecuted
-    mutating func doMaybe(bit: Int = 0, block: () -> ()) -> Bool {
-        precondition(bit < 16)
-        
-        guard !count.atomicTestAndSet(bit) else {
-            return false
-        }
-        
-        block()
-        return true
-    }
-}
-
 extension Int32 {
     mutating func atomicTestAndSet(bit: Int) -> Bool {
         return withUnsafeMutablePointer(&self) { ptr in
@@ -69,26 +45,15 @@ class PGroup<T> {
     private func flushHandlers() {
         precondition(queue.isCurrentQueue())
         
-        guard let result = self.result else {
+        // Only run it if we have a result
+        guard case let .Some(.Value(resultValue)) = self.result else {
             return
         }
         
-        switch result {
-        case let .Promised(resultPromise):
-            let pendingHandlersCopy = self.pendingHandlers
-            
-            resultPromise.then { v in
-                self.queue.dispatchAsync {
-                    for h in pendingHandlersCopy {
-                        h(v)
-                    }
-                }
-            }
-        case let .Value(resultValue):
-            for h in self.pendingHandlers {
-                h(resultValue)
-            }
+        for h in self.pendingHandlers {
+            h(resultValue)
         }
+        
         self.pendingHandlers.removeAll()
     }
     
@@ -100,7 +65,16 @@ class PGroup<T> {
             }
             
             self.result = result
-            self.flushHandlers()
+            
+            switch result {
+            case let .Promised(promised):
+                promised.then(self.queue) { v in
+                    self.result = .Value(v)
+                    self.flushHandlers()
+                }
+            case .Value:
+                self.flushHandlers()
+            }
         }
     }
     

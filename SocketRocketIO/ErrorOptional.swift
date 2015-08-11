@@ -54,7 +54,7 @@ public enum ErrorOptional<T> {
     }
     
     // Will catch the first error and return with error wrapped in error optinal
-    static func attempt(block: () throws -> T) -> ErrorOptional<T> {
+    static func attempt(@noescape block: () throws -> T) -> ErrorOptional<T> {
         do {
             return .Some(try block())
         } catch let e {

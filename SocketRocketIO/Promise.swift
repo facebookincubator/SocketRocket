@@ -62,10 +62,6 @@ public struct Resolver<T> {
         fulfill(ET(error))
     }
     
-    /// resolves with the return value. Otherwise if it throws, it will return as an error type
-    public func attemptResolve(block: () throws -> T) {
-        fulfill(ET.attempt { return try block() })
-    }
     
     public func fulfill(v: ET) {
         promise.fulfill(v)
@@ -79,6 +75,13 @@ public struct Resolver<T> {
     // Used for chaining the promise
     public func fulfill(p: PromiseOrValue<T>) {
         promise.fulfill(p)
+    }
+}
+
+extension Resolver {
+    /// resolves with the return value. Otherwise if it throws, it will return as an error type
+    public func attemptResolve(block: () throws -> T) {
+        fulfill(ET.attempt { return try block() })
     }
 }
 

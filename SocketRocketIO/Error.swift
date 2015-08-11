@@ -12,7 +12,14 @@ enum Error: ErrorType {
     case CodecError
     case UTF8DecodeError
     case Canceled
+    case NoAddressesRemaining
+    case UnknownSockaddrType(family: sa_family_t)
+    // Getaddrinfo error
+    case GAIError(status: Int32)
     
+    // when inet_pton returns 0
+    case NotParseableAddress
+
     /// For functions that return negative value on error and expect errno to be set
     static func checkReturnCode(returnCode: Int32) -> ErrorType? {
         guard returnCode < 0 else {
@@ -41,9 +48,10 @@ enum Error: ErrorType {
     }
     
     // Same as above, but checks if less than 0, and uses errno as the varaible
-    static func throwIfNotSuccessLessThan0(returnCode: Int32) throws  {
+    static func throwIfNotSuccessLessThan0(returnCode: Int32) throws -> Int32 {
         if let e = checkReturnCode(returnCode) {
             throw e
         }
+        return returnCode
     }
 }
