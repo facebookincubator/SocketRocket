@@ -553,7 +553,7 @@
 				DYLIB_CURRENT_VERSION = 1;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SYSTEM_APPS_DIR)/Xcode.app/Contents/Developer/Library/Frameworks\"",
+					"$(DEVELOPER_FRAMEWORKS_DIR_QUOTED)",
 				);
 				FRAMEWORK_VERSION = A;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
@@ -561,7 +561,7 @@
 				GCC_PREFIX_HEADER = "SocketRocket/SocketRocket-Prefix.pch";
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				INFOPLIST_FILE = "SocketRocketOSX/SocketRocketOSX-Info.plist";
-				LD_DYLIB_INSTALL_NAME = "@executable_path/../Frameworks/$(EXECUTABLE_PATH)";
+				LD_DYLIB_INSTALL_NAME = "@loader_path/../$(EXECUTABLE_PATH)";
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = SocketRocket;
@@ -579,7 +579,7 @@
 				DYLIB_CURRENT_VERSION = 1;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SYSTEM_APPS_DIR)/Xcode.app/Contents/Developer/Library/Frameworks\"",
+					"$(DEVELOPER_FRAMEWORKS_DIR_QUOTED)",
 				);
 				FRAMEWORK_VERSION = A;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
@@ -587,7 +587,7 @@
 				GCC_PREFIX_HEADER = "SocketRocket/SocketRocket-Prefix.pch";
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				INFOPLIST_FILE = "SocketRocketOSX/SocketRocketOSX-Info.plist";
-				LD_DYLIB_INSTALL_NAME = "@executable_path/../Frameworks/$(EXECUTABLE_PATH)";
+				LD_DYLIB_INSTALL_NAME = "@loader_path/../$(EXECUTABLE_PATH)";
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = SocketRocket;
 				SDKROOT = macosx;
