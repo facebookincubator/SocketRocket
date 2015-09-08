@@ -17,6 +17,13 @@
 #import <Foundation/Foundation.h>
 #import <Security/SecCertificate.h>
 
+@protocol CertificateVerifier <NSObject>
+
+- (BOOL)evaluateServerTrust:(SecTrustRef)serverTrust
+                  forDomain:(NSString*)domain;
+
+@end
+
 typedef NS_ENUM(NSInteger, SRReadyState) {
     SR_CONNECTING   = 0,
     SR_OPEN         = 1,
@@ -111,7 +118,7 @@ extern NSString *const SRHTTPResponseErrorKey;
 
 @interface NSURLRequest (CertificateAdditions)
 
-@property (nonatomic, retain, readonly) NSArray *SR_SSLPinnedCertificates;
+@property (nonatomic, retain, readonly) id<CertificateVerifier> securityPolicy;
 
 @end
 
@@ -119,7 +126,7 @@ extern NSString *const SRHTTPResponseErrorKey;
 
 @interface NSMutableURLRequest (CertificateAdditions)
 
-@property (nonatomic, retain) NSArray *SR_SSLPinnedCertificates;
+@property (nonatomic, retain) id<CertificateVerifier> securityPolicy;
 
 @end
 
