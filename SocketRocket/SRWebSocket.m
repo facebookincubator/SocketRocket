@@ -589,9 +589,16 @@ static __strong NSData *CRLFCRLF;
     
     NSString *networkServiceType;
     switch (_urlRequest.networkServiceType) {
-        case NSURLNetworkServiceTypeVoIP:
+        case NSURLNetworkServiceTypeDefault:
+            return;
+        case NSURLNetworkServiceTypeVoIP: {
+            // voice over IP control - this service type is deprecated in favor of using PushKit for VoIP control
+            if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_8_3) {
+                return;
+            }
             networkServiceType = NSStreamNetworkServiceTypeVoIP;
             break;
+        }
         case NSURLNetworkServiceTypeVideo:
             networkServiceType = NSStreamNetworkServiceTypeVideo;
             break;
@@ -600,8 +607,6 @@ static __strong NSData *CRLFCRLF;
             break;
         case NSURLNetworkServiceTypeVoice:
             networkServiceType = NSStreamNetworkServiceTypeVoice;
-            break;
-        default:
             break;
     }
     [_inputStream setProperty:networkServiceType forKey:NSStreamNetworkServiceType];
