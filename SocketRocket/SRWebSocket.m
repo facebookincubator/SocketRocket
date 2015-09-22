@@ -27,6 +27,7 @@
 
 #if TARGET_OS_IPHONE
 #import <Endian.h>
+#import <UIKit/UIKit.h>
 #else
 #import <CoreServices/CoreServices.h>
 #endif
@@ -592,12 +593,14 @@ static __strong NSData *CRLFCRLF;
         case NSURLNetworkServiceTypeDefault:
             return;
         case NSURLNetworkServiceTypeVoIP: {
+#if TARGET_OS_IPHONE
             // voice over IP control - this service type is deprecated in favor of using PushKit for VoIP control
-            if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_8_3) {
-                return;
+            if ([[UIDevice currentDevice].systemVersion compare:@"9.0" options:NSNumericSearch] == NSOrderedAscending) {
+                networkServiceType = NSStreamNetworkServiceTypeVoIP;
+                break;
             }
-            networkServiceType = NSStreamNetworkServiceTypeVoIP;
-            break;
+#endif
+            return;
         }
         case NSURLNetworkServiceTypeVideo:
             networkServiceType = NSStreamNetworkServiceTypeVideo;
