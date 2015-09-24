@@ -659,6 +659,9 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
         return NO;
     }
 
+    if (![self.delegate respondsToSelector:@selector(shouldCopyDataToSend:)] || [self.delegate shouldCopyDataToSend:data]) {
+        data = [data copy];
+    }
     dispatch_async(_workQueue, ^{
         if (data) {
             [self _sendFrameWithOpcode:SROpCodeBinaryFrame data:data];
@@ -791,9 +794,10 @@ static inline BOOL closeCodeIsValid(int closeCode) {
 
 - (void)_handleFrameWithData:(NSData *)frameData opCode:(NSInteger)opcode;
 {
-    //frameData will be copied before passing to handlers
-    //otherwise there can be misbehaviours when value at the pointer is changed
-    frameData = [frameData copy];
+    if (![self.delegate respondsToSelector:@selector(shouldCopyReceivedData:)] ||
+        [self.delegate shouldCopyReceivedData:frameData]) {
+        frameData = [frameData copy];
+    }
 
     // Check that the current data is valid UTF8
 
