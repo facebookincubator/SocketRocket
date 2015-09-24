@@ -653,7 +653,10 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
         return NO;
     }
 
-    data = [data copy];
+    NSAssert(self.readyState != SR_CONNECTING, @"Invalid State: Cannot call send: until connection is open");
+    if (![self.delegate respondsToSelector:@selector(shouldCopyDataToSend:)] || [self.delegate shouldCopyDataToSend:data]) {
+        data = [data copy];
+    }
     dispatch_async(_workQueue, ^{
         if (data) {
             [self _sendFrameWithOpcode:SROpCodeBinaryFrame data:data];
@@ -786,7 +789,11 @@ static inline BOOL closeCodeIsValid(int closeCode) {
 
 - (void)_handleFrameWithData:(NSData *)frameData opCode:(NSInteger)opcode;
 {
-    frameData = [frameData copy];
+    if (![self.delegate respondsToSelector:@selector(shouldCopyReceivedData:)] ||
+        [self.delegate shouldCopyReceivedData:frameData]) {
+        frameData = [frameData copy];
+    }
+
     // Check that the current data is valid UTF8
 
     BOOL isControlFrame = (opcode == SROpCodePing || opcode == SROpCodePong || opcode == SROpCodeConnectionClose);
@@ -1031,7 +1038,9 @@ static const uint8_t SRPayloadLenMask   = 0x7F;
 - (void)_readFrameNew;
 {
     dispatch_async(_workQueue, ^{
-        [_currentFrameData setLength:0];
+        // Don't reset the length, since Apple doesn't guarantee that this will free the memory (and in tests on
+        // some platforms, it doesn't seem to, effectively causing a leak the size of the biggest frame so far).
+        _currentFrameData = [[NSMutableData alloc] init];
 
         _currentFrameOpcode = 0;
         _currentFrameCount = 0;
