@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		B6864A701BA64706006A5DFF /* libobjc.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = B6C138781B9FAF2D000BA934 /* libobjc.tbd */; };
+		B6864A721BA64713006A5DFF /* libobjc.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = B6864A711BA64713006A5DFF /* libobjc.tbd */; };
+		B6864A731BA6471E006A5DFF /* libobjc.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = B6C138781B9FAF2D000BA934 /* libobjc.tbd */; };
 		F6016C8814620EC70037BB3D /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F6A12CD3145122FC00C1D980 /* Security.framework */; };
 		F6016C8914620ECC0037BB3D /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F6A12CD3145122FC00C1D980 /* Security.framework */; };
 		F6016C8A1462143C0037BB3D /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F6A12CD51451231B00C1D980 /* CFNetwork.framework */; };
@@ -53,6 +56,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		B6864A711BA64713006A5DFF /* libobjc.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libobjc.tbd; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk/usr/lib/libobjc.tbd; sourceTree = DEVELOPER_DIR; };
+		B6C138781B9FAF2D000BA934 /* libobjc.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libobjc.tbd; path = usr/lib/libobjc.tbd; sourceTree = SDKROOT; };
 		F60CC29F14D4EA0500A005E4 /* SRTWebSocketOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SRTWebSocketOperation.h; sourceTree = "<group>"; };
 		F60CC2A014D4EA0500A005E4 /* SRTWebSocketOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SRTWebSocketOperation.m; sourceTree = "<group>"; };
 		F61A0DC71625F44D00365EBD /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Default-568h@2x.png"; path = "en.lproj/Default-568h@2x.png"; sourceTree = "<group>"; };
@@ -100,6 +105,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B6864A731BA6471E006A5DFF /* libobjc.tbd in Frameworks */,
 				F62417E614D52F3C003CE997 /* UIKit.framework in Frameworks */,
 				F62417E714D52F3C003CE997 /* Foundation.framework in Frameworks */,
 				F62417E914D52F3C003CE997 /* CoreGraphics.framework in Frameworks */,
@@ -114,6 +120,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B6864A721BA64713006A5DFF /* libobjc.tbd in Frameworks */,
 				F668C899153E923C0044DBAC /* CoreServices.framework in Frameworks */,
 				F668C89A153E923C0044DBAC /* Foundation.framework in Frameworks */,
 				F668C89B153E923C0044DBAC /* Security.framework in Frameworks */,
@@ -124,6 +131,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B6864A701BA64706006A5DFF /* libobjc.tbd in Frameworks */,
 				F6AE4520145906B20022AF3C /* Foundation.framework in Frameworks */,
 				F6016C8914620ECC0037BB3D /* Security.framework in Frameworks */,
 				F6016C8A1462143C0037BB3D /* CFNetwork.framework in Frameworks */,
@@ -175,6 +183,7 @@
 		F6396BA3153E6D4D00345B5E /* OSX Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				B6864A711BA64713006A5DFF /* libobjc.tbd */,
 				F6396BA4153E6D7400345B5E /* CoreServices.framework */,
 				F6396BA1153E6D4800345B5E /* Foundation.framework */,
 				F6396B9F153E6D3700345B5E /* Security.framework */,
@@ -228,6 +237,7 @@
 		F6B2082F1450F597009315AF /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				B6C138781B9FAF2D000BA934 /* libobjc.tbd */,
 				F6396BA3153E6D4D00345B5E /* OSX Frameworks */,
 				F6C41C95145F7C4700641356 /* libicucore.dylib */,
 				F6A12CD51451231B00C1D980 /* CFNetwork.framework */,

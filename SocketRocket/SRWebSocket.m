@@ -16,6 +16,7 @@
 
 
 #import "SRWebSocket.h"
+#import <objc/runtime.h>
 
 #if TARGET_OS_IPHONE
 #define HAS_ICU
@@ -263,7 +264,7 @@ static __strong NSData *CRLFCRLF;
         assert(request.URL);
         _url = request.URL;
         _urlRequest = request;
-        
+        _pinnedCertFound = NO;
         _requestedProtocols = [protocols copy];
         
         [self _SR_commonInit];
@@ -554,10 +555,11 @@ static __strong NSData *CRLFCRLF;
         
         [_outputStream setProperty:(__bridge id)kCFStreamSocketSecurityLevelNegotiatedSSL forKey:(__bridge id)kCFStreamPropertySocketSecurityLevel];
         
-        // If we're using pinned certs, don't validate the certificate chain
-        if ([_urlRequest SR_SSLPinnedCertificates].count) {
-            [SSLOptions setValue:[NSNumber numberWithBool:NO] forKey:(__bridge id)kCFStreamSSLValidatesCertificateChain];
-        }
+	// Enforce TLS 1.2
+
+        [_outputStream setProperty:(__bridge id)CFSTR("kCFStreamSocketSecurityLevelTLSv1_2") forKey:(__bridge id)kCFStreamPropertySocketSecurityLevel];
+
+        [SSLOptions setValue:[NSNumber numberWithBool:NO] forKey:(__bridge id)kCFStreamSSLValidatesCertificateChain];
         
 #if DEBUG
         [SSLOptions setValue:[NSNumber numberWithBool:NO] forKey:(__bridge id)kCFStreamSSLValidatesCertificateChain];
@@ -1371,35 +1373,21 @@ static const size_t SRFrameHeaderOverhead = 32;
 - (void)stream:(NSStream *)aStream handleEvent:(NSStreamEvent)eventCode;
 {
     if (_secure && !_pinnedCertFound && (eventCode == NSStreamEventHasBytesAvailable || eventCode == NSStreamEventHasSpaceAvailable)) {
-        
-        NSArray *sslCerts = [_urlRequest SR_SSLPinnedCertificates];
-        if (sslCerts) {
-            SecTrustRef secTrust = (__bridge SecTrustRef)[aStream propertyForKey:(__bridge id)kCFStreamPropertySSLPeerTrust];
-            if (secTrust) {
-                NSInteger numCerts = SecTrustGetCertificateCount(secTrust);
-                for (NSInteger i = 0; i < numCerts && !_pinnedCertFound; i++) {
-                    SecCertificateRef cert = SecTrustGetCertificateAtIndex(secTrust, i);
-                    NSData *certData = CFBridgingRelease(SecCertificateCopyData(cert));
-                    
-                    for (id ref in sslCerts) {
-                        SecCertificateRef trustedCert = (__bridge SecCertificateRef)ref;
-                        NSData *trustedCertData = CFBridgingRelease(SecCertificateCopyData(trustedCert));
-                        
-                        if ([trustedCertData isEqualToData:certData]) {
-                            _pinnedCertFound = YES;
-                            break;
-                        }
-                    }
-                }
-            }
-            
-            if (!_pinnedCertFound) {
-                dispatch_async(_workQueue, ^{
-                    [self _failWithError:[NSError errorWithDomain:SRWebSocketErrorDomain code:23556 userInfo:[NSDictionary dictionaryWithObject:[NSString stringWithFormat:@"Invalid server cert"] forKey:NSLocalizedDescriptionKey]]];
-                });
-                return;
-            }
+
+        id<CertificateVerifier> verifier = [_urlRequest securityPolicy];
+        if (!verifier) {
+            @throw [NSException exceptionWithName:@"Can't verify WebSocket trust." reason:@"Missing security policy." userInfo:nil];
         }
+
+        SecTrustRef secTrust = (__bridge SecTrustRef)[aStream propertyForKey:(__bridge id)kCFStreamPropertySSLPeerTrust];
+        if (! (secTrust && [verifier evaluateServerTrust:secTrust forDomain:_urlRequest.URL.host])) {
+            dispatch_async(_workQueue, ^{
+                [self _failWithError:[NSError errorWithDomain:SRWebSocketErrorDomain code:23556 userInfo:[NSDictionary dictionaryWithObject:[NSString stringWithFormat:@"Invalid server cert"] forKey:NSLocalizedDescriptionKey]]];
+            });
+            return;
+        }
+
+        _pinnedCertFound = YES;
     }
 
     dispatch_async(_workQueue, ^{
@@ -1558,26 +1546,28 @@ static const size_t SRFrameHeaderOverhead = 32;
 
 @end
 
-
 @implementation  NSURLRequest (CertificateAdditions)
 
-- (NSArray *)SR_SSLPinnedCertificates;
+static id certificateVerifier;
+
+- (id<CertificateVerifier>)securityPolicy;
 {
-    return [NSURLProtocol propertyForKey:@"SR_SSLPinnedCertificates" inRequest:self];
+    return objc_getAssociatedObject(self, &certificateVerifier);
 }
 
 @end
 
 @implementation  NSMutableURLRequest (CertificateAdditions)
 
-- (NSArray *)SR_SSLPinnedCertificates;
+- (void)setSecurityPolicy:(id<CertificateVerifier>)securityPolicy
 {
-    return [NSURLProtocol propertyForKey:@"SR_SSLPinnedCertificates" inRequest:self];
-}
-
-- (void)setSR_SSLPinnedCertificates:(NSArray *)SR_SSLPinnedCertificates;
-{
-    [NSURLProtocol setProperty:SR_SSLPinnedCertificates forKey:@"SR_SSLPinnedCertificates" inRequest:self];
+    if (![securityPolicy respondsToSelector:@selector(evaluateServerTrust:forDomain:)]) {
+        @throw [NSException exceptionWithName:@"Assigning security policy failed."
+                                       reason:@"Trying to assign a security policy that doesn't respond to required selector"
+                                     userInfo:nil];
+    }
+    
+    objc_setAssociatedObject(self, &certificateVerifier, securityPolicy, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
 @end

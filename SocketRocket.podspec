@@ -15,5 +15,5 @@ Pod::Spec.new do |s|
   s.ios.frameworks     = 'CFNetwork', 'Security'
   s.osx.frameworks     = 'CoreServices', 'Security'
 
-  s.libraries          = "icucore"
+  s.libraries          = 'icucore', 'objc'
 end
