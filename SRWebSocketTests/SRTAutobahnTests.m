@@ -123,7 +123,7 @@
     
     NSInteger caseCount = caseGetter.caseCount;
     
-    return caseCount;
+    return (unsigned int)caseCount;
 }
 
 - (BOOL)isEmpty;
@@ -305,7 +305,13 @@
 - (id)initWithBaseURL:(NSURL *)url caseNumber:(NSInteger)caseNumber;
 {
     NSString *path = [[url URLByAppendingPathComponent:@"getCaseInfo"] absoluteString];
+<<<<<<< HEAD
     path = [path stringByAppendingFormat:@"?case=%@", @(caseNumber)];
+||||||| merged common ancestors
+    path = [path stringByAppendingFormat:@"?case=%d", caseNumber];
+=======
+    path = [path stringByAppendingFormat:@"?case=%ld", (long)caseNumber];
+>>>>>>> General cleanup.
     
     return [super initWithURL:[NSURL URLWithString:path]];
 }
@@ -325,7 +331,13 @@
 - (id)initWithBaseURL:(NSURL *)url caseNumber:(NSInteger)caseNumber agent:(NSString *)agent;
 {
     NSString *path = [[url URLByAppendingPathComponent:@"getCaseStatus"] absoluteString];
+<<<<<<< HEAD
     path = [path stringByAppendingFormat:@"?case=%@&agent=%@", @(caseNumber), agent];
+||||||| merged common ancestors
+    path = [path stringByAppendingFormat:@"?case=%d&agent=%@", caseNumber, agent];
+=======
+    path = [path stringByAppendingFormat:@"?case=%ld&agent=%@", (long)caseNumber, agent];
+>>>>>>> General cleanup.
     
     return [super initWithURL:[NSURL URLWithString:path]];
 }

@@ -18,13 +18,21 @@
 #import <Security/SecCertificate.h>
 
 typedef NS_ENUM(NSInteger, SRReadyState) {
-    SR_CONNECTING   = 0,
-    SR_OPEN         = 1,
-    SR_CLOSING      = 2,
-    SR_CLOSED       = 3,
+    SRReadyStateConnecting = 0,
+    SRReadyStateOpen = 1,
+    SRReadyStateClosing = 2,
+    SRReadyStateClosed = 3,
 };
 
-typedef enum SRStatusCode : NSInteger {
+/**
+ *  Legacy SRReadyState constants. These map directly to the new constants.
+ */
+extern SRReadyState const SR_CONNECTING; // SRReadyStateConnecting
+extern SRReadyState const SR_OPEN; // SRReadyStateOpen
+extern SRReadyState const SR_CLOSING; // SRReadyStateClosing
+extern SRReadyState const SR_CLOSED; // SRReadyStateClosed
+
+typedef NS_ENUM(NSInteger, SRStatusCode) {
     SRStatusCodeNormal = 1000,
     SRStatusCodeGoingAway = 1001,
     SRStatusCodeProtocolError = 1002,
@@ -35,9 +43,7 @@ typedef enum SRStatusCode : NSInteger {
     SRStatusCodeInvalidUTF8 = 1007,
     SRStatusCodePolicyViolated = 1008,
     SRStatusCodeMessageTooBig = 1009,
-} SRStatusCode;
-
-@class SRWebSocket;
+};
 
 extern NSString *const SRWebSocketErrorDomain;
 extern NSString *const SRHTTPResponseErrorKey;
@@ -50,11 +56,20 @@ extern NSString *const SRHTTPResponseErrorKey;
 
 @interface SRWebSocket : NSObject <NSStreamDelegate>
 
+/**
+ *  Set and retrieve the delegate.
+ */
 @property (nonatomic, weak) id <SRWebSocketDelegate> delegate;
 
+/**
+ *  The current state of the connection.
+ */
 @property (nonatomic, readonly) SRReadyState readyState;
-@property (nonatomic, readonly, retain) NSURL *url;
 
+/**
+ *  The connection's endpoint.
+ */
+@property (nonatomic, readonly) NSURL *url;
 
 @property (nonatomic, readonly) CFHTTPMessageRef receivedHTTPHeaders;
 
@@ -65,35 +80,115 @@ extern NSString *const SRHTTPResponseErrorKey;
 // It will be nil until after the handshake completes.
 @property (nonatomic, readonly, copy) NSString *protocol;
 
+/**
+ *  This property determine whether NSString/NSData objects are copied before being sent. The default value of this property is YES. Set this property to NO for a minor performance optimization if you know you are sending objects that won't change before they are written.
+ */
+@property (nonatomic) BOOL sendDataSafely;
+
 // Protocols should be an array of strings that turn into Sec-WebSocket-Protocol.
-- (id)initWithURLRequest:(NSURLRequest *)request protocols:(NSArray *)protocols allowsUntrustedSSLCertificates:(BOOL)allowsUntrustedSSLCertificates;
-- (id)initWithURLRequest:(NSURLRequest *)request protocols:(NSArray *)protocols;
-- (id)initWithURLRequest:(NSURLRequest *)request;
+- (instancetype)initWithURLRequest:(NSURLRequest *)request protocols:(NSArray *)protocols allowsUntrustedSSLCertificates:(BOOL)allowsUntrustedSSLCertificates;
+- (instancetype)initWithURLRequest:(NSURLRequest *)request protocols:(NSArray *)protocols;
+- (instancetype)initWithURLRequest:(NSURLRequest *)request;
 
 // Some helper constructors.
-- (id)initWithURL:(NSURL *)url protocols:(NSArray *)protocols allowsUntrustedSSLCertificates:(BOOL)allowsUntrustedSSLCertificates;
-- (id)initWithURL:(NSURL *)url protocols:(NSArray *)protocols;
-- (id)initWithURL:(NSURL *)url;
+- (instancetype)initWithURL:(NSURL *)url protocols:(NSArray *)protocols allowsUntrustedSSLCertificates:(BOOL)allowsUntrustedSSLCertificates;
+- (instancetype)initWithURL:(NSURL *)url protocols:(NSArray *)protocols;
 
-// Delegate queue will be dispatch_main_queue by default.
-// You cannot set both OperationQueue and dispatch_queue.
-- (void)setDelegateOperationQueue:(NSOperationQueue*) queue;
-- (void)setDelegateDispatchQueue:(dispatch_queue_t) queue;
+/**
+ *  Initializes an SRWebSocket with the given URL and nil protocols.
+ *
+ *  @param url       The URL.
+ *
+ *  @return An initialized SRWebSocket.
+ */
+- (instancetype)initWithURL:(NSURL *)url;
+
+/**
+ *  Set the delegate operation queue. This property will default to -[NSOperationQueue mainQueue]. This may not be used together with the -[SRWebSocket setDelegateDispatchQueue:] method.
+ *
+ *  @param queue The NSOperationQueue on which to perform delegate callbacks.
+ */
+- (void)setDelegateOperationQueue:(NSOperationQueue *)queue;
+
+/**
+ *  Set the delegate dispatch queue. This property will default to dispatch_get_main_queue(). This may not be used together with the -[SRWebSocket setDelegateOperationQueue:] method.
+ *
+ *  @param queue The dispatch_queue_t on which to perform delegate callbacks.
+ */
+- (void)setDelegateDispatchQueue:(dispatch_queue_t)queue;
 
 // By default, it will schedule itself on +[NSRunLoop SR_networkRunLoop] using defaultModes.
+
+/**
+ *  Schedule the socket in the given runloop and modes. By default it will be scheduled in the +[NSRunLoop SR_networkRunLoop] using the NSDefaultRunLoopMode.
+ *
+ *  @param aRunLoop The run loop in which to schedule the socket.
+ *  @param mode     The mode to be scheduled in.
+ */
 - (void)scheduleInRunLoop:(NSRunLoop *)aRunLoop forMode:(NSString *)mode;
+
+/**
+ *  Unschedule the socket from the given runloop and modes.
+ *
+ *  @param aRunLoop The run loop from which to unschedule the socket.
+ *  @param mode     The mode to be unscheduled from.
+ */
 - (void)unscheduleFromRunLoop:(NSRunLoop *)aRunLoop forMode:(NSString *)mode;
 
-// SRWebSockets are intended for one-time-use only.  Open should be called once and only once.
+/**
+ *  Open the socket. SRWebSockets are intended for one-time-use only so this method should not be called more than once.
+ */
 - (void)open;
 
+/**
+ *  Close the socket with the reason: SRStatusCodeNormal and no error.
+ */
 - (void)close;
+
+/**
+ *  Close the socket with the given reason an error.
+ *
+ *  @param code   The error code.
+ *  @param reason The error reason.
+ */
 - (void)closeWithCode:(NSInteger)code reason:(NSString *)reason;
 
-// Send a UTF8 String or Data.
+/**
+ *  Send either an NSData object, or a UTF-8 encoded NSString. See the sendDataSafely property for more info.
+ *
+ *  @param data Either an NSData object or a encoded UTF-8 NSString.
+ */
 - (void)send:(id)data;
 
+/**
+ *  Send a UTF-8 encoded NSString. See the sendDataSafely property for more info.
+ *
+ *  @param message A UTF-8 encoded NSString.
+ */
+- (void)sendString:(NSString *)message;
+
+/**
+ *  Send NSData. See the sendDataSafely property for more info.
+ *
+ *  @param message An NSData object.
+ */
+- (void)sendData:(NSData *)message;
+
+/**
+ *  Send data with an identifier in such a way that you will be notified when the write has completed.
+ *
+ *  @param message    The data.
+ *  @param identifier The identifier.
+ */
+- (void)sendPartialData:(NSData *)message withIdentifier:(id)identifier;
+
 // Send Data (can be nil) in a ping message.
+
+/**
+ *  Send a ping with the given NSData.
+ *
+ *  @param data An NSData object, or nil.
+ */
 - (void)sendPing:(NSData *)data;
 
 @end
@@ -102,16 +197,21 @@ extern NSString *const SRHTTPResponseErrorKey;
 
 @protocol SRWebSocketDelegate <NSObject>
 
-// message will either be an NSString if the server is using text
-// or NSData if the server is using binary.
-- (void)webSocket:(SRWebSocket *)webSocket didReceiveMessage:(id)message;
-
 @optional
 
 - (void)webSocketDidOpen:(SRWebSocket *)webSocket;
 - (void)webSocket:(SRWebSocket *)webSocket didFailWithError:(NSError *)error;
 - (void)webSocket:(SRWebSocket *)webSocket didCloseWithCode:(NSInteger)code reason:(NSString *)reason wasClean:(BOOL)wasClean;
 - (void)webSocket:(SRWebSocket *)webSocket didReceivePong:(NSData *)pongPayload;
+
+// message will either be an NSString if the server is using text
+// or NSData if the server is using binary.
+- (void)webSocket:(SRWebSocket *)webSocket didReceiveMessage:(id)message;
+
+- (void)webSocket:(SRWebSocket *)webSocket didReceiveString:(NSString *)message;
+- (void)webSocket:(SRWebSocket *)webSocket didReceiveData:(NSData *)message;
+
+- (void)webSocket:(SRWebSocket *)webSocket writeDidFinishWithIdentifier:(id)identifier;
 
 @end
 
