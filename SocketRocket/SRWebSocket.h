@@ -85,11 +85,6 @@ extern NSString *const SRHTTPResponseErrorKey;
  */
 @property (nonatomic) BOOL sendDataSafely;
 
-/**
- *  Set this to YES if you would like to allow invalid SSL certificates. This is not recommended and the default value is NO. In DEBUG mode, this property will default to YES.
- */
-@property (nonatomic) BOOL allowInsecureConnections;
-
 // Protocols should be an array of strings that turn into Sec-WebSocket-Protocol.
 - (instancetype)initWithURLRequest:(NSURLRequest *)request protocols:(NSArray *)protocols allowsUntrustedSSLCertificates:(BOOL)allowsUntrustedSSLCertificates;
 - (instancetype)initWithURLRequest:(NSURLRequest *)request protocols:(NSArray *)protocols;

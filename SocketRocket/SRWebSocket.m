@@ -348,10 +348,6 @@ static __strong NSData *CRLFCRLF;
     [self _initializeStreams];
 
     _writeIdentifiers = [[NSMutableSet alloc] init];
-    
-#ifdef DEBUG
-    self.allowInsecureConnections = YES;
-#endif
 }
 
 - (void)assertOnWorkQueue
