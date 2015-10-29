@@ -37,6 +37,12 @@ typedef enum SRStatusCode : NSInteger {
     SRStatusCodeMessageTooBig = 1009,
 } SRStatusCode;
 
+typedef NS_ENUM(NSInteger, SRSSLPinningMode) {
+    SRSSLPinningModeNone        = 0,
+    SRSSLPinningModePublicKey   = 1,
+    SRSSLPinningModeCertificate = 2
+};
+
 @class SRWebSocket;
 
 extern NSString *const SRWebSocketErrorDomain;
@@ -64,6 +70,9 @@ extern NSString *const SRHTTPResponseErrorKey;
 // This returns the negotiated protocol.
 // It will be nil until after the handshake completes.
 @property (nonatomic, readonly, copy) NSString *protocol;
+
+// The criteria by which server trust should be evaluated against the pinned SSL certificates.
+@property (nonatomic, assign) SRSSLPinningMode SSLPinningMode;
 
 // Protocols should be an array of strings that turn into Sec-WebSocket-Protocol.
 - (id)initWithURLRequest:(NSURLRequest *)request protocols:(NSArray *)protocols allowsUntrustedSSLCertificates:(BOOL)allowsUntrustedSSLCertificates;
