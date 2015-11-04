@@ -113,10 +113,11 @@ static NSString *newSHA1String(const char *bytes, size_t length) {
 
     NSData *data = [NSData dataWithBytes:md length:CC_SHA1_DIGEST_LENGTH];
     NSString *dataString;
-    if ([data respondsToSelector:@selector(base64EncodedStringWithOptions:)])
+    if ([data respondsToSelector:@selector(base64EncodedStringWithOptions:)]) {
         dataString = [data base64EncodedStringWithOptions:0];
-    else
+    } else {
         dataString = [data base64Encoding];
+    }
     return dataString;
 }
 
@@ -506,10 +507,11 @@ static __strong NSData *CRLFCRLF;
         
     NSMutableData *keyBytes = [[NSMutableData alloc] initWithLength:16];
     SecRandomCopyBytes(kSecRandomDefault, keyBytes.length, keyBytes.mutableBytes);
-    if ([keyBytes respondsToSelector:@selector(base64EncodedStringWithOptions:)])
+    if ([keyBytes respondsToSelector:@selector(base64EncodedStringWithOptions:)]) {
         _secKey = [keyBytes base64EncodedStringWithOptions:0];
-    else
+    } else {
         _secKey = [keyBytes base64Encoding];
+    }
     assert([_secKey length] == 24);
     
     CFHTTPMessageSetHeaderFieldValue(request, CFSTR("Upgrade"), CFSTR("websocket"));
