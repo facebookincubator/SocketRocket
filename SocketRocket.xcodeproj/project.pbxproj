@@ -377,9 +377,9 @@
 			productReference = F62417E314D52F3C003CE997 /* TestChat.app */;
 			productType = "com.apple.product-type.application";
 		};
-		F668C87F153E91210044DBAC /* SocketRocketOSX */ = {
+		F668C87F153E91210044DBAC /* SocketRocket-OSX */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = F668C891153E91210044DBAC /* Build configuration list for PBXNativeTarget "SocketRocketOSX" */;
+			buildConfigurationList = F668C891153E91210044DBAC /* Build configuration list for PBXNativeTarget "SocketRocket-OSX" */;
 			buildPhases = (
 				F6396B85153E67EC00345B5E /* Sources */,
 				F668C87C153E91210044DBAC /* Frameworks */,
@@ -390,7 +390,7 @@
 			);
 			dependencies = (
 			);
-			name = SocketRocketOSX;
+			name = "SocketRocket-OSX";
 			productName = SocketRocketOSX;
 			productReference = F668C880153E91210044DBAC /* SocketRocket.framework */;
 			productType = "com.apple.product-type.framework";
@@ -452,7 +452,7 @@
 			projectRoot = "";
 			targets = (
 				F6B2082C1450F597009315AF /* SocketRocket */,
-				F668C87F153E91210044DBAC /* SocketRocketOSX */,
+				F668C87F153E91210044DBAC /* SocketRocket-OSX */,
 				2D4227611BB4358C000C1A6C /* SocketRocket-iOS */,
 				F6BDA801145900D200FE3253 /* SRWebSocketTests */,
 				F62417E214D52F3C003CE997 /* TestChat */,
@@ -692,7 +692,9 @@
 		F668C892153E91210044DBAC /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				COMBINE_HIDPI_IMAGES = YES;
+				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -718,8 +720,10 @@
 		F668C893153E91210044DBAC /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -919,7 +923,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		F668C891153E91210044DBAC /* Build configuration list for PBXNativeTarget "SocketRocketOSX" */ = {
+		F668C891153E91210044DBAC /* Build configuration list for PBXNativeTarget "SocketRocket-OSX" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				F668C892153E91210044DBAC /* Debug */,
