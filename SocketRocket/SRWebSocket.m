@@ -658,6 +658,29 @@ static __strong NSData *CRLFCRLF;
         [self scheduleInRunLoop:[NSRunLoop SR_networkRunLoop] forMode:NSDefaultRunLoopMode];
     }
     
+    NSString * streamNetworkServiceType = nil;
+    switch ( _urlRequest.networkServiceType) {
+        case NSURLNetworkServiceTypeDefault:
+            streamNetworkServiceType = nil;
+            break;
+        case NSURLNetworkServiceTypeBackground:
+            streamNetworkServiceType = NSStreamNetworkServiceTypeBackground;
+            break;
+        case NSURLNetworkServiceTypeVideo:
+            streamNetworkServiceType = NSStreamNetworkServiceTypeVideo;
+            break;
+        case NSURLNetworkServiceTypeVoIP:
+            streamNetworkServiceType = NSStreamNetworkServiceTypeVoIP;
+            break;
+        case NSURLNetworkServiceTypeVoice:
+            streamNetworkServiceType = NSStreamNetworkServiceTypeVoice;
+            break;
+    }
+    
+    if (streamNetworkServiceType != nil) {
+        [_inputStream setProperty:streamNetworkServiceType forKey:NSStreamNetworkServiceType];
+        [_outputStream setProperty:streamNetworkServiceType forKey:NSStreamNetworkServiceType];
+    }
     
     [_outputStream open];
     [_inputStream open];
