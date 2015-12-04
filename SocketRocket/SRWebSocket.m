@@ -1497,7 +1497,7 @@ static const size_t SRFrameHeaderOverhead = 32;
                 }
                 assert(_readBuffer);
                 
-                if (!_secure && self.readyState == SR_CONNECTING && aStream == _inputStream) {
+                if (_secure && self.readyState == SR_CONNECTING && aStream == _inputStream) {
                     [self didConnect];
                 }
                 [self _pumpWriting];
