@@ -623,6 +623,7 @@ static __strong NSData *CRLFCRLF;
             break;
         case NSURLNetworkServiceTypeVoIP: {
             networkServiceType = NSStreamNetworkServiceTypeVoIP;
+#if TARGET_OS_IPHONE
 #ifdef __IPHONE_9_0
             if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_8_3) {
                 static dispatch_once_t predicate;
@@ -630,6 +631,7 @@ static __strong NSData *CRLFCRLF;
                     NSLog(@"SocketRocket: %@ - this service type is deprecated in favor of using PushKit for VoIP control", networkServiceType);
                 });
             }
+#endif
 #endif
             break;
         }
