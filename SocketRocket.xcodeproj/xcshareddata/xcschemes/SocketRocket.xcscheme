@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "0700"
-   version = "1.7">
+   LastUpgradeVersion = "0710"
+   version = "1.3">
    <BuildAction
       parallelizeBuildables = "YES"
       buildImplicitDependencies = "YES">
@@ -14,23 +14,51 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "F6B2082C1450F597009315AF"
-               BuildableName = "libSocketRocket.a"
+               BlueprintIdentifier = "F6F199B51C3E48A70068E02B"
+               BuildableName = "SocketRocket.framework"
                BlueprintName = "SocketRocket"
                ReferencedContainer = "container:SocketRocket.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
          <BuildActionEntry
             buildForTesting = "YES"
-            buildForRunning = "NO"
+            buildForRunning = "YES"
             buildForProfiling = "NO"
             buildForArchiving = "NO"
             buildForAnalyzing = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "F6BDA801145900D200FE3253"
-               BuildableName = "SRWebSocketTests.xctest"
-               BlueprintName = "SRWebSocketTests"
+               BlueprintIdentifier = "F69DAA1C1B6AEF6900B456D0"
+               BuildableName = "SocketRocketIOTests.xctest"
+               BlueprintName = "SocketRocketIOTests"
+               ReferencedContainer = "container:SocketRocket.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "F69DAA131B6AEF6900B456D0"
+               BuildableName = "SocketRocketIO.framework"
+               BlueprintName = "SocketRocketIO"
+               ReferencedContainer = "container:SocketRocket.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
+            buildForAnalyzing = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "F6F199BE1C3E48A70068E02B"
+               BuildableName = "SocketRocketTests.xctest"
+               BlueprintName = "SocketRocketTests"
                ReferencedContainer = "container:SocketRocket.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -40,84 +68,38 @@
       buildConfiguration = "Debug"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
-      shouldUseLaunchSchemeArgsEnv = "NO">
-      <PreActions>
-         <ExecutionAction
-            ActionType = "Xcode.IDEStandardExecutionActionsCore.ExecutionActionType.ShellScriptAction">
-            <ActionContent
-               title = "Run Script"
-               scriptText = "PIDFILE=$TMPDIR/srtharness.pid&#10;if [ -r $PIDFILE ]; then&#10;    EXISTING_PID=`cat $PIDFILE`&#10;    echo &quot;Killing Dangling SRTextharneess PID:&quot; $EXISTING_PID&#10;    kill $EXISTING_PID&#10;    rm $PIDFILE&#10;fi&#10;&#10;pushd $PROJECT_DIR&#10;&#10;export MACOSX_DEPLOYMENT_TARGET=&#10;&#10;bash TestSupport/ensure_virtualenv.sh $PROJECT_DIR/.env&#10;source .env/bin/activate&#10;&#10;rm -rf &quot;$PROJECT_DIR/reports/clients/&quot;&#10;nohup sr-testharness -i &apos;&apos; -c &apos;*&apos; &amp;&#10;&#10;#nohup sr-testharness -k hello_test_harness -i &apos;&apos; -c &apos;*&apos; &amp;&#10;&#10;echo $! &gt; $PIDFILE&#10;&#10;popd"
-               shellToInvoke = "/bin/bash">
-               <EnvironmentBuildable>
-                  <BuildableReference
-                     BuildableIdentifier = "primary"
-                     BlueprintIdentifier = "F6BDA801145900D200FE3253"
-                     BuildableName = "SRWebSocketTests.xctest"
-                     BlueprintName = "SRWebSocketTests"
-                     ReferencedContainer = "container:SocketRocket.xcodeproj">
-                  </BuildableReference>
-               </EnvironmentBuildable>
-            </ActionContent>
-         </ExecutionAction>
-      </PreActions>
-      <PostActions>
-         <ExecutionAction
-            ActionType = "Xcode.IDEStandardExecutionActionsCore.ExecutionActionType.ShellScriptAction">
-            <ActionContent
-               title = "Run Script"
-               scriptText = "PIDFILE=$TMPDIR/srtharness.pid&#10;if [ -r $PIDFILE ]; then&#10;    EXISTING_PID=`cat $PIDFILE`&#10;    echo &quot;Killing SRTextharneess PID:&quot; $EXISTING_PID&#10;    kill $EXISTING_PID&#10;    rm $PIDFILE&#10;fi&#10;&#10;&#10;open $PROJECT_DIR/reports/clients/index.html"
-               shellToInvoke = "/bin/bash">
-               <EnvironmentBuildable>
-                  <BuildableReference
-                     BuildableIdentifier = "primary"
-                     BlueprintIdentifier = "F6BDA801145900D200FE3253"
-                     BuildableName = "SRWebSocketTests.xctest"
-                     BlueprintName = "SRWebSocketTests"
-                     ReferencedContainer = "container:SocketRocket.xcodeproj">
-                  </BuildableReference>
-               </EnvironmentBuildable>
-            </ActionContent>
-         </ExecutionAction>
-      </PostActions>
+      shouldUseLaunchSchemeArgsEnv = "YES">
       <Testables>
          <TestableReference
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "F6BDA801145900D200FE3253"
-               BuildableName = "SRWebSocketTests.xctest"
-               BlueprintName = "SRWebSocketTests"
+               BlueprintIdentifier = "F69DAA1C1B6AEF6900B456D0"
+               BuildableName = "SocketRocketIOTests.xctest"
+               BlueprintName = "SocketRocketIOTests"
                ReferencedContainer = "container:SocketRocket.xcodeproj">
             </BuildableReference>
-            <SkippedTests>
-               <Test
-                  Identifier = "SRTAutobahnTests">
-               </Test>
-               <Test
-                  Identifier = "STRDispatchTest/testConnect">
-               </Test>
-               <Test
-                  Identifier = "STRDispatchTest/testSimpleDial">
-               </Test>
-            </SkippedTests>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "F6F199BE1C3E48A70068E02B"
+               BuildableName = "SocketRocketTests.xctest"
+               BlueprintName = "SocketRocketTests"
+               ReferencedContainer = "container:SocketRocket.xcodeproj">
+            </BuildableReference>
          </TestableReference>
       </Testables>
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "F6B2082C1450F597009315AF"
-            BuildableName = "libSocketRocket.a"
+            BlueprintIdentifier = "F6F199B51C3E48A70068E02B"
+            BuildableName = "SocketRocket.framework"
             BlueprintName = "SocketRocket"
             ReferencedContainer = "container:SocketRocket.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
-      <EnvironmentVariables>
-         <EnvironmentVariable
-            key = "SR_TEST_URL"
-            value = "ws://localhost:9001"
-            isEnabled = "YES">
-         </EnvironmentVariable>
-      </EnvironmentVariables>
       <AdditionalOptions>
       </AdditionalOptions>
    </TestAction>
@@ -134,38 +116,13 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "F6B2082C1450F597009315AF"
-            BuildableName = "libSocketRocket.a"
+            BlueprintIdentifier = "F6F199B51C3E48A70068E02B"
+            BuildableName = "SocketRocket.framework"
             BlueprintName = "SocketRocket"
             ReferencedContainer = "container:SocketRocket.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <AdditionalOptions>
-         <AdditionalOption
-            key = "DYLD_INSERT_LIBRARIES"
-            value = "/usr/lib/libgmalloc.dylib"
-            isEnabled = "YES">
-         </AdditionalOption>
-         <AdditionalOption
-            key = "NSZombieEnabled"
-            value = "YES"
-            isEnabled = "YES">
-         </AdditionalOption>
-         <AdditionalOption
-            key = "OBJC_PRINT_EXCEPTIONS"
-            value = "YES"
-            isEnabled = "YES">
-         </AdditionalOption>
-         <AdditionalOption
-            key = "MallocGuardEdges"
-            value = ""
-            isEnabled = "YES">
-         </AdditionalOption>
-         <AdditionalOption
-            key = "MallocScribble"
-            value = ""
-            isEnabled = "YES">
-         </AdditionalOption>
       </AdditionalOptions>
    </LaunchAction>
    <ProfileAction
@@ -174,6 +131,15 @@
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
       debugDocumentVersioning = "YES">
+      <MacroExpansion>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "F6F199B51C3E48A70068E02B"
+            BuildableName = "SocketRocket.framework"
+            BlueprintName = "SocketRocket"
+            ReferencedContainer = "container:SocketRocket.xcodeproj">
+         </BuildableReference>
+      </MacroExpansion>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">

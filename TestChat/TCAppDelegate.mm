@@ -70,9 +70,9 @@ using namespace squareup::dispatch;
         
         _io = io;
         
-        __block bool seenInner = false;
-        __block bool seenOuter = false;
-
+//        __block bool seenInner = false;
+//        __block bool seenOuter = false;
+//
 //        _io->Write(Data("HELLO THERE!\n", dispatch_get_main_queue()), ^(bool done, dispatch_data_t data, int error) {
 //            STAssertEquals(error, 0, @"Error should == 0");
 //            STAssertFalse(seenOuter, @"Should only see the outer once");

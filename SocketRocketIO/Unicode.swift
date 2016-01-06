@@ -57,22 +57,19 @@ extension UTF8 {
 }
 
 
-struct RawUTF8Codec<CT: CollectionType, GT: GeneratorType where CT.Generator == GT, GT.Element == UInt8, CT.Index.Distance == Int, CT.Index: RandomAccessIndexType, CT.Generator.Element == UInt8, CT.SubSequence.Generator.Element == UInt8> : Codec {
-    typealias InType = CT
-    typealias OutType = String.UnicodeScalarView
+struct RawUTF8Codec : Codec {
+    typealias InputElement = CodeUnit
+    typealias OutputElement = UnicodeScalar
     
     typealias CodeUnit = UInt8
     
     typealias UnicodeCodec = UTF8
     
-    
-    var outputBuffer = String()
-    
     /// Used to buffer unfinished UTF8 Sequences
     var inputBuffer = [CodeUnit]()
     
     /// Consumes to our outputbuffer
-    mutating func consume<G: GeneratorType where G.Element == CodeUnit>(var g: G) throws  {
+    mutating func consume<I : GeneratorType, O : RangeReplaceableCollectionType where I.Element == InputElement, O.Generator.Element == OutputElement>(var g: I, inout output: O) throws  {
         var uc = UTF8()
         
         while true {
@@ -82,87 +79,26 @@ struct RawUTF8Codec<CT: CollectionType, GT: GeneratorType where CT.Generator == 
             case .Error:
                 throw Error.UTF8DecodeError
             case let .Result(scalar):
-                outputBuffer.append(scalar)
+                output.append(scalar)
             }
         }
     }
     
     
-    mutating func code(input: ValueOrEnd<AnyRandomAccessCollection<InType.Generator.Element>>) throws -> OutType {
-        defer {
-            outputBuffer.removeAll(keepCapacity: true)
-        }
-        
+    mutating func code<I : CollectionType, O : RangeReplaceableCollectionType where I.Generator.Element == InputElement, O.Generator.Element == OutputElement, I.Index.Distance == Int>(input: ValueOrEnd<I>, inout output: O) throws {
+
         switch input {
         case .End:
-            if inputBuffer.isEmpty {
-                return "".unicodeScalars
-            } else {
+            if !inputBuffer.isEmpty {
                 throw Error.UTF8DecodeError
             }
         case let .Value(v):
-            let totalSize = inputBuffer.count + v.count
-            
-            outputBuffer.reserveCapacity(Int(totalSize))
-            
-            let numValidCodeUnits = try UTF8.numValidCodeUnits(inputBuffer.generate() + v.generate())
-            
-            let numUnfinished = totalSize - numValidCodeUnits
-            
-            
-            // If this happens, we didn't get enough for even one character
-            if numUnfinished == totalSize {
-                inputBuffer += v
-                return "".unicodeScalars
-            }
-            
-            if numUnfinished > 0 {
-                let truncatedG = v[v.startIndex..<v.endIndex.advancedBy(-numUnfinished)].generate()
-                let g = inputBuffer.generate() + truncatedG
-                
-                try consume(g)
-            } else {
-                try consume(inputBuffer.generate() + v.generate())
-            }
-            
-            inputBuffer.removeAll(keepCapacity: true)
-            if numUnfinished > 0 {
-                inputBuffer += v[v.endIndex.advancedBy(-numUnfinished)..<v.endIndex]
-            }
-            
-            return outputBuffer.unicodeScalars
+            inputBuffer.appendContentsOf(v)
+
+            let numValidCodeUnits = try UTF8.numValidCodeUnits(inputBuffer.generate())
+            let slice = inputBuffer[0..<numValidCodeUnits]
+            try consume(slice.generate(), output: &output)
+            inputBuffer.removeFirst(numValidCodeUnits)
         }
     }
 }
-
-extension DispatchIO: AsyncReadable {
-    typealias Collection = UnsafeBufferPointer<UInt8>
-    
-    func read(size: Collection.Index.Distance, queue: Queue, handler: (AnyRandomAccessCollection<Collection.Generator.Element>) throws -> ()) -> VoidPromiseType {
-        let (r, p) = VoidPromiseType.resolver(queue)
-        
-        dispatch_io_read(io, 0, size, queue.queue) { finished, data, error in
-            guard error == 0 else {
-                r.reject(Error.errorFromStatusCode(error)!)
-                return
-            }
-            
-            do {
-                try data.apply { d in
-                    try handler(AnyRandomAccessCollection(d))
-                }
-            } catch let e {
-                // TODO(don't double-call this error)
-                r.reject(e)
-                return
-            }
-            
-            if finished {
-                r.resolve(Void())
-            }
-        }
-        
-        return p
-    }
-}
-

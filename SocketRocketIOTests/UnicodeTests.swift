@@ -26,13 +26,7 @@ class UnicodeTests: XCTestCase {
         let s  = "💩1💩"
         
         
-        var data = [UInt8]()
-        
-        for s in s.unicodeScalars {
-            UTF8.encode(s) { (cu) -> () in
-                data.append(cu)
-            }
-        }
+        var data = [UInt8](s.utf8)
         
         XCTAssertEqualT(try UTF8.numValidCodeUnits(data.generate()), 9)
         XCTAssertEqualT(try UTF8.numValidCodeUnits(data[0..<8].generate()), 5)
@@ -57,13 +51,14 @@ class UnicodeTests: XCTestCase {
         
         XCTAssertEqual(data.count, 9)
         
-        var c = RawUTF8Codec<ArraySlice<UInt8>, ArraySlice<UInt8>.Generator>()
+        var c = RawUTF8Codec()
         
         var buff = String()
         
         func accumulate(slice: ArraySlice<UInt8>, line: UInt = __LINE__, file: String = __FILE__) {
             do {
-                buff.unicodeScalars.extend(try c.code(ValueOrEnd.Value(slice)))
+                let val = ValueOrEnd<ArraySlice<UInt8>>.Value(slice)
+                try c.code(val, output: &buff.unicodeScalars)
             } catch let e {
                 XCTFail("\(e)", line:line, file:file)
             }
@@ -75,8 +70,7 @@ class UnicodeTests: XCTestCase {
         accumulate(data[8..<9])
         
         do {
-            let r = try c.code(.End)
-            XCTAssertEqual("", String(r))
+            try c.code(ValueOrEnd<ArraySlice<UInt8>>.End, output: &buff.unicodeScalars)
         } catch let e {
             XCTFail("\(e)")
         }
@@ -90,24 +84,18 @@ class UnicodeTests: XCTestCase {
         
         let s  = "💩1💩"
         
-        var data = [UInt8]()
-        
-        for s in s.unicodeScalars {
-            UTF8.encode(s) { (cu) -> () in
-                data.append(cu)
-            }
-        }
+        var data = [UInt8](s.utf8)
         
         XCTAssertEqual(data.count, 9)
         
-        var c = RawUTF8Codec<ArraySlice<UInt8>, ArraySlice<UInt8>.Generator>()
+        var c = RawUTF8Codec()
         
         var buff = String()
         
         func accumulate(slice: ArraySlice<UInt8>, line: UInt = __LINE__, file: String = __FILE__) {
             do {
-                let v = try c.code(ValueOrEnd.Value(slice))
-                buff.unicodeScalars.extend(v)
+                let val = ValueOrEnd<ArraySlice<UInt8>>.Value(slice)
+                try c.code(val, output: &buff.unicodeScalars)
             } catch let e {
                 XCTFail("\(e)", line:line, file:file)
             }
@@ -118,14 +106,14 @@ class UnicodeTests: XCTestCase {
         accumulate(data[3..<8])
         
         do {
-            try c.code(.End)
+            try c.code(ValueOrEnd<ArraySlice<UInt8>>.End, output: &buff.unicodeScalars)
             XCTFail("Should except")
         } catch {
         }
     }
     
     func testDecoding_Smoke() {
-        let filePath = NSBundle(forClass: QueueStreamableTests.self).pathForResource("UTF8Sample", ofType: "txt", inDirectory: "Fixtures")!
+        let filePath = NSBundle(forClass: UnicodeTests.self).pathForResource("UTF8Sample", ofType: "txt", inDirectory: "Fixtures")!
         let s = NSData(contentsOfFile: filePath)!
         
         let nominalString = NSString(data: s, encoding: NSUTF8StringEncoding) as! String
@@ -137,14 +125,14 @@ class UnicodeTests: XCTestCase {
     }
 
     func doTestAccumulateSplit(data: [UInt8], var splitPoints: [Int], si: SI = SI()) -> String {
-        var c = RawUTF8Codec<ArraySlice<UInt8>, ArraySlice<UInt8>.Generator>()
+        var c = RawUTF8Codec()
         
         var buff = String()
         
         func accumulate(slice: ArraySlice<UInt8>, si: SI) {
             do {
-                let v = try c.code(ValueOrEnd.Value(slice))
-                buff.unicodeScalars.extend(v)
+                let val = ValueOrEnd<ArraySlice<UInt8>>.Value(slice)
+                try c.code(val, output: &buff.unicodeScalars)
             } catch let e {
                 XCTFail("\(e)")
                 XCTFail("\(e) (from here)", line:si.line, file:si.file)
@@ -163,7 +151,7 @@ class UnicodeTests: XCTestCase {
         accumulate(data[lastIdx..<data.endIndex], si: si)
 
         do {
-            try c.code(.End)
+            try c.code(ValueOrEnd<ArraySlice<UInt8>>.End, output: &buff.unicodeScalars)
         } catch let e {
             XCTFail("Should not except \(e)")
         }

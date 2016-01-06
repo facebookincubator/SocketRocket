@@ -23,6 +23,7 @@ extension dispatch_data_t {
             return true
         }
     }
+    
     func apply(applier: UnsafeBufferPointer<UInt8> throws -> ()) throws -> Bool {
         var error: ErrorType? = nil
         let ret = self.apply { d -> Bool in
@@ -40,5 +41,13 @@ extension dispatch_data_t {
         }
         
         return ret
+    }
+}
+
+
+
+extension dispatch_queue_t {
+    func dispatchAsync(block: () -> ()) {
+        dispatch_async(self, block)
     }
 }

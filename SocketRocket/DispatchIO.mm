@@ -214,7 +214,7 @@ namespace squareup {
         // callback_queue is what is sent to the clients but also
         // parent_io_queue can be a parallel queue. the
         void SimpleDial(const char *hostname, const char *servname, dispatch_queue_t callback_queue, dispatch_queue_t parent_io_queue, simple_dial_callback dial_callback, void (^close_handler)(int error)) {
-            dispatch_queue_t io_queue = dispatch_queue_create("squareup.dispatch.SimpleDial IO Queue", DISPATCH_QUEUE_SERIAL);
+            dispatch_queue_t io_queue = dispatch_queue_create("squareup.dispatch.SimpleDial IO dispatch_queue_t", DISPATCH_QUEUE_SERIAL);
             dispatch_set_target_queue(io_queue, parent_io_queue);
             
             sr_dispatch_retain(callback_queue);
@@ -262,7 +262,7 @@ namespace squareup {
         
         // Clones an existing IO
         RawIO::RawIO(dispatch_io_t otherIo, dispatch_queue_t queue, dispatch_queue_t callbackQueue, dispatch_queue_t ioQueue, void (^cleanup_handler)(int error)) :
-            RawIO(dispatch_io_create_with_io(DISPATCH_IO_STREAM, otherIo, queue, cleanup_handler), false) {
+            RawIO(dispatch_io_create_with_io(DISPATCH_IO_STREAM, otherIo, queue, cleanup_handler), callbackQueue, false) {
             dispatch_set_target_queue(_channel, ioQueue);
         }
         

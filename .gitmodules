@@ -1,3 +1,6 @@
 [submodule "pages"]
 	path = pages
 	url = git://github.com/square/SocketRocket.git
+[submodule "Frameworks/RxSwift"]
+	path = Frameworks/RxSwift
+	url = https://github.com/ReactiveX/RxSwift.git
