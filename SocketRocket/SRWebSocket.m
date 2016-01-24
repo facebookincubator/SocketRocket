@@ -1499,17 +1499,16 @@ static const size_t SRFrameHeaderOverhead = 32;
                 }
             }
 
-          if (!_certTrusted) {
-            dispatch_async(_workQueue, ^{
-              [self _failWithError:[NSError errorWithDomain:SRWebSocketErrorDomain code:23556 userInfo:[NSDictionary dictionaryWithObject:[NSString stringWithFormat:@"Invalid server cert"] forKey:NSLocalizedDescriptionKey]]];
-            });
-            return;
-          } else if (aStream == _outputStream) {
-            dispatch_async(_workQueue, ^{
-              [self didConnect];
-            });
-          }
-
+            if (!_certTrusted) {
+                dispatch_async(_workQueue, ^{
+                    [self _failWithError:[NSError errorWithDomain:SRWebSocketErrorDomain code:23556 userInfo:[NSDictionary dictionaryWithObject:[NSString stringWithFormat:@"Invalid server cert"] forKey:NSLocalizedDescriptionKey]]];
+                });
+                return;
+            } else if (aStream == _outputStream) {
+                dispatch_async(_workQueue, ^{
+                    [self didConnect];
+                });
+            }
         }
     }
 
