@@ -1481,21 +1481,27 @@ static const size_t SRFrameHeaderOverhead = 32;
                     }
                 }
             } else {
-                SecPolicyRef serverPolicy = SecPolicyCreateSSL(YES, (__bridge CFStringRef)[aStream propertyForKey:(__bridge id)kCFStreamPropertySocketRemoteHostName]);
                 OSStatus status = noErr;
 
-                status = SecTrustSetPolicies(secTrust, serverPolicy);
-                if (status != errSecSuccess){
-                    SRFastLog(@"Error Setting policy on SecTrustRef:%i", status);
+                SecTrustResultType trustResult;
+                status = SecTrustGetTrustResult(secTrust, &trustResult);
+                if (status == errSecSuccess && (trustResult == kSecTrustResultUnspecified || trustResult == kSecTrustResultProceed)) {
+                    _certTrusted = YES;
                 } else {
-                    SecTrustResultType trustResult;
-                    status = SecTrustEvaluate(secTrust, &trustResult);
-                    if (status == noErr && (trustResult == kSecTrustResultUnspecified || trustResult == kSecTrustResultProceed)) {
-                        _certTrusted = YES;
+                    SecPolicyRef serverPolicy = SecPolicyCreateSSL(YES,
+                                                                   (__bridge CFStringRef)[aStream propertyForKey:(__bridge id)kCFStreamPropertySocketRemoteHostName]);
+                    status = SecTrustSetPolicies(secTrust, serverPolicy);
+                    if (status != errSecSuccess){
+                        SRFastLog(@"Error Setting policy on SecTrustRef:%i", status);
+                    } else {
+                        status = SecTrustEvaluate(secTrust, &trustResult);
+                        if (status == errSecSuccess && (trustResult == kSecTrustResultUnspecified || trustResult == kSecTrustResultProceed)) {
+                            _certTrusted = YES;
+                        }
                     }
-                }
-                if (serverPolicy) {
-                    CFRelease(serverPolicy);
+                    if (serverPolicy) {
+                        CFRelease(serverPolicy);
+                    }
                 }
             }
 
