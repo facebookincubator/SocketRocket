@@ -936,16 +936,19 @@ static inline BOOL closeCodeIsValid(int closeCode) {
     
     switch (opcode) {
         case SROpCodeTextFrame: {
-            NSString *str = [[NSString alloc] initWithData:frameData encoding:NSUTF8StringEncoding];
-            if (str == nil && frameData) {
-                [self closeWithCode:SRStatusCodeInvalidUTF8 reason:@"Text frames must be valid UTF-8"];
-                dispatch_async(_workQueue, ^{
-                    [self closeConnection];
-                });
-
-                return;
+            if ([self.delegate respondsToSelector:@selector(webSocketShouldConvertDataToString:)] && ![self.delegate webSocketShouldConvertDataToString:self]) {
+                [self _handleMessage:[frameData copy]];
+            } else {
+                NSString *str = [[NSString alloc] initWithData:frameData encoding:NSUTF8StringEncoding];
+                if (str == nil && frameData) {
+                    [self closeWithCode:SRStatusCodeInvalidUTF8 reason:@"Text frames must be valid UTF-8"];
+                    dispatch_async(_workQueue, ^{
+                        [self closeConnection];
+                    });
+                    return;
+                }
+                [self _handleMessage:str];
             }
-            [self _handleMessage:str];
             break;
         }
         case SROpCodeBinaryFrame:
