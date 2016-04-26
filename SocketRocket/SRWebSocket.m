@@ -659,7 +659,8 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
         return NO;
     }
 
-    if (![self.delegate respondsToSelector:@selector(shouldCopyDataToSend:)] || [self.delegate shouldCopyDataToSend:data]) {
+    BOOL shouldCopyNotImplemented = ![self.delegate respondsToSelector:@selector(webSocket:shouldCopyDataToSend:)];
+    if (shouldCopyNotImplemented || [self.delegate webSocket:self shouldCopyDataToSend:data]) {
         data = [data copy];
     }
     dispatch_async(_workQueue, ^{
@@ -794,8 +795,8 @@ static inline BOOL closeCodeIsValid(int closeCode) {
 
 - (void)_handleFrameWithData:(NSData *)frameData opCode:(NSInteger)opcode;
 {
-    if (![self.delegate respondsToSelector:@selector(shouldCopyReceivedData:)] ||
-        [self.delegate shouldCopyReceivedData:frameData]) {
+    BOOL shouldCopyNotImplemented = ![self.delegate respondsToSelector:@selector(webSocket:shouldCopyReceivedData:)];
+    if (shouldCopyNotImplemented || [self.delegate webSocket:self shouldCopyReceivedData:frameData]) {
         frameData = [frameData copy];
     }
 
