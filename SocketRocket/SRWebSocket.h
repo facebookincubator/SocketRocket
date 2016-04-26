@@ -318,9 +318,11 @@ NS_DESIGNATED_INITIALIZER;
  */
 - (void)webSocket:(SRWebSocket *)webSocket didReceiveMessageWithData:(NSData *)data;
 
-// Let a delegate opt out of copying data. If a delegate doesn't implement one of these, the default is to copy.
-- (BOOL)shouldCopyDataToSend:(id)data;  // should the specified data be copied before sending?
-- (BOOL)shouldCopyReceivedData:(id)data;  // should data be copied before sending to webSocket:didReceiveMessage:
+// Whether to copy outbound data before sending. Default (if not implemented) is to copy.
+- (BOOL)webSocket:(SRWebSocket *)webSocket shouldCopyDataToSend:(id)data;
+
+// Whether to copy inbound data before sending to -webSocket:didReceiveMessage:. Default (if not implemented) is to copy.
+- (BOOL)webSocket:(SRWebSocket *)webSocket shouldCopyReceivedData:(NSData *)data;
 
 #pragma mark Status & Connection
 
