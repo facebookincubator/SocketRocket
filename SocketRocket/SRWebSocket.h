@@ -138,6 +138,7 @@ extern NSString *const SRHTTPResponseErrorKey;
 
 @interface NSMutableURLRequest (SRCertificateAdditions)
 
+// An array of SecCertificateRef's
 @property (nonatomic, retain) NSArray *SR_SSLPinnedCertificates;
 
 @end

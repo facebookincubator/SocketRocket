@@ -1495,72 +1495,82 @@ static const size_t SRFrameHeaderOverhead = 32;
     [self _writeData:frame];
 }
 
+#pragma mark - NSStreamDelegate
+
 - (void)stream:(NSStream *)aStream handleEvent:(NSStreamEvent)eventCode;
 {
     __weak typeof(self) weakSelf = self;
     if (_secure && !_certTrusted && (eventCode == NSStreamEventHasBytesAvailable || eventCode == NSStreamEventHasSpaceAvailable)) {
-        
+
+        if (aStream == _inputStream) {
+          // Client certificates not supported.
+          return;
+        }
+
         NSArray *sslCerts = [_urlRequest SR_SSLPinnedCertificates];
         SecTrustRef secTrust = (__bridge SecTrustRef)[aStream propertyForKey:(__bridge id)kCFStreamPropertySSLPeerTrust];
+
         if (secTrust) {
-            if (sslCerts) {
-                NSInteger numCerts = SecTrustGetCertificateCount(secTrust);
-                for (NSInteger i = 0; i < numCerts && !_certTrusted; i++) {
-                    SecCertificateRef cert = SecTrustGetCertificateAtIndex(secTrust, i);
-                    NSData *certData = CFBridgingRelease(SecCertificateCopyData(cert));
-                    
-                    for (id ref in sslCerts) {
-                        SecCertificateRef trustedCert = (__bridge SecCertificateRef)ref;
-                        NSData *trustedCertData = CFBridgingRelease(SecCertificateCopyData(trustedCert));
-                        
-                        if ([trustedCertData isEqualToData:certData]) {
-                            _certTrusted = YES;
-                            break;
-                        }
-                    }
-                }
-            } else {
-                OSStatus status = noErr;
-
-                SecTrustResultType trustResult;
-                status = SecTrustGetTrustResult(secTrust, &trustResult);
-                if (status == errSecSuccess && (trustResult == kSecTrustResultUnspecified || trustResult == kSecTrustResultProceed)) {
-                    _certTrusted = YES;
-                } else {
-                    SecPolicyRef serverPolicy = SecPolicyCreateSSL(YES,
-                                                                   (__bridge CFStringRef)[aStream propertyForKey:(__bridge id)kCFStreamPropertySocketRemoteHostName]);
-                    status = SecTrustSetPolicies(secTrust, serverPolicy);
-                    if (status != errSecSuccess){
-                        SRFastLog(@"Error Setting policy on SecTrustRef:%i", status);
-                    } else {
-                        status = SecTrustEvaluate(secTrust, &trustResult);
-                        if (status == errSecSuccess && (trustResult == kSecTrustResultUnspecified || trustResult == kSecTrustResultProceed)) {
-                            _certTrusted = YES;
-                        }
-                    }
-                    if (serverPolicy) {
-                        CFRelease(serverPolicy);
-                    }
-                }
-            }
-
-            if (!_certTrusted) {
+            OSStatus status = noErr;
+            SecTrustResultType trustResult;
+            status = SecTrustGetTrustResult(secTrust, &trustResult);
+            if (status != errSecSuccess) {
                 dispatch_async(_workQueue, ^{
-                    NSDictionary *userInfo = @{ NSLocalizedDescriptionKey : @"Invalid server cert" };
+                    NSDictionary *userInfo = @{ NSLocalizedDescriptionKey : @"Unable to obtain trust result" };
                     [weakSelf _failWithError:[NSError errorWithDomain:@"org.lolrus.SocketRocket" code:23556 userInfo:userInfo]];
                 });
-                return;
-            } else if (aStream == _outputStream) {
-                dispatch_async(_workQueue, ^{
-                    [self didConnect];
-                });
             }
-        }
-    }
+            if (sslCerts) {
+                // sslCerts are set explicity as the anchor certificates to be used during trust evaluation
+                status = SecTrustSetAnchorCertificates(secTrust, (__bridge CFArrayRef)sslCerts);
+                if (status != errSecSuccess) {
+                  dispatch_async(_workQueue, ^{
+                    NSDictionary *userInfo = @{ NSLocalizedDescriptionKey : @"Invalid anchor cert" };
+                    [weakSelf _failWithError:[NSError errorWithDomain:@"org.lolrus.SocketRocket" code:23556 userInfo:userInfo]];
+                  });
+                }
+            }
 
-    dispatch_async(_workQueue, ^{
-        [weakSelf safeHandleEvent:eventCode stream:aStream];
-    });
+            void (^trustResultHandler)(SecTrustRef  _Nonnull, SecTrustResultType) = ^(SecTrustRef  _Nonnull trustRef, SecTrustResultType trustResult){
+                  OSStatus status = noErr;
+                  if (trustResult == kSecTrustResultUnspecified || trustResult == kSecTrustResultProceed) {
+                    _certTrusted = YES;
+                    [self didConnect];
+                    dispatch_async(_workQueue, ^{
+                      [weakSelf safeHandleEvent:eventCode stream:aStream];
+                    });
+                  } else if (trustResult == kSecTrustResultRecoverableTrustFailure){
+                    // Assuming that recoverable trust failure is due to hostname
+                    SecPolicyRef serverPolicy = SecPolicyCreateSSL(YES,
+                                                                 (__bridge CFStringRef)[aStream propertyForKey:(__bridge id)kCFStreamPropertySocketRemoteHostName]);
+                    status = SecTrustSetPolicies(secTrust, serverPolicy);
+                    if (status != errSecSuccess) {
+                      dispatch_async(_workQueue, ^{
+                        NSDictionary *userInfo = @{ NSLocalizedDescriptionKey : @"Unable to set trust policy" };
+                        [weakSelf _failWithError:[NSError errorWithDomain:@"org.lolrus.SocketRocket" code:23556 userInfo:userInfo]];
+                      });
+                    }
+
+                    SecTrustEvaluateAsync(secTrust, _workQueue, trustResultHandler);
+
+                    if (serverPolicy) {
+                      CFRelease(serverPolicy);
+                    }
+                  } else {
+                    dispatch_async(_workQueue, ^{
+                      NSDictionary *userInfo = @{ NSLocalizedDescriptionKey : [NSString stringWithFormat:@"Trust evalution failure:%ul", trustResult] };
+                      [weakSelf _failWithError:[NSError errorWithDomain:@"org.lolrus.SocketRocket" code:23556 userInfo:userInfo]];
+                    });
+                  }
+              };
+
+            SecTrustEvaluateAsync(secTrust, _workQueue, trustResultHandler);
+        }
+    } else {
+        dispatch_async(_workQueue, ^{
+            [weakSelf safeHandleEvent:eventCode stream:aStream];
+        });
+    }
 }
 
 - (void)safeHandleEvent:(NSStreamEvent)eventCode stream:(NSStream *)aStream
@@ -1572,12 +1582,7 @@ static const size_t SRFrameHeaderOverhead = 32;
                     return;
                 }
                 assert(_readBuffer);
-                
-                // didConnect fires after certificate verification if we're using pinned certificates.
-                BOOL usingPinnedCerts = [[_urlRequest SR_SSLPinnedCertificates] count] > 0;
-                if ((!_secure || !usingPinnedCerts) && self.readyState == SR_CONNECTING && aStream == _inputStream) {
-                    [self didConnect];
-                }
+
                 [self _pumpWriting];
                 [self _pumpScanner];
                 break;
