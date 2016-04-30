@@ -1502,6 +1502,8 @@ static const size_t SRFrameHeaderOverhead = 32;
 
 #pragma mark - NSStreamDelegate
 
+typedef void (^TrustEvalHandler)(SecTrustRef  _Nonnull, SecTrustResultType);
+
 - (void)stream:(NSStream *)aStream handleEvent:(NSStreamEvent)eventCode;
 {
     __weak typeof(self) weakSelf = self;
@@ -1536,7 +1538,8 @@ static const size_t SRFrameHeaderOverhead = 32;
                 }
             }
 
-            void (^trustResultHandler)(SecTrustRef  _Nonnull, SecTrustResultType) = ^(SecTrustRef  _Nonnull trustRef, SecTrustResultType trustResult){
+            __weak __block TrustEvalHandler weakTrustHandler;
+            TrustEvalHandler trustHandler = ^(SecTrustRef  _Nonnull trustRef, SecTrustResultType trustResult){
                   OSStatus status = noErr;
                   if (trustResult == kSecTrustResultUnspecified || trustResult == kSecTrustResultProceed) {
                     _certTrusted = YES;
@@ -1550,13 +1553,14 @@ static const size_t SRFrameHeaderOverhead = 32;
                                                                  (__bridge CFStringRef)[aStream propertyForKey:(__bridge id)kCFStreamPropertySocketRemoteHostName]);
                     status = SecTrustSetPolicies(secTrust, serverPolicy);
                     if (status != errSecSuccess) {
-                      dispatch_async(_workQueue, ^{
-                        NSDictionary *userInfo = @{ NSLocalizedDescriptionKey : @"Unable to set trust policy" };
-                        [weakSelf _failWithError:[NSError errorWithDomain:@"org.lolrus.SocketRocket" code:23556 userInfo:userInfo]];
-                      });
+                        dispatch_async(_workQueue, ^{
+                          NSDictionary *userInfo = @{ NSLocalizedDescriptionKey : @"Unable to set trust policy" };
+                          [weakSelf _failWithError:[NSError errorWithDomain:@"org.lolrus.SocketRocket" code:23556 userInfo:userInfo]];
+                        });
+                    } else {
+                        TrustEvalHandler strongTrustHandler = weakTrustHandler;
+                        SecTrustEvaluateAsync(secTrust, _workQueue, strongTrustHandler);
                     }
-
-                    SecTrustEvaluateAsync(secTrust, _workQueue, trustResultHandler);
 
                     if (serverPolicy) {
                       CFRelease(serverPolicy);
@@ -1567,9 +1571,9 @@ static const size_t SRFrameHeaderOverhead = 32;
                       [weakSelf _failWithError:[NSError errorWithDomain:@"org.lolrus.SocketRocket" code:23556 userInfo:userInfo]];
                     });
                   }
-              };
-
-            SecTrustEvaluateAsync(secTrust, _workQueue, trustResultHandler);
+            };
+            weakTrustHandler = trustHandler;
+            SecTrustEvaluateAsync(secTrust, _workQueue, trustHandler);
         }
     } else {
         dispatch_async(_workQueue, ^{
