@@ -1502,8 +1502,6 @@ static const size_t SRFrameHeaderOverhead = 32;
 
 #pragma mark - NSStreamDelegate
 
-typedef void (^TrustEvalHandler)(SecTrustRef  _Nonnull, SecTrustResultType);
-
 - (void)stream:(NSStream *)aStream handleEvent:(NSStreamEvent)eventCode;
 {
     __weak typeof(self) weakSelf = self;
@@ -1538,8 +1536,8 @@ typedef void (^TrustEvalHandler)(SecTrustRef  _Nonnull, SecTrustResultType);
                 }
             }
 
-            __weak __block TrustEvalHandler weakTrustHandler;
-            TrustEvalHandler trustHandler = ^(SecTrustRef  _Nonnull trustRef, SecTrustResultType trustResult){
+            __weak __block SecTrustCallback weakTrustHandler;
+            SecTrustCallback trustHandler = ^(SecTrustRef  _Nonnull trustRef, SecTrustResultType trustResult){
                   OSStatus status = noErr;
                   if (trustResult == kSecTrustResultUnspecified || trustResult == kSecTrustResultProceed) {
                     _certTrusted = YES;
@@ -1558,7 +1556,7 @@ typedef void (^TrustEvalHandler)(SecTrustRef  _Nonnull, SecTrustResultType);
                           [weakSelf _failWithError:[NSError errorWithDomain:@"org.lolrus.SocketRocket" code:23556 userInfo:userInfo]];
                         });
                     } else {
-                        TrustEvalHandler strongTrustHandler = weakTrustHandler;
+                        SecTrustCallback strongTrustHandler = weakTrustHandler;
                         SecTrustEvaluateAsync(secTrust, _workQueue, strongTrustHandler);
                     }
 
