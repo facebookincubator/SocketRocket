@@ -601,20 +601,13 @@ static __strong NSData *CRLFCRLF;
         
         [_outputStream setProperty:(__bridge id)kCFStreamSocketSecurityLevelNegotiatedSSL forKey:(__bridge id)kCFStreamPropertySocketSecurityLevel];
         
-        // If we're using pinned certs, don't validate the certificate chain
-        if ([_urlRequest SR_SSLPinnedCertificates].count) {
-            [SSLOptions setValue:@NO forKey:(__bridge id)kCFStreamSSLValidatesCertificateChain];
-        }
+        // We always want to validate the chain ourselves.
+        [SSLOptions setValue:@NO forKey:(__bridge id)kCFStreamSSLValidatesCertificateChain];
         
 #if DEBUG
         self.allowsUntrustedSSLCertificates = YES;
 #endif
 
-        if (self.allowsUntrustedSSLCertificates) {
-            [SSLOptions setValue:@NO forKey:(__bridge id)kCFStreamSSLValidatesCertificateChain];
-            SRFastLog(@"Allowing connection to any root cert");
-        }
-        
         [_outputStream setProperty:SSLOptions
                             forKey:(__bridge id)kCFStreamPropertySSLSettings];
     }
@@ -1508,7 +1501,7 @@ static const size_t SRFrameHeaderOverhead = 32;
     if (_secure && !_certTrusted && (eventCode == NSStreamEventHasBytesAvailable || eventCode == NSStreamEventHasSpaceAvailable)) {
 
         if (aStream == _inputStream) {
-          // Client certificates not supported.
+          SRFastLog(@"Client certificates not supported.");
           return;
         }
 
@@ -1538,18 +1531,20 @@ static const size_t SRFrameHeaderOverhead = 32;
 
             __weak __block SecTrustCallback weakTrustHandler;
             SecTrustCallback trustHandler = ^(SecTrustRef  _Nonnull trustRef, SecTrustResultType trustResult){
+                  // NOTE: Should never recieve kSecTrustResultInvalid in the callback.
                   OSStatus status = noErr;
+                  // TODO: Unspecified is ok on iOS, but may need alternative handling on OSX.
                   if (trustResult == kSecTrustResultUnspecified || trustResult == kSecTrustResultProceed) {
                     _certTrusted = YES;
-                    [self didConnect];
+                    [weakSelf didConnect];
                     dispatch_async(_workQueue, ^{
                       [weakSelf safeHandleEvent:eventCode stream:aStream];
                     });
                   } else if (trustResult == kSecTrustResultRecoverableTrustFailure){
                     // Assuming that recoverable trust failure is due to hostname
                     SecPolicyRef serverPolicy = SecPolicyCreateSSL(YES,
-                                                                 (__bridge CFStringRef)[aStream propertyForKey:(__bridge id)kCFStreamPropertySocketRemoteHostName]);
-                    status = SecTrustSetPolicies(secTrust, serverPolicy);
+                                                                   (__bridge CFStringRef)[aStream propertyForKey:(__bridge id)kCFStreamPropertySocketRemoteHostName]);
+                    status = SecTrustSetPolicies(trustRef, serverPolicy);
                     if (status != errSecSuccess) {
                         dispatch_async(_workQueue, ^{
                           NSDictionary *userInfo = @{ NSLocalizedDescriptionKey : @"Unable to set trust policy" };
@@ -1557,17 +1552,24 @@ static const size_t SRFrameHeaderOverhead = 32;
                         });
                     } else {
                         SecTrustCallback strongTrustHandler = weakTrustHandler;
-                        SecTrustEvaluateAsync(secTrust, _workQueue, strongTrustHandler);
+                        SecTrustEvaluateAsync(trustRef, _workQueue, strongTrustHandler);
                     }
 
                     if (serverPolicy) {
                       CFRelease(serverPolicy);
                     }
-                  } else {
-                    dispatch_async(_workQueue, ^{
-                      NSDictionary *userInfo = @{ NSLocalizedDescriptionKey : [NSString stringWithFormat:@"Trust evalution failure:%ul", trustResult] };
-                      [weakSelf _failWithError:[NSError errorWithDomain:@"org.lolrus.SocketRocket" code:23556 userInfo:userInfo]];
-                    });
+                  } else if (trustResult == kSecTrustResultDeny || trustResult == kSecTrustResultFatalTrustFailure) {
+                    if (self.allowsUntrustedSSLCertificates) {
+                      SRFastLog(@"Trust evaluation failed:%ul, preceeding due to allowsUntrustedSSLCertificates override", trustResult);
+                      dispatch_async(_workQueue, ^{
+                        [weakSelf safeHandleEvent:eventCode stream:aStream];
+                      });
+                    } else {
+                      dispatch_async(_workQueue, ^{
+                        NSDictionary *userInfo = @{ NSLocalizedDescriptionKey : [NSString stringWithFormat:@"Trust evalution failure:%ul", trustResult] };
+                        [weakSelf _failWithError:[NSError errorWithDomain:@"org.lolrus.SocketRocket" code:23556 userInfo:userInfo]];
+                      });
+                    }
                   }
             };
             weakTrustHandler = trustHandler;
@@ -1589,6 +1591,11 @@ static const size_t SRFrameHeaderOverhead = 32;
                     return;
                 }
                 assert(_readBuffer);
+
+                // If insecure connection, call didConnect
+                if (!_secure && self.readyState == SR_CONNECTING && aStream == _inputStream) {
+                  [self didConnect];
+                }
 
                 [self _pumpWriting];
                 [self _pumpScanner];
