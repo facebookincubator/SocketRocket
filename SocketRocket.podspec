@@ -4,7 +4,7 @@ Pod::Spec.new do |s|
   s.summary            = 'A conforming WebSocket (RFC 6455) client library.'
   s.homepage           = 'https://github.com/square/SocketRocket'
   s.authors            = 'Square'
-  s.license            = 'Apache License, Version 2.0'
+  s.license            = 'BSD'
   s.source             = { :git => 'https://github.com/square/SocketRocket.git', :tag => s.version.to_s }
   s.source_files       = 'SocketRocket/*.{h,m}'
   s.requires_arc       = true

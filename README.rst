@@ -243,4 +243,4 @@ you are already using twisted though, Autobahn is probably for you.
 
 Contributing
 ------------
-We’re glad you’re interested in SocketRocket, and we’d love to see where you take it. Please read our `contributing guidelines <https://github.com/square/SocketRocket/blob/master/Contributing.md>`_ prior to submitting a Pull Request.
+We’re glad you’re interested in SocketRocket, and we’d love to see where you take it. Please read our `contributing guidelines <https://github.com/facebook/SocketRocket/blob/master/Contributing.md>`_ prior to submitting a Pull Request.
