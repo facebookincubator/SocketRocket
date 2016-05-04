@@ -1,19 +1,38 @@
-###Sign the CLA
+# Contributing to SocketRocket
+We want to make contributing to this project as easy and transparent as
+possible.
 
-All contributors to your PR must sign our [Individual Contributor License Agreement (CLA)](https://spreadsheets.google.com/spreadsheet/viewform?formkey=dDViT2xzUHAwRkI3X3k5Z0lQM091OGc6MQ&ndplr=1). The CLA is a short form that ensures that you are eligible to contribute.
+## Our Development Process
+... (in particular how this is synced with internal changes to the project)
 
-###One issue or bug per Pull Request
+## Pull Requests
+We actively welcome your pull requests.
 
-Keep your Pull Requests small. Small PRs are easier to reason about which makes them significantly more likely to get merged.
+1. Fork the repo and create your branch from `master`.
+2. If you've added code that should be tested, add tests.
+3. If you've changed APIs, update the documentation.
+4. Ensure the test suite passes.
+5. Make sure your code lints.
+6. If you haven't already, complete the Contributor License Agreement ("CLA").
 
-###Issues before features
+## Contributor License Agreement ("CLA")
+In order to accept your pull request, we need you to submit a CLA. You only need
+to do this once to work on any of Facebook's open source projects.
 
-If you want to add a feature, please file an [Issue](issues) first. An Issue gives us the opportunity to discuss the requirements and implications of a feature with you before you start writing code.
+Complete your CLA here: <https://code.facebook.com/cla>
 
-###Backwards compatibility
+## Issues
+We use GitHub issues to track public bugs. Please ensure your description is
+clear and has sufficient instructions to be able to reproduce the issue.
 
-Respect the minimum deployment target. If you are adding code that uses new APIs, make sure to prevent older clients from crashing or misbehaving. Our CI runs against our minimum deployment targets, so you will not get a green build unless your code is backwards compatible. 
+Facebook has a [bounty program](https://www.facebook.com/whitehat/) for the safe
+disclosure of security bugs. In those cases, please go through the process
+outlined on that page and do not file a public issue.
 
-###Forwards compatibility
+## Coding Style  
+* Most importantly, match the existing code style as much as possible.
+* Try to keep lines under 140 characters, if possible.
 
-Please do not write new code using deprecated APIs.
+## License
+By contributing to SocketRocket, you agree that your contributions will be licensed
+under its BSD license.
