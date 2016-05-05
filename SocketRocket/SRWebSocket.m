@@ -320,13 +320,12 @@ static __strong NSData *CRLFCRLF;
 
 - (instancetype)initWithURL:(NSURL *)url protocols:(NSArray *)protocols;
 {
-    NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:url];    
-    return [self initWithURLRequest:request protocols:protocols];
+    return [self initWithURL:url protocols:protocols allowsUntrustedSSLCertificates:NO];
 }
 
 - (instancetype)initWithURL:(NSURL *)url protocols:(NSArray *)protocols allowsUntrustedSSLCertificates:(BOOL)allowsUntrustedSSLCertificates
 {
-    NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:url];
+    NSURLRequest *request = [NSURLRequest requestWithURL:url];
     return [self initWithURLRequest:request protocols:protocols allowsUntrustedSSLCertificates:allowsUntrustedSSLCertificates];
 }
 
