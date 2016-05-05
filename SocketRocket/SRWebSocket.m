@@ -259,17 +259,47 @@ static __strong NSData *CRLFCRLF;
 - (instancetype)initWithURLRequest:(NSURLRequest *)request protocols:(NSArray *)protocols allowsUntrustedSSLCertificates:(BOOL)allowsUntrustedSSLCertificates
 {
     self = [super init];
-    if (self) {
-        assert(request.URL);
-        _url = request.URL;
-        _urlRequest = request;
-        _allowsUntrustedSSLCertificates = allowsUntrustedSSLCertificates;
-        
-        _requestedProtocols = [protocols copy];
-        
-        [self _SR_commonInit];
+    if (!self) return self;
+
+    assert(request.URL);
+    _url = request.URL;
+    _urlRequest = request;
+    _allowsUntrustedSSLCertificates = allowsUntrustedSSLCertificates;
+
+    _requestedProtocols = [protocols copy];
+
+    NSString *scheme = _url.scheme.lowercaseString;
+    assert([scheme isEqualToString:@"ws"] || [scheme isEqualToString:@"http"] || [scheme isEqualToString:@"wss"] || [scheme isEqualToString:@"https"]);
+
+    if ([scheme isEqualToString:@"wss"] || [scheme isEqualToString:@"https"]) {
+        _secure = YES;
     }
-    
+
+    _readyState = SR_CONNECTING;
+    _consumerStopped = YES;
+    _webSocketVersion = 13;
+
+    _workQueue = dispatch_queue_create(NULL, DISPATCH_QUEUE_SERIAL);
+
+    // Going to set a specific on the queue so we can validate we're on the work queue
+    dispatch_queue_set_specific(_workQueue, (__bridge void *)self, maybe_bridge(_workQueue), NULL);
+
+    _delegateDispatchQueue = dispatch_get_main_queue();
+    sr_dispatch_retain(_delegateDispatchQueue);
+
+    _readBuffer = [[NSMutableData alloc] init];
+    _outputBuffer = [[NSMutableData alloc] init];
+
+    _currentFrameData = [[NSMutableData alloc] init];
+
+    _consumers = [[NSMutableArray alloc] init];
+
+    _consumerPool = [[SRIOConsumerPool alloc] init];
+
+    _scheduledRunloops = [[NSMutableSet alloc] init];
+
+    [self _initializeStreams];
+
     return self;
 }
 
@@ -298,43 +328,6 @@ static __strong NSData *CRLFCRLF;
 {
     NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:url];
     return [self initWithURLRequest:request protocols:protocols allowsUntrustedSSLCertificates:allowsUntrustedSSLCertificates];
-}
-
-- (void)_SR_commonInit;
-{
-    NSString *scheme = _url.scheme.lowercaseString;
-    assert([scheme isEqualToString:@"ws"] || [scheme isEqualToString:@"http"] || [scheme isEqualToString:@"wss"] || [scheme isEqualToString:@"https"]);
-    
-    if ([scheme isEqualToString:@"wss"] || [scheme isEqualToString:@"https"]) {
-        _secure = YES;
-    }
-    
-    _readyState = SR_CONNECTING;
-    _consumerStopped = YES;
-    _webSocketVersion = 13;
-    
-    _workQueue = dispatch_queue_create(NULL, DISPATCH_QUEUE_SERIAL);
-    
-    // Going to set a specific on the queue so we can validate we're on the work queue
-    dispatch_queue_set_specific(_workQueue, (__bridge void *)self, maybe_bridge(_workQueue), NULL);
-    
-    _delegateDispatchQueue = dispatch_get_main_queue();
-    sr_dispatch_retain(_delegateDispatchQueue);
-    
-    _readBuffer = [[NSMutableData alloc] init];
-    _outputBuffer = [[NSMutableData alloc] init];
-    
-    _currentFrameData = [[NSMutableData alloc] init];
-
-    _consumers = [[NSMutableArray alloc] init];
-    
-    _consumerPool = [[SRIOConsumerPool alloc] init];
-    
-    _scheduledRunloops = [[NSMutableSet alloc] init];
-    
-    [self _initializeStreams];
-    
-    // default handlers
 }
 
 - (void)assertOnWorkQueue;
