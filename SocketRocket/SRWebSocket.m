@@ -387,8 +387,11 @@ static __strong NSData *CRLFCRLF;
     {
         dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, _urlRequest.timeoutInterval * NSEC_PER_SEC);
         dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
-            if (self.readyState == SR_CONNECTING)
-                [self _failWithError:[NSError errorWithDomain:@"com.squareup.SocketRocket" code:504 userInfo:@{NSLocalizedDescriptionKey: @"Timeout Connecting to Server"}]];
+            if (self.readyState == SR_CONNECTING) {
+                [self _failWithError:[NSError errorWithDomain:NSURLErrorDomain
+                                                         code:NSURLErrorTimedOut
+                                                     userInfo:@{ NSLocalizedDescriptionKey: @"Timeout Connecting to Server" }]];
+            }
         });
     }
 
@@ -1521,8 +1524,10 @@ static const size_t SRFrameHeaderOverhead = 32;
             
             if (!_pinnedCertFound) {
                 dispatch_async(_workQueue, ^{
-                    NSDictionary *userInfo = @{ NSLocalizedDescriptionKey : @"Invalid server cert" };
-                    [weakSelf _failWithError:[NSError errorWithDomain:@"org.lolrus.SocketRocket" code:23556 userInfo:userInfo]];
+                    NSError *error = [NSError errorWithDomain:NSURLErrorDomain
+                                                         code:NSURLErrorClientCertificateRejected
+                                                     userInfo:@{ NSLocalizedDescriptionKey : @"Invalid server cert" }];
+                    [weakSelf _failWithError:error];
                 });
                 return;
             } else if (aStream == _outputStream) {
