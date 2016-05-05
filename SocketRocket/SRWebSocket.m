@@ -193,7 +193,7 @@ typedef void (^data_callback)(SRWebSocket *webSocket,  NSData *data);
     dispatch_queue_t _delegateDispatchQueue;
     
     dispatch_queue_t _workQueue;
-    NSMutableArray *_consumers;
+    NSMutableArray<SRIOConsumer *> *_consumers;
 
     NSInputStream *_inputStream;
     NSOutputStream *_outputStream;
@@ -235,12 +235,12 @@ typedef void (^data_callback)(SRWebSocket *webSocket,  NSData *data);
     
     BOOL _isPumping;
     
-    NSMutableSet *_scheduledRunloops;
+    NSMutableSet<NSArray *> *_scheduledRunloops; // Set<[RunLoop, Mode]>. TODO: (nlutsenko) Fix clowntown
     
     // We use this to retain ourselves.
     __strong SRWebSocket *_selfRetain;
     
-    NSArray *_requestedProtocols;
+    NSArray<NSString *> *_requestedProtocols;
     SRIOConsumerPool *_consumerPool;
 }
 
@@ -256,7 +256,7 @@ static __strong NSData *CRLFCRLF;
     CRLFCRLF = [[NSData alloc] initWithBytes:"\r\n\r\n" length:4];
 }
 
-- (instancetype)initWithURLRequest:(NSURLRequest *)request protocols:(NSArray *)protocols allowsUntrustedSSLCertificates:(BOOL)allowsUntrustedSSLCertificates
+- (instancetype)initWithURLRequest:(NSURLRequest *)request protocols:(NSArray<NSString *> *)protocols allowsUntrustedSSLCertificates:(BOOL)allowsUntrustedSSLCertificates
 {
     self = [super init];
     if (!self) return self;
@@ -303,7 +303,7 @@ static __strong NSData *CRLFCRLF;
     return self;
 }
 
-- (instancetype)initWithURLRequest:(NSURLRequest *)request protocols:(NSArray *)protocols
+- (instancetype)initWithURLRequest:(NSURLRequest *)request protocols:(NSArray<NSString *> *)protocols
 {
     return [self initWithURLRequest:request protocols:protocols allowsUntrustedSSLCertificates:NO];
 }
@@ -318,12 +318,12 @@ static __strong NSData *CRLFCRLF;
     return [self initWithURL:url protocols:nil];
 }
 
-- (instancetype)initWithURL:(NSURL *)url protocols:(NSArray *)protocols;
+- (instancetype)initWithURL:(NSURL *)url protocols:(NSArray<NSString *> *)protocols;
 {
     return [self initWithURL:url protocols:protocols allowsUntrustedSSLCertificates:NO];
 }
 
-- (instancetype)initWithURL:(NSURL *)url protocols:(NSArray *)protocols allowsUntrustedSSLCertificates:(BOOL)allowsUntrustedSSLCertificates
+- (instancetype)initWithURL:(NSURL *)url protocols:(NSArray<NSString *> *)protocols allowsUntrustedSSLCertificates:(BOOL)allowsUntrustedSSLCertificates
 {
     NSURLRequest *request = [NSURLRequest requestWithURL:url];
     return [self initWithURLRequest:request protocols:protocols allowsUntrustedSSLCertificates:allowsUntrustedSSLCertificates];
@@ -509,13 +509,12 @@ static __strong NSData *CRLFCRLF;
     assert([_secKey length] == 24);
 
     // Apply cookies if any have been provided
-    NSDictionary * cookies = [NSHTTPCookie requestHeaderFieldsWithCookies:[self requestCookies]];
-    for (NSString * cookieKey in cookies) {
-        NSString * cookieValue = [cookies objectForKey:cookieKey];
-        if ([cookieKey length] && [cookieValue length]) {
-            CFHTTPMessageSetHeaderFieldValue(request, (__bridge CFStringRef)cookieKey, (__bridge CFStringRef)cookieValue);
+    NSDictionary<NSString *, NSString *> *cookies = [NSHTTPCookie requestHeaderFieldsWithCookies:self.requestCookies];
+    [cookies enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, NSString * _Nonnull obj, BOOL * _Nonnull stop) {
+        if (key.length && obj.length) {
+            CFHTTPMessageSetHeaderFieldValue(request, (__bridge CFStringRef)key, (__bridge CFStringRef)obj);
         }
-    }
+    }];
  
     // set header for http basic auth
     if (_url.user.length && _url.password.length) {
@@ -584,13 +583,14 @@ static __strong NSData *CRLFCRLF;
 - (void)_updateSecureStreamOptions;
 {
     if (_secure) {
-        NSMutableDictionary *SSLOptions = [[NSMutableDictionary alloc] init];
-        
-        [_outputStream setProperty:(__bridge id)kCFStreamSocketSecurityLevelNegotiatedSSL forKey:(__bridge id)kCFStreamPropertySocketSecurityLevel];
-        
+        [_outputStream setProperty:(__bridge NSString *)kCFStreamSocketSecurityLevelNegotiatedSSL
+                            forKey:(__bridge NSString *)kCFStreamPropertySocketSecurityLevel];
+
+        NSMutableDictionary<NSString *, NSNumber *> *sslOptions = [NSMutableDictionary dictionary];
+
         // If we're using pinned certs, don't validate the certificate chain
         if ([_urlRequest SR_SSLPinnedCertificates].count) {
-            [SSLOptions setValue:@NO forKey:(__bridge id)kCFStreamSSLValidatesCertificateChain];
+            sslOptions[(__bridge NSString *)kCFStreamSSLValidatesCertificateChain] = @NO;
         }
         
 #if DEBUG
@@ -598,12 +598,11 @@ static __strong NSData *CRLFCRLF;
 #endif
 
         if (self.allowsUntrustedSSLCertificates) {
-            [SSLOptions setValue:@NO forKey:(__bridge id)kCFStreamSSLValidatesCertificateChain];
+            sslOptions[(__bridge NSString *)kCFStreamSSLValidatesCertificateChain] = @NO;
             SRFastLog(@"Allowing connection to any root cert");
         }
         
-        [_outputStream setProperty:SSLOptions
-                            forKey:(__bridge id)kCFStreamPropertySSLSettings];
+        [_outputStream setProperty:sslOptions forKey:(__bridge NSString *)kCFStreamPropertySSLSettings];
     }
     
     _inputStream.delegate = self;
@@ -1653,7 +1652,7 @@ static const size_t SRFrameHeaderOverhead = 32;
 
 @implementation SRIOConsumerPool {
     NSUInteger _poolSize;
-    NSMutableArray *_bufferedConsumers;
+    NSMutableArray<SRIOConsumer *> *_bufferedConsumers;
 }
 
 - (instancetype)initWithBufferCapacity:(NSUInteger)poolSize;
@@ -1661,7 +1660,7 @@ static const size_t SRFrameHeaderOverhead = 32;
     self = [super init];
     if (self) {
         _poolSize = poolSize;
-        _bufferedConsumers = [[NSMutableArray alloc] initWithCapacity:poolSize];
+        _bufferedConsumers = [NSMutableArray arrayWithCapacity:poolSize];
     }
     return self;
 }
