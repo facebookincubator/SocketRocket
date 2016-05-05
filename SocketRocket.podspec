@@ -2,10 +2,10 @@ Pod::Spec.new do |s|
   s.name               = "SocketRocket"
   s.version            = '0.5.1'
   s.summary            = 'A conforming WebSocket (RFC 6455) client library.'
-  s.homepage           = 'https://github.com/square/SocketRocket'
+  s.homepage           = 'https://github.com/facebook/SocketRocket'
   s.authors            = 'Square'
   s.license            = 'BSD'
-  s.source             = { :git => 'https://github.com/square/SocketRocket.git', :tag => s.version.to_s }
+  s.source             = { :git => 'https://github.com/facebook/SocketRocket.git', :tag => s.version.to_s }
   s.source_files       = 'SocketRocket/*.{h,m}'
   s.requires_arc       = true
 
