@@ -12,7 +12,7 @@
 
 @interface TCMessage : NSObject
 
-- (id)initWithMessage:(NSString *)message fromMe:(BOOL)fromMe;
+- (instancetype)initWithMessage:(NSString *)message fromMe:(BOOL)fromMe;
 
 @property (nonatomic, retain, readonly) NSString *message;
 @property (nonatomic, readonly)  BOOL fromMe;
@@ -173,7 +173,7 @@
 @synthesize message = _message;
 @synthesize fromMe = _fromMe;
 
-- (id)initWithMessage:(NSString *)message fromMe:(BOOL)fromMe;
+- (instancetype)initWithMessage:(NSString *)message fromMe:(BOOL)fromMe;
 {
     self = [super init];
     if (self) {

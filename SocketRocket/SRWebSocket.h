@@ -72,14 +72,14 @@ extern NSString *const SRHTTPResponseErrorKey;
 @property (nonatomic, readonly, copy) NSString *protocol;
 
 // Protocols should be an array of strings that turn into Sec-WebSocket-Protocol.
-- (id)initWithURLRequest:(NSURLRequest *)request protocols:(NSArray *)protocols allowsUntrustedSSLCertificates:(BOOL)allowsUntrustedSSLCertificates;
-- (id)initWithURLRequest:(NSURLRequest *)request protocols:(NSArray *)protocols;
-- (id)initWithURLRequest:(NSURLRequest *)request;
+- (instancetype)initWithURLRequest:(NSURLRequest *)request;
+- (instancetype)initWithURLRequest:(NSURLRequest *)request protocols:(NSArray *)protocols;
+- (instancetype)initWithURLRequest:(NSURLRequest *)request protocols:(NSArray *)protocols allowsUntrustedSSLCertificates:(BOOL)allowsUntrustedSSLCertificates;
 
 // Some helper constructors.
-- (id)initWithURL:(NSURL *)url protocols:(NSArray *)protocols allowsUntrustedSSLCertificates:(BOOL)allowsUntrustedSSLCertificates;
-- (id)initWithURL:(NSURL *)url protocols:(NSArray *)protocols;
-- (id)initWithURL:(NSURL *)url;
+- (instancetype)initWithURL:(NSURL *)url;
+- (instancetype)initWithURL:(NSURL *)url protocols:(NSArray *)protocols;
+- (instancetype)initWithURL:(NSURL *)url protocols:(NSArray *)protocols allowsUntrustedSSLCertificates:(BOOL)allowsUntrustedSSLCertificates;
 
 // Delegate queue will be dispatch_main_queue by default.
 // You cannot set both OperationQueue and dispatch_queue.

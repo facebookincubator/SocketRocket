@@ -12,7 +12,7 @@
 
 @interface SRTWebSocketOperation : NSOperation <SRWebSocketDelegate>
 
-- (id)initWithURL:(NSURL *)URL;
+- (instancetype)initWithURL:(NSURL *)URL;
 
 @property (nonatomic) BOOL isFinished;
 @property (nonatomic) BOOL isExecuting;

@@ -163,7 +163,7 @@ typedef void (^data_callback)(SRWebSocket *webSocket,  NSData *data);
 // This class is not thread-safe, and is expected to always be run on the same queue.
 @interface SRIOConsumerPool : NSObject
 
-- (id)initWithBufferCapacity:(NSUInteger)poolSize;
+- (instancetype)initWithBufferCapacity:(NSUInteger)poolSize;
 
 - (SRIOConsumer *)consumerWithScanner:(stream_scanner)scanner handler:(data_callback)handler bytesNeeded:(size_t)bytesNeeded readToCurrentFrame:(BOOL)readToCurrentFrame unmaskBytes:(BOOL)unmaskBytes;
 - (void)returnConsumer:(SRIOConsumer *)consumer;
@@ -256,7 +256,7 @@ static __strong NSData *CRLFCRLF;
     CRLFCRLF = [[NSData alloc] initWithBytes:"\r\n\r\n" length:4];
 }
 
-- (id)initWithURLRequest:(NSURLRequest *)request protocols:(NSArray *)protocols allowsUntrustedSSLCertificates:(BOOL)allowsUntrustedSSLCertificates;
+- (instancetype)initWithURLRequest:(NSURLRequest *)request protocols:(NSArray *)protocols allowsUntrustedSSLCertificates:(BOOL)allowsUntrustedSSLCertificates
 {
     self = [super init];
     if (self) {
@@ -273,28 +273,28 @@ static __strong NSData *CRLFCRLF;
     return self;
 }
 
-- (id)initWithURLRequest:(NSURLRequest *)request protocols:(NSArray *)protocols;
+- (instancetype)initWithURLRequest:(NSURLRequest *)request protocols:(NSArray *)protocols
 {
     return [self initWithURLRequest:request protocols:protocols allowsUntrustedSSLCertificates:NO];
 }
 
-- (id)initWithURLRequest:(NSURLRequest *)request;
+- (instancetype)initWithURLRequest:(NSURLRequest *)request
 {
     return [self initWithURLRequest:request protocols:nil];
 }
 
-- (id)initWithURL:(NSURL *)url;
+- (instancetype)initWithURL:(NSURL *)url;
 {
     return [self initWithURL:url protocols:nil];
 }
 
-- (id)initWithURL:(NSURL *)url protocols:(NSArray *)protocols;
+- (instancetype)initWithURL:(NSURL *)url protocols:(NSArray *)protocols;
 {
     NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:url];    
     return [self initWithURLRequest:request protocols:protocols];
 }
 
-- (id)initWithURL:(NSURL *)url protocols:(NSArray *)protocols allowsUntrustedSSLCertificates:(BOOL)allowsUntrustedSSLCertificates;
+- (instancetype)initWithURL:(NSURL *)url protocols:(NSArray *)protocols allowsUntrustedSSLCertificates:(BOOL)allowsUntrustedSSLCertificates
 {
     NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:url];
     return [self initWithURLRequest:request protocols:protocols allowsUntrustedSSLCertificates:allowsUntrustedSSLCertificates];
@@ -1659,7 +1659,7 @@ static const size_t SRFrameHeaderOverhead = 32;
     NSMutableArray *_bufferedConsumers;
 }
 
-- (id)initWithBufferCapacity:(NSUInteger)poolSize;
+- (instancetype)initWithBufferCapacity:(NSUInteger)poolSize;
 {
     self = [super init];
     if (self) {
@@ -1669,7 +1669,7 @@ static const size_t SRFrameHeaderOverhead = 32;
     return self;
 }
 
-- (id)init
+- (instancetype)init
 {
     return [self initWithBufferCapacity:8];
 }
@@ -1861,7 +1861,7 @@ static NSRunLoop *networkRunLoop = nil;
     sr_dispatch_release(_waitGroup);
 }
 
-- (id)init
+- (instancetype)init
 {
     self = [super init];
     if (self) {

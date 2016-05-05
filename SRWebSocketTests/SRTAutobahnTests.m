@@ -22,12 +22,12 @@
 @end
 
 @interface TestOperation : SRTWebSocketOperation <SRWebSocketDelegate>
-- (id)initWithBaseURL:(NSURL *)url testNumber:(NSInteger)testNumber agent:(NSString *)agent;
+- (instancetype)initWithBaseURL:(NSURL *)url testNumber:(NSInteger)testNumber agent:(NSString *)agent;
 @end
 
 
 @interface CaseGetterOperation : SRTWebSocketOperation <SRWebSocketDelegate>
-- (id)initWithBaseURL:(NSURL *)url;
+- (instancetype)initWithBaseURL:(NSURL *)url;
 
 @property (nonatomic, readonly) NSInteger caseCount;
 
@@ -41,7 +41,7 @@
 
 @interface SRTBlockInvoker
 
-- (id)initWithBlock:(dispatch_block_t)block;
+- (instancetype)initWithBlock:(dispatch_block_t)block;
 
 - (void)invoke;
 
@@ -49,7 +49,7 @@
 
 @interface UpdateOperation : SRTWebSocketOperation <SRWebSocketDelegate>
 
-- (id)initWithBaseURL:(NSURL *)url agent:(NSString *)agent;
+- (instancetype)initWithBaseURL:(NSURL *)url agent:(NSString *)agent;
 
 @end
 
@@ -57,7 +57,7 @@
 
 @property (nonatomic) NSDictionary *info;
 
-- (id)initWithBaseURL:(NSURL *)url caseNumber:(NSInteger)caseNumber;
+- (instancetype)initWithBaseURL:(NSURL *)url caseNumber:(NSInteger)caseNumber;
 
 @end
 
@@ -65,7 +65,7 @@
 
 @property (nonatomic) NSDictionary *info;
 
-- (id)initWithBaseURL:(NSURL *)url caseNumber:(NSInteger)caseNumber agent:(NSString *)agent;
+- (instancetype)initWithBaseURL:(NSURL *)url caseNumber:(NSInteger)caseNumber agent:(NSString *)agent;
 
 @end
 
@@ -80,7 +80,7 @@
     NSString *_description;
 }
 
-- (id)initWithInvocation:(NSInvocation *)anInvocation description:(NSString *)description;
+- (instancetype)initWithInvocation:(NSInvocation *)anInvocation description:(NSString *)description;
 {
     self = [self initWithInvocation:anInvocation];
     if (self) {
@@ -89,7 +89,7 @@
     return self;
 }
 
-- (id)initWithInvocation:(NSInvocation *)anInvocation;
+- (instancetype)initWithInvocation:(NSInvocation *)anInvocation;
 {
     self = [super initWithInvocation:anInvocation];
     if (self) {
@@ -233,7 +233,7 @@
     NSInteger _testNumber;
 }
 
-- (id)initWithBaseURL:(NSURL *)url testNumber:(NSInteger)testNumber agent:(NSString *)agent;
+- (instancetype)initWithBaseURL:(NSURL *)url testNumber:(NSInteger)testNumber agent:(NSString *)agent;
 {   
     
     NSString *path = [[url URLByAppendingPathComponent:@"runCase"] absoluteString];
@@ -258,7 +258,7 @@
 
 @synthesize caseCount = _caseCount;
 
-- (id)initWithBaseURL:(NSURL *)url;
+- (instancetype)initWithBaseURL:(NSURL *)url;
 {
     self = [super initWithURL:[url URLByAppendingPathComponent:@"getCaseCount"]];
     if (self) {
@@ -276,7 +276,7 @@
 
 @implementation UpdateOperation
 
-- (id)initWithBaseURL:(NSURL *)url agent:(NSString *)agent;
+- (instancetype)initWithBaseURL:(NSURL *)url agent:(NSString *)agent;
 {
     NSString *path = [[url URLByAppendingPathComponent:@"updateReports"] absoluteString];
     path = [path stringByAppendingFormat:@"?agent=%@", agent];
@@ -297,7 +297,7 @@
 
 @synthesize info = _info;
 
-- (id)initWithBaseURL:(NSURL *)url caseNumber:(NSInteger)caseNumber;
+- (instancetype)initWithBaseURL:(NSURL *)url caseNumber:(NSInteger)caseNumber;
 {
     NSString *path = [[url URLByAppendingPathComponent:@"getCaseInfo"] absoluteString];
     path = [path stringByAppendingFormat:@"?case=%@", @(caseNumber)];
@@ -317,7 +317,7 @@
 
 @synthesize info = _info;
 
-- (id)initWithBaseURL:(NSURL *)url caseNumber:(NSInteger)caseNumber agent:(NSString *)agent;
+- (instancetype)initWithBaseURL:(NSURL *)url caseNumber:(NSInteger)caseNumber agent:(NSString *)agent;
 {
     NSString *path = [[url URLByAppendingPathComponent:@"getCaseStatus"] absoluteString];
     path = [path stringByAppendingFormat:@"?case=%@&agent=%@", @(caseNumber), agent];
