@@ -225,6 +225,7 @@ SocketRocket has been used with the following libraries:
 - Go's `WebSocket package <https://godoc.org/golang.org/x/net/websocket>`_ or Gorilla's `version <http://www.gorillatoolkit.org/pkg/websocket>`_
 - `Autobahn <http://tavendo.com/autobahn/testsuite.html>`_ (using its fuzzing
   client)
+- `websocketd <https://github.com/joewalnes/websocketd>`_
 
 The Tornado one is dirt simple and works like a charm.  (`IPython notebook
 <http://ipython.org/ipython-doc/dev/interactive/htmlnotebook.html>`_ uses it
@@ -240,6 +241,8 @@ Autobahn is a great test suite.  The Python server code is good, and conforms
 well (obviously).  However for me, twisted would be a deal-breaker for writing
 something new.  I find it a bit too complex and heavy for a simple service. If
 you are already using twisted though, Autobahn is probably for you.
+
+websocketd is a unix style program implementing the protocol.
 
 Contributing
 ------------
