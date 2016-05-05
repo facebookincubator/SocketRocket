@@ -51,6 +51,15 @@
       debugDocumentVersioning = "YES"
       debugServiceExtension = "internal"
       allowLocationSimulation = "YES">
+      <MacroExpansion>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "3345DC821C52ACD70083CCB8"
+            BuildableName = "SocketRocket.framework"
+            BlueprintName = "SocketRocket-tvOS"
+            ReferencedContainer = "container:SocketRocket.xcodeproj">
+         </BuildableReference>
+      </MacroExpansion>
       <AdditionalOptions>
       </AdditionalOptions>
    </LaunchAction>
