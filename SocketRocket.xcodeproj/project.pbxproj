@@ -10,7 +10,6 @@
 		2D42277F1BB4365C000C1A6C /* SRWebSocket.h in Headers */ = {isa = PBXBuildFile; fileRef = F6A12CCF145119B700C1D980 /* SRWebSocket.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		2D4227801BB43693000C1A6C /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F6B208301450F597009315AF /* Foundation.framework */; };
 		2D4227831BB436B1000C1A6C /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F6A12CD3145122FC00C1D980 /* Security.framework */; };
-		2D4227841BB436CF000C1A6C /* SocketRocket.h in Headers */ = {isa = PBXBuildFile; fileRef = 2D4227641BB4358C000C1A6C /* SocketRocket.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		2D4227851BB43734000C1A6C /* SRWebSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = F6A12CD0145119B700C1D980 /* SRWebSocket.m */; };
 		2D8650261BB43B9B00534598 /* libicucore.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = F6C41C95145F7C4700641356 /* libicucore.dylib */; };
 		3345DC841C52ACD70083CCB8 /* SRWebSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = F6A12CD0145119B700C1D980 /* SRWebSocket.m */; };
@@ -66,11 +65,9 @@
 
 /* Begin PBXFileReference section */
 		2D4227621BB4358C000C1A6C /* SocketRocket.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SocketRocket.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		2D4227641BB4358C000C1A6C /* SocketRocket.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SocketRocket.h; sourceTree = "<group>"; };
-		2D4227661BB4358C000C1A6C /* SocketRocket-iOS-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "SocketRocket-iOS-Info.plist"; sourceTree = "<group>"; };
 		3345DC901C52ACD70083CCB8 /* SocketRocket.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SocketRocket.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		3345DC911C52ACD70083CCB8 /* SocketRocket-tvOS-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "SocketRocket-tvOS-Info.plist"; path = "/Users/Hami/Pusher/SocketRocket/SocketRocket-tvOS/SocketRocket-tvOS-Info.plist"; sourceTree = "<absolute>"; };
 		555E0EB11C51E56D00E6BB92 /* SocketRocket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SocketRocket.h; sourceTree = "<group>"; };
+		811934B11CDAF711003AB243 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		F60CC29F14D4EA0500A005E4 /* SRTWebSocketOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SRTWebSocketOperation.h; sourceTree = "<group>"; };
 		F60CC2A014D4EA0500A005E4 /* SRTWebSocketOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SRTWebSocketOperation.m; sourceTree = "<group>"; };
 		F61A0DC71625F44D00365EBD /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Default-568h@2x.png"; path = "en.lproj/Default-568h@2x.png"; sourceTree = "<group>"; };
@@ -94,7 +91,6 @@
 		F668C884153E91210044DBAC /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
 		F668C885153E91210044DBAC /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
 		F668C886153E91210044DBAC /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
-		F668C889153E91210044DBAC /* SocketRocketOSX-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "SocketRocketOSX-Info.plist"; sourceTree = "<group>"; };
 		F6A12CCF145119B700C1D980 /* SRWebSocket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SRWebSocket.h; sourceTree = "<group>"; };
 		F6A12CD0145119B700C1D980 /* SRWebSocket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SRWebSocket.m; sourceTree = "<group>"; };
 		F6A12CD3145122FC00C1D980 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
@@ -180,21 +176,12 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		2D4227631BB4358C000C1A6C /* SocketRocket-iOS */ = {
+		811934B01CDAF711003AB243 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				2D4227641BB4358C000C1A6C /* SocketRocket.h */,
-				2D4227661BB4358C000C1A6C /* SocketRocket-iOS-Info.plist */,
+				811934B11CDAF711003AB243 /* Info.plist */,
 			);
-			path = "SocketRocket-iOS";
-			sourceTree = "<group>";
-		};
-		3345DC921C52AE0B0083CCB8 /* SocketRocket-tvOS */ = {
-			isa = PBXGroup;
-			children = (
-				3345DC911C52ACD70083CCB8 /* SocketRocket-tvOS-Info.plist */,
-			);
-			path = "SocketRocket-tvOS";
+			path = Resources;
 			sourceTree = "<group>";
 		};
 		F62417EA14D52F3C003CE997 /* TestChat */ = {
@@ -243,22 +230,11 @@
 			name = "Other Frameworks";
 			sourceTree = "<group>";
 		};
-		F668C887153E91210044DBAC /* SocketRocketOSX */ = {
-			isa = PBXGroup;
-			children = (
-				F668C889153E91210044DBAC /* SocketRocketOSX-Info.plist */,
-			);
-			path = SocketRocketOSX;
-			sourceTree = "<group>";
-		};
 		F6B208221450F597009315AF = {
 			isa = PBXGroup;
 			children = (
 				F6B208321450F597009315AF /* SocketRocket */,
 				F6BDA807145900D200FE3253 /* SRWebSocketTests */,
-				3345DC921C52AE0B0083CCB8 /* SocketRocket-tvOS */,
-				F668C887153E91210044DBAC /* SocketRocketOSX */,
-				2D4227631BB4358C000C1A6C /* SocketRocket-iOS */,
 				F62417EA14D52F3C003CE997 /* TestChat */,
 				F6B2082F1450F597009315AF /* Frameworks */,
 				F6B2082E1450F597009315AF /* Products */,
@@ -301,6 +277,7 @@
 				555E0EB11C51E56D00E6BB92 /* SocketRocket.h */,
 				F6A12CCF145119B700C1D980 /* SRWebSocket.h */,
 				F6A12CD0145119B700C1D980 /* SRWebSocket.m */,
+				811934B01CDAF711003AB243 /* Resources */,
 			);
 			path = SocketRocket;
 			sourceTree = "<group>";
@@ -657,7 +634,7 @@
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
-				INFOPLIST_FILE = "SocketRocket-iOS/SocketRocket-iOS-Info.plist";
+				INFOPLIST_FILE = "$(SRCROOT)/SocketRocket/Resources/Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
@@ -692,7 +669,7 @@
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
-				INFOPLIST_FILE = "SocketRocket-iOS/SocketRocket-iOS-Info.plist";
+				INFOPLIST_FILE = "$(SRCROOT)/SocketRocket/Resources/Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
@@ -726,7 +703,7 @@
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
-				INFOPLIST_FILE = "SocketRocket-tvOS/SocketRocket-tvOS-Info.plist";
+				INFOPLIST_FILE = "$(SRCROOT)/SocketRocket/Resources/Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
@@ -762,7 +739,7 @@
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
-				INFOPLIST_FILE = "SocketRocket-tvOS/SocketRocket-tvOS-Info.plist";
+				INFOPLIST_FILE = "$(SRCROOT)/SocketRocket/Resources/Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
@@ -831,7 +808,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "SocketRocket/SocketRocket-Prefix.pch";
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				INFOPLIST_FILE = "SocketRocketOSX/SocketRocketOSX-Info.plist";
+				INFOPLIST_FILE = "$(SRCROOT)/SocketRocket/Resources/Info.plist";
 				LD_DYLIB_INSTALL_NAME = "@executable_path/../Frameworks/$(EXECUTABLE_PATH)";
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				ONLY_ACTIVE_ARCH = YES;
@@ -860,7 +837,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "SocketRocket/SocketRocket-Prefix.pch";
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				INFOPLIST_FILE = "SocketRocketOSX/SocketRocketOSX-Info.plist";
+				INFOPLIST_FILE = "$(SRCROOT)/SocketRocket/Resources/Info.plist";
 				LD_DYLIB_INSTALL_NAME = "@executable_path/../Frameworks/$(EXECUTABLE_PATH)";
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				OTHER_LDFLAGS = "-ObjC";
