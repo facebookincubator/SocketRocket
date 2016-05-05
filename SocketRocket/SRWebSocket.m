@@ -163,7 +163,7 @@ typedef void (^data_callback)(SRWebSocket *webSocket,  NSData *data);
 // This class is not thread-safe, and is expected to always be run on the same queue.
 @interface SRIOConsumerPool : NSObject
 
-- (id)initWithBufferCapacity:(NSUInteger)poolSize;
+- (instancetype)initWithBufferCapacity:(NSUInteger)poolSize;
 
 - (SRIOConsumer *)consumerWithScanner:(stream_scanner)scanner handler:(data_callback)handler bytesNeeded:(size_t)bytesNeeded readToCurrentFrame:(BOOL)readToCurrentFrame unmaskBytes:(BOOL)unmaskBytes;
 - (void)returnConsumer:(SRIOConsumer *)consumer;
@@ -256,85 +256,77 @@ static __strong NSData *CRLFCRLF;
     CRLFCRLF = [[NSData alloc] initWithBytes:"\r\n\r\n" length:4];
 }
 
-- (id)initWithURLRequest:(NSURLRequest *)request protocols:(NSArray *)protocols allowsUntrustedSSLCertificates:(BOOL)allowsUntrustedSSLCertificates;
+- (instancetype)initWithURLRequest:(NSURLRequest *)request protocols:(NSArray *)protocols allowsUntrustedSSLCertificates:(BOOL)allowsUntrustedSSLCertificates
 {
     self = [super init];
-    if (self) {
-        assert(request.URL);
-        _url = request.URL;
-        _urlRequest = request;
-        _allowsUntrustedSSLCertificates = allowsUntrustedSSLCertificates;
-        
-        _requestedProtocols = [protocols copy];
-        
-        [self _SR_commonInit];
+    if (!self) return self;
+
+    assert(request.URL);
+    _url = request.URL;
+    _urlRequest = request;
+    _allowsUntrustedSSLCertificates = allowsUntrustedSSLCertificates;
+
+    _requestedProtocols = [protocols copy];
+
+    NSString *scheme = _url.scheme.lowercaseString;
+    assert([scheme isEqualToString:@"ws"] || [scheme isEqualToString:@"http"] || [scheme isEqualToString:@"wss"] || [scheme isEqualToString:@"https"]);
+
+    if ([scheme isEqualToString:@"wss"] || [scheme isEqualToString:@"https"]) {
+        _secure = YES;
     }
-    
+
+    _readyState = SR_CONNECTING;
+    _consumerStopped = YES;
+    _webSocketVersion = 13;
+
+    _workQueue = dispatch_queue_create(NULL, DISPATCH_QUEUE_SERIAL);
+
+    // Going to set a specific on the queue so we can validate we're on the work queue
+    dispatch_queue_set_specific(_workQueue, (__bridge void *)self, maybe_bridge(_workQueue), NULL);
+
+    _delegateDispatchQueue = dispatch_get_main_queue();
+    sr_dispatch_retain(_delegateDispatchQueue);
+
+    _readBuffer = [[NSMutableData alloc] init];
+    _outputBuffer = [[NSMutableData alloc] init];
+
+    _currentFrameData = [[NSMutableData alloc] init];
+
+    _consumers = [[NSMutableArray alloc] init];
+
+    _consumerPool = [[SRIOConsumerPool alloc] init];
+
+    _scheduledRunloops = [[NSMutableSet alloc] init];
+
+    [self _initializeStreams];
+
     return self;
 }
 
-- (id)initWithURLRequest:(NSURLRequest *)request protocols:(NSArray *)protocols;
+- (instancetype)initWithURLRequest:(NSURLRequest *)request protocols:(NSArray *)protocols
 {
     return [self initWithURLRequest:request protocols:protocols allowsUntrustedSSLCertificates:NO];
 }
 
-- (id)initWithURLRequest:(NSURLRequest *)request;
+- (instancetype)initWithURLRequest:(NSURLRequest *)request
 {
     return [self initWithURLRequest:request protocols:nil];
 }
 
-- (id)initWithURL:(NSURL *)url;
+- (instancetype)initWithURL:(NSURL *)url;
 {
     return [self initWithURL:url protocols:nil];
 }
 
-- (id)initWithURL:(NSURL *)url protocols:(NSArray *)protocols;
+- (instancetype)initWithURL:(NSURL *)url protocols:(NSArray *)protocols;
 {
-    NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:url];    
-    return [self initWithURLRequest:request protocols:protocols];
+    return [self initWithURL:url protocols:protocols allowsUntrustedSSLCertificates:NO];
 }
 
-- (id)initWithURL:(NSURL *)url protocols:(NSArray *)protocols allowsUntrustedSSLCertificates:(BOOL)allowsUntrustedSSLCertificates;
+- (instancetype)initWithURL:(NSURL *)url protocols:(NSArray *)protocols allowsUntrustedSSLCertificates:(BOOL)allowsUntrustedSSLCertificates
 {
-    NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:url];
+    NSURLRequest *request = [NSURLRequest requestWithURL:url];
     return [self initWithURLRequest:request protocols:protocols allowsUntrustedSSLCertificates:allowsUntrustedSSLCertificates];
-}
-
-- (void)_SR_commonInit;
-{
-    NSString *scheme = _url.scheme.lowercaseString;
-    assert([scheme isEqualToString:@"ws"] || [scheme isEqualToString:@"http"] || [scheme isEqualToString:@"wss"] || [scheme isEqualToString:@"https"]);
-    
-    if ([scheme isEqualToString:@"wss"] || [scheme isEqualToString:@"https"]) {
-        _secure = YES;
-    }
-    
-    _readyState = SR_CONNECTING;
-    _consumerStopped = YES;
-    _webSocketVersion = 13;
-    
-    _workQueue = dispatch_queue_create(NULL, DISPATCH_QUEUE_SERIAL);
-    
-    // Going to set a specific on the queue so we can validate we're on the work queue
-    dispatch_queue_set_specific(_workQueue, (__bridge void *)self, maybe_bridge(_workQueue), NULL);
-    
-    _delegateDispatchQueue = dispatch_get_main_queue();
-    sr_dispatch_retain(_delegateDispatchQueue);
-    
-    _readBuffer = [[NSMutableData alloc] init];
-    _outputBuffer = [[NSMutableData alloc] init];
-    
-    _currentFrameData = [[NSMutableData alloc] init];
-
-    _consumers = [[NSMutableArray alloc] init];
-    
-    _consumerPool = [[SRIOConsumerPool alloc] init];
-    
-    _scheduledRunloops = [[NSMutableSet alloc] init];
-    
-    [self _initializeStreams];
-    
-    // default handlers
 }
 
 - (void)assertOnWorkQueue;
@@ -1664,7 +1656,7 @@ static const size_t SRFrameHeaderOverhead = 32;
     NSMutableArray *_bufferedConsumers;
 }
 
-- (id)initWithBufferCapacity:(NSUInteger)poolSize;
+- (instancetype)initWithBufferCapacity:(NSUInteger)poolSize;
 {
     self = [super init];
     if (self) {
@@ -1674,7 +1666,7 @@ static const size_t SRFrameHeaderOverhead = 32;
     return self;
 }
 
-- (id)init
+- (instancetype)init
 {
     return [self initWithBufferCapacity:8];
 }
@@ -1866,7 +1858,7 @@ static NSRunLoop *networkRunLoop = nil;
     sr_dispatch_release(_waitGroup);
 }
 
-- (id)init
+- (instancetype)init
 {
     self = [super init];
     if (self) {

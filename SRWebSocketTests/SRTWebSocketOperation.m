@@ -22,7 +22,7 @@
 @synthesize isExecuting = _isExecuting;
 @synthesize error = _error;
 
-- (id)initWithURL:(NSURL *)URL;
+- (instancetype)initWithURL:(NSURL *)URL;
 {
     self = [super init];
     if (self) {
