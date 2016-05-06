@@ -65,7 +65,7 @@ extern NSString *const SRHTTPResponseErrorKey;
 @property (nonatomic, readonly) CFHTTPMessageRef receivedHTTPHeaders;
 
 // Optional array of cookies (NSHTTPCookie objects) to apply to the connections
-@property (nonatomic, readwrite) NSArray * requestCookies;
+@property (nonatomic, copy) NSArray<NSHTTPCookie *> *requestCookies;
 
 // This returns the negotiated protocol.
 // It will be nil until after the handshake completes.
@@ -73,13 +73,13 @@ extern NSString *const SRHTTPResponseErrorKey;
 
 // Protocols should be an array of strings that turn into Sec-WebSocket-Protocol.
 - (instancetype)initWithURLRequest:(NSURLRequest *)request;
-- (instancetype)initWithURLRequest:(NSURLRequest *)request protocols:(NSArray *)protocols;
-- (instancetype)initWithURLRequest:(NSURLRequest *)request protocols:(NSArray *)protocols allowsUntrustedSSLCertificates:(BOOL)allowsUntrustedSSLCertificates;
+- (instancetype)initWithURLRequest:(NSURLRequest *)request protocols:(NSArray<NSString *> *)protocols;
+- (instancetype)initWithURLRequest:(NSURLRequest *)request protocols:(NSArray<NSString *> *)protocols allowsUntrustedSSLCertificates:(BOOL)allowsUntrustedSSLCertificates;
 
 // Some helper constructors.
 - (instancetype)initWithURL:(NSURL *)url;
-- (instancetype)initWithURL:(NSURL *)url protocols:(NSArray *)protocols;
-- (instancetype)initWithURL:(NSURL *)url protocols:(NSArray *)protocols allowsUntrustedSSLCertificates:(BOOL)allowsUntrustedSSLCertificates;
+- (instancetype)initWithURL:(NSURL *)url protocols:(NSArray<NSString *> *)protocols;
+- (instancetype)initWithURL:(NSURL *)url protocols:(NSArray<NSString *> *)protocols allowsUntrustedSSLCertificates:(BOOL)allowsUntrustedSSLCertificates;
 
 // Delegate queue will be dispatch_main_queue by default.
 // You cannot set both OperationQueue and dispatch_queue.
