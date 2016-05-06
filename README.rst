@@ -1,6 +1,6 @@
 SocketRocket Objective-C WebSocket Client (beta)
 ================================================
-A conforming WebSocket (`RFC 6455 <http://tools.ietf.org/html/rfc6455>`_)
+A conforming WebSocket (`RFC 6455 <https://tools.ietf.org/html/rfc6455>`_)
 client library.
 
 `Test results for SocketRocket here <http://square.github.io/SocketRocket/results/>`_.
@@ -221,7 +221,7 @@ WebSocket Server Implementation Recommendations
 -----------------------------------------------
 SocketRocket has been used with the following libraries:
 
-- `Tornado <https://github.com/facebook/tornado>`_
+- `Tornado <https://github.com/tornadoweb/tornado>`_
 - Go's `WebSocket package <https://godoc.org/golang.org/x/net/websocket>`_ or Gorilla's `version <http://www.gorillatoolkit.org/pkg/websocket>`_
 - `Autobahn <http://tavendo.com/autobahn/testsuite.html>`_ (using its fuzzing
   client)
