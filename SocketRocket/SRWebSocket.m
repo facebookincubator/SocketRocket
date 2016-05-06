@@ -25,8 +25,12 @@
 #import <CoreServices/CoreServices.h>
 #endif
 
-#import <CommonCrypto/CommonDigest.h>
 #import <Security/SecRandom.h>
+
+#import "SRIOConsumer.h"
+#import "SRIOConsumerPool.h"
+#import "SRHash.h"
+#import "SRRunLoopThread.h"
 
 #if OS_OBJECT_USE_OBJC_RETAIN_RELEASE
 #define sr_dispatch_retain(x)
@@ -68,20 +72,6 @@ static NSString *const SRWebSocketAppendToSecKeyString = @"258EAFA5-E914-47DA-95
 static inline int32_t validate_dispatch_data_partial_string(NSData *data);
 static inline void SRFastLog(NSString *format, ...);
 
-@interface NSData (SRWebSocket)
-
-- (NSString *)stringBySHA1ThenBase64Encoding;
-
-@end
-
-
-@interface NSString (SRWebSocket)
-
-- (NSString *)stringBySHA1ThenBase64Encoding;
-
-@end
-
-
 @interface NSURL (SRWebSocket)
 
 // The origin isn't really applicable for a native application.
@@ -90,85 +80,8 @@ static inline void SRFastLog(NSString *format, ...);
 
 @end
 
-
-@interface _SRRunLoopThread : NSThread
-
-@property (nonatomic, readonly) NSRunLoop *runLoop;
-
-@end
-
-
-static NSString *newSHA1String(const char *bytes, size_t length) {
-    uint8_t md[CC_SHA1_DIGEST_LENGTH];
-
-    assert(length >= 0);
-    assert(length <= UINT32_MAX);
-    CC_SHA1(bytes, (CC_LONG)length, md);
-    
-    NSData *data = [NSData dataWithBytes:md length:CC_SHA1_DIGEST_LENGTH];
-    
-    if ([data respondsToSelector:@selector(base64EncodedStringWithOptions:)]) {
-        return [data base64EncodedStringWithOptions:0];
-    }
-
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    return [data base64Encoding];
-#pragma clang diagnostic pop
-}
-
-@implementation NSData (SRWebSocket)
-
-- (NSString *)stringBySHA1ThenBase64Encoding;
-{
-    return newSHA1String(self.bytes, self.length);
-}
-
-@end
-
-
-@implementation NSString (SRWebSocket)
-
-- (NSString *)stringBySHA1ThenBase64Encoding;
-{
-    return newSHA1String(self.UTF8String, self.length);
-}
-
-@end
-
 NSString *const SRWebSocketErrorDomain = @"SRWebSocketErrorDomain";
 NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
-
-// Returns number of bytes consumed. Returning 0 means you didn't match.
-// Sends bytes to callback handler;
-typedef size_t (^stream_scanner)(NSData *collected_data);
-
-typedef void (^data_callback)(SRWebSocket *webSocket,  NSData *data);
-
-@interface SRIOConsumer : NSObject {
-    stream_scanner _scanner;
-    data_callback _handler;
-    size_t _bytesNeeded;
-    BOOL _readToCurrentFrame;
-    BOOL _unmaskBytes;
-}
-@property (nonatomic, copy, readonly) stream_scanner consumer;
-@property (nonatomic, copy, readonly) data_callback handler;
-@property (nonatomic, assign) size_t bytesNeeded;
-@property (nonatomic, assign, readonly) BOOL readToCurrentFrame;
-@property (nonatomic, assign, readonly) BOOL unmaskBytes;
-
-@end
-
-// This class is not thread-safe, and is expected to always be run on the same queue.
-@interface SRIOConsumerPool : NSObject
-
-- (instancetype)initWithBufferCapacity:(NSUInteger)poolSize;
-
-- (SRIOConsumer *)consumerWithScanner:(stream_scanner)scanner handler:(data_callback)handler bytesNeeded:(size_t)bytesNeeded readToCurrentFrame:(BOOL)readToCurrentFrame unmaskBytes:(BOOL)unmaskBytes;
-- (void)returnConsumer:(SRIOConsumer *)consumer;
-
-@end
 
 @interface SRWebSocket ()  <NSStreamDelegate>
 
@@ -423,8 +336,8 @@ static __strong NSData *CRLFCRLF;
     }
     
     NSString *concattedString = [_secKey stringByAppendingString:SRWebSocketAppendToSecKeyString];
-    NSString *expectedAccept = [concattedString stringBySHA1ThenBase64Encoding];
-    
+    NSData *hashedString = SRSHA1HashFromString(concattedString);
+    NSString *expectedAccept = SRBase64EncodedStringFromData(hashedString);
     return [acceptHeader isEqualToString:expectedAccept];
 }
 
@@ -1627,74 +1540,6 @@ static const size_t SRFrameHeaderOverhead = 32;
 
 @end
 
-
-@implementation SRIOConsumer
-
-@synthesize bytesNeeded = _bytesNeeded;
-@synthesize consumer = _scanner;
-@synthesize handler = _handler;
-@synthesize readToCurrentFrame = _readToCurrentFrame;
-@synthesize unmaskBytes = _unmaskBytes;
-
-- (void)setupWithScanner:(stream_scanner)scanner handler:(data_callback)handler bytesNeeded:(size_t)bytesNeeded readToCurrentFrame:(BOOL)readToCurrentFrame unmaskBytes:(BOOL)unmaskBytes;
-{
-    _scanner = [scanner copy];
-    _handler = [handler copy];
-    _bytesNeeded = bytesNeeded;
-    _readToCurrentFrame = readToCurrentFrame;
-    _unmaskBytes = unmaskBytes;
-    assert(_scanner || _bytesNeeded);
-}
-
-
-@end
-
-
-@implementation SRIOConsumerPool {
-    NSUInteger _poolSize;
-    NSMutableArray<SRIOConsumer *> *_bufferedConsumers;
-}
-
-- (instancetype)initWithBufferCapacity:(NSUInteger)poolSize;
-{
-    self = [super init];
-    if (self) {
-        _poolSize = poolSize;
-        _bufferedConsumers = [NSMutableArray arrayWithCapacity:poolSize];
-    }
-    return self;
-}
-
-- (instancetype)init
-{
-    return [self initWithBufferCapacity:8];
-}
-
-- (SRIOConsumer *)consumerWithScanner:(stream_scanner)scanner handler:(data_callback)handler bytesNeeded:(size_t)bytesNeeded readToCurrentFrame:(BOOL)readToCurrentFrame unmaskBytes:(BOOL)unmaskBytes;
-{
-    SRIOConsumer *consumer = nil;
-    if (_bufferedConsumers.count) {
-        consumer = [_bufferedConsumers lastObject];
-        [_bufferedConsumers removeLastObject];
-    } else {
-        consumer = [[SRIOConsumer alloc] init];
-    }
-    
-    [consumer setupWithScanner:scanner handler:handler bytesNeeded:bytesNeeded readToCurrentFrame:readToCurrentFrame unmaskBytes:unmaskBytes];
-    
-    return consumer;
-}
-
-- (void)returnConsumer:(SRIOConsumer *)consumer;
-{
-    if (_bufferedConsumers.count < _poolSize) {
-        [_bufferedConsumers addObject:consumer];
-    }
-}
-
-@end
-
-
 @implementation  NSURLRequest (SRCertificateAdditions)
 
 - (NSArray *)SR_SSLPinnedCertificates;
@@ -1826,7 +1671,7 @@ static inline int32_t validate_dispatch_data_partial_string(NSData *data) {
 
 #endif
 
-static _SRRunLoopThread *networkThread = nil;
+static SRRunLoopThread *networkThread = nil;
 static NSRunLoop *networkRunLoop = nil;
 
 @implementation NSRunLoop (SRWebSocket)
@@ -1834,73 +1679,13 @@ static NSRunLoop *networkRunLoop = nil;
 + (NSRunLoop *)SR_networkRunLoop {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        networkThread = [[_SRRunLoopThread alloc] init];
+        networkThread = [[SRRunLoopThread alloc] init];
         networkThread.name = @"com.squareup.SocketRocket.NetworkThread";
         [networkThread start];
         networkRunLoop = networkThread.runLoop;
     });
     
     return networkRunLoop;
-}
-
-@end
-
-
-@implementation _SRRunLoopThread {
-    dispatch_group_t _waitGroup;
-}
-
-@synthesize runLoop = _runLoop;
-
-- (void)dealloc
-{
-    sr_dispatch_release(_waitGroup);
-}
-
-- (instancetype)init
-{
-    self = [super init];
-    if (self) {
-        _waitGroup = dispatch_group_create();
-        dispatch_group_enter(_waitGroup);
-    }
-    return self;
-}
-
-- (void)main;
-{
-    @autoreleasepool {
-        _runLoop = [NSRunLoop currentRunLoop];
-        dispatch_group_leave(_waitGroup);
-        
-        // Add an empty run loop source to prevent runloop from spinning.
-        CFRunLoopSourceContext sourceCtx = {
-            .version = 0,
-            .info = NULL,
-            .retain = NULL,
-            .release = NULL,
-            .copyDescription = NULL,
-            .equal = NULL,
-            .hash = NULL,
-            .schedule = NULL,
-            .cancel = NULL,
-            .perform = NULL
-        };
-        CFRunLoopSourceRef source = CFRunLoopSourceCreate(NULL, 0, &sourceCtx);
-        CFRunLoopAddSource(CFRunLoopGetCurrent(), source, kCFRunLoopDefaultMode);
-        CFRelease(source);
-        
-        while ([_runLoop runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]]) {
-            
-        }
-        assert(NO);
-    }
-}
-
-- (NSRunLoop *)runLoop;
-{
-    dispatch_group_wait(_waitGroup, DISPATCH_TIME_FOREVER);
-    return _runLoop;
 }
 
 @end

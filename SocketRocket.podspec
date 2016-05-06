@@ -6,8 +6,10 @@ Pod::Spec.new do |s|
   s.authors            = 'Square'
   s.license            = 'BSD'
   s.source             = { :git => 'https://github.com/facebook/SocketRocket.git', :tag => s.version.to_s }
-  s.source_files       = 'SocketRocket/*.{h,m}'
   s.requires_arc       = true
+  
+  s.source_files       = 'SocketRocket/**/*.{h,m}'
+  s.public_header_files       = 'SocketRocket/*.h'
 
   s.ios.deployment_target  = '6.0'
   s.osx.deployment_target  = '10.8'
