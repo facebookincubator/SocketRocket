@@ -1,23 +1,26 @@
+branches:
+  only:
+    - master
 language: objective-c
-osx_image: xcode7.2
+osx_image: xcode7.3
 sudo: false
 xcode_project: SocketRocket.xcodeproj
 env:
   global:
-    - IOS_SDK=iphonesimulator9.2
+    - IOS_SDK=iphonesimulator9.3
     - IOS_SCHEME="SocketRocket-iOS"
     - MACOS_SDK=macosx10.11
     - MACOS_SCHEME="SocketRocketOSX"
-    - TVOS_SDK=appletvsimulator9.1
+    - TVOS_SDK=appletvsimulator9.2
     - TVOS_SCHEME="SocketRocket-tvOS"
   matrix:
-    - DESTINATION="OS=9.2,name=iPad 2"         SDK="$IOS_SDK"   SCHEME="$IOS_SCHEME"
-    - DESTINATION="OS=9.2,name=iPad Air"       SDK="$IOS_SDK"   SCHEME="$IOS_SCHEME"
-    - DESTINATION="OS=9.2,name=iPhone 5"       SDK="$IOS_SDK"   SCHEME="$IOS_SCHEME"
-    - DESTINATION="OS=9.2,name=iPhone 6s"      SDK="$IOS_SDK"   SCHEME="$IOS_SCHEME"
+    - DESTINATION="OS=9.3,name=iPad 2"         SDK="$IOS_SDK"   SCHEME="$IOS_SCHEME"
+    - DESTINATION="OS=9.3,name=iPad Air"       SDK="$IOS_SDK"   SCHEME="$IOS_SCHEME"
+    - DESTINATION="OS=9.3,name=iPhone 5"       SDK="$IOS_SDK"   SCHEME="$IOS_SCHEME"
+    - DESTINATION="OS=9.3,name=iPhone 6s"      SDK="$IOS_SDK"   SCHEME="$IOS_SCHEME"
     - DESTINATION="OS=8.4,name=iPhone 6"       SDK="$IOS_SDK"   SCHEME="$IOS_SCHEME"
     - DESTINATION="OS=8.4,name=iPad Air"       SDK="$IOS_SDK"   SCHEME="$IOS_SCHEME"
-    - DESTINATION="OS=9.1,name=Apple TV 1080p" SDK="$TVOS_SDK"  SCHEME="$TVOS_SCHEME"
+    - DESTINATION="OS=9.2,name=Apple TV 1080p" SDK="$TVOS_SDK"  SCHEME="$TVOS_SCHEME"
     - DESTINATION="platform=OS X"              SDK="$MACOS_SDK" SCHEME="$MACOS_SCHEME"
 before_script:
     - bundle install
