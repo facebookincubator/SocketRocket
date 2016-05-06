@@ -22,3 +22,5 @@ profile
 *.moved-aside
 DerivedData
 extern/
+
+*.pyc
