@@ -37,6 +37,14 @@
 		81B31C211CDC404100D86D43 /* SRIOConsumerPool.m in Sources */ = {isa = PBXBuildFile; fileRef = 81B31C121CDC404100D86D43 /* SRIOConsumerPool.m */; };
 		81B31C221CDC404100D86D43 /* SRIOConsumerPool.m in Sources */ = {isa = PBXBuildFile; fileRef = 81B31C121CDC404100D86D43 /* SRIOConsumerPool.m */; };
 		81B31C231CDC404100D86D43 /* SRIOConsumerPool.m in Sources */ = {isa = PBXBuildFile; fileRef = 81B31C121CDC404100D86D43 /* SRIOConsumerPool.m */; };
+		81B31C2D1CDC406B00D86D43 /* SRHash.h in Headers */ = {isa = PBXBuildFile; fileRef = 81B31C2B1CDC406B00D86D43 /* SRHash.h */; };
+		81B31C2E1CDC406B00D86D43 /* SRHash.h in Headers */ = {isa = PBXBuildFile; fileRef = 81B31C2B1CDC406B00D86D43 /* SRHash.h */; };
+		81B31C2F1CDC406B00D86D43 /* SRHash.h in Headers */ = {isa = PBXBuildFile; fileRef = 81B31C2B1CDC406B00D86D43 /* SRHash.h */; };
+		81B31C301CDC406B00D86D43 /* SRHash.h in Headers */ = {isa = PBXBuildFile; fileRef = 81B31C2B1CDC406B00D86D43 /* SRHash.h */; };
+		81B31C311CDC406B00D86D43 /* SRHash.m in Sources */ = {isa = PBXBuildFile; fileRef = 81B31C2C1CDC406B00D86D43 /* SRHash.m */; };
+		81B31C321CDC406B00D86D43 /* SRHash.m in Sources */ = {isa = PBXBuildFile; fileRef = 81B31C2C1CDC406B00D86D43 /* SRHash.m */; };
+		81B31C331CDC406B00D86D43 /* SRHash.m in Sources */ = {isa = PBXBuildFile; fileRef = 81B31C2C1CDC406B00D86D43 /* SRHash.m */; };
+		81B31C341CDC406B00D86D43 /* SRHash.m in Sources */ = {isa = PBXBuildFile; fileRef = 81B31C2C1CDC406B00D86D43 /* SRHash.m */; };
 		F6016C8814620EC70037BB3D /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F6A12CD3145122FC00C1D980 /* Security.framework */; };
 		F6016C8914620ECC0037BB3D /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F6A12CD3145122FC00C1D980 /* Security.framework */; };
 		F6016C8A1462143C0037BB3D /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F6A12CD51451231B00C1D980 /* CFNetwork.framework */; };
@@ -91,6 +99,8 @@
 		81B31C101CDC404100D86D43 /* SRIOConsumer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SRIOConsumer.m; sourceTree = "<group>"; };
 		81B31C111CDC404100D86D43 /* SRIOConsumerPool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SRIOConsumerPool.h; sourceTree = "<group>"; };
 		81B31C121CDC404100D86D43 /* SRIOConsumerPool.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SRIOConsumerPool.m; sourceTree = "<group>"; };
+		81B31C2B1CDC406B00D86D43 /* SRHash.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SRHash.h; sourceTree = "<group>"; };
+		81B31C2C1CDC406B00D86D43 /* SRHash.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SRHash.m; sourceTree = "<group>"; };
 		F60CC29F14D4EA0500A005E4 /* SRTWebSocketOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SRTWebSocketOperation.h; sourceTree = "<group>"; };
 		F60CC2A014D4EA0500A005E4 /* SRTWebSocketOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SRTWebSocketOperation.m; sourceTree = "<group>"; };
 		F61A0DC71625F44D00365EBD /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Default-568h@2x.png"; path = "en.lproj/Default-568h@2x.png"; sourceTree = "<group>"; };
@@ -211,6 +221,7 @@
 			isa = PBXGroup;
 			children = (
 				81B31C0E1CDC404100D86D43 /* IOConsumer */,
+				81B31C131CDC404100D86D43 /* Utilities */,
 			);
 			path = Internal;
 			sourceTree = "<group>";
@@ -224,6 +235,15 @@
 				81B31C121CDC404100D86D43 /* SRIOConsumerPool.m */,
 			);
 			path = IOConsumer;
+			sourceTree = "<group>";
+		};
+		81B31C131CDC404100D86D43 /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				81B31C2B1CDC406B00D86D43 /* SRHash.h */,
+				81B31C2C1CDC406B00D86D43 /* SRHash.m */,
+			);
+			path = Utilities;
 			sourceTree = "<group>";
 		};
 		F62417EA14D52F3C003CE997 /* TestChat */ = {
@@ -357,6 +377,7 @@
 				81B31C151CDC404100D86D43 /* SRIOConsumer.h in Headers */,
 				81B31C1D1CDC404100D86D43 /* SRIOConsumerPool.h in Headers */,
 				2D42277F1BB4365C000C1A6C /* SRWebSocket.h in Headers */,
+				81B31C2E1CDC406B00D86D43 /* SRHash.h in Headers */,
 				811934BE1CDAF725003AB243 /* SocketRocket.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -368,6 +389,7 @@
 				81B31C171CDC404100D86D43 /* SRIOConsumer.h in Headers */,
 				81B31C1F1CDC404100D86D43 /* SRIOConsumerPool.h in Headers */,
 				3345DC8A1C52ACD70083CCB8 /* SRWebSocket.h in Headers */,
+				81B31C301CDC406B00D86D43 /* SRHash.h in Headers */,
 				811934C01CDAF726003AB243 /* SocketRocket.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -379,6 +401,7 @@
 				81B31C161CDC404100D86D43 /* SRIOConsumer.h in Headers */,
 				81B31C1E1CDC404100D86D43 /* SRIOConsumerPool.h in Headers */,
 				F668C8AA153E92F90044DBAC /* SRWebSocket.h in Headers */,
+				81B31C2F1CDC406B00D86D43 /* SRHash.h in Headers */,
 				811934BC1CDAF725003AB243 /* SocketRocket.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -390,6 +413,7 @@
 				81B31C141CDC404100D86D43 /* SRIOConsumer.h in Headers */,
 				81B31C1C1CDC404100D86D43 /* SRIOConsumerPool.h in Headers */,
 				F6A12CD1145119B700C1D980 /* SRWebSocket.h in Headers */,
+				81B31C2D1CDC406B00D86D43 /* SRHash.h in Headers */,
 				555E0EB41C51E57A00E6BB92 /* SocketRocket.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -584,6 +608,7 @@
 				81B31C191CDC404100D86D43 /* SRIOConsumer.m in Sources */,
 				2D4227851BB43734000C1A6C /* SRWebSocket.m in Sources */,
 				81B31C211CDC404100D86D43 /* SRIOConsumerPool.m in Sources */,
+				81B31C321CDC406B00D86D43 /* SRHash.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -594,6 +619,7 @@
 				81B31C1B1CDC404100D86D43 /* SRIOConsumer.m in Sources */,
 				3345DC841C52ACD70083CCB8 /* SRWebSocket.m in Sources */,
 				81B31C231CDC404100D86D43 /* SRIOConsumerPool.m in Sources */,
+				81B31C341CDC406B00D86D43 /* SRHash.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -615,6 +641,7 @@
 				81B31C1A1CDC404100D86D43 /* SRIOConsumer.m in Sources */,
 				F6396B86153E67EC00345B5E /* SRWebSocket.m in Sources */,
 				81B31C221CDC404100D86D43 /* SRIOConsumerPool.m in Sources */,
+				81B31C331CDC406B00D86D43 /* SRHash.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -625,6 +652,7 @@
 				81B31C181CDC404100D86D43 /* SRIOConsumer.m in Sources */,
 				F6A12CD2145119B700C1D980 /* SRWebSocket.m in Sources */,
 				81B31C201CDC404100D86D43 /* SRIOConsumerPool.m in Sources */,
+				81B31C311CDC406B00D86D43 /* SRHash.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

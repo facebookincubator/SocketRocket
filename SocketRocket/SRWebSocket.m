@@ -25,11 +25,11 @@
 #import <CoreServices/CoreServices.h>
 #endif
 
-#import <CommonCrypto/CommonDigest.h>
 #import <Security/SecRandom.h>
 
 #import "SRIOConsumer.h"
 #import "SRIOConsumerPool.h"
+#import "SRHash.h"
 
 #if OS_OBJECT_USE_OBJC_RETAIN_RELEASE
 #define sr_dispatch_retain(x)
@@ -71,20 +71,6 @@ static NSString *const SRWebSocketAppendToSecKeyString = @"258EAFA5-E914-47DA-95
 static inline int32_t validate_dispatch_data_partial_string(NSData *data);
 static inline void SRFastLog(NSString *format, ...);
 
-@interface NSData (SRWebSocket)
-
-- (NSString *)stringBySHA1ThenBase64Encoding;
-
-@end
-
-
-@interface NSString (SRWebSocket)
-
-- (NSString *)stringBySHA1ThenBase64Encoding;
-
-@end
-
-
 @interface NSURL (SRWebSocket)
 
 // The origin isn't really applicable for a native application.
@@ -97,45 +83,6 @@ static inline void SRFastLog(NSString *format, ...);
 @interface _SRRunLoopThread : NSThread
 
 @property (nonatomic, readonly) NSRunLoop *runLoop;
-
-@end
-
-
-static NSString *newSHA1String(const char *bytes, size_t length) {
-    uint8_t md[CC_SHA1_DIGEST_LENGTH];
-
-    assert(length >= 0);
-    assert(length <= UINT32_MAX);
-    CC_SHA1(bytes, (CC_LONG)length, md);
-    
-    NSData *data = [NSData dataWithBytes:md length:CC_SHA1_DIGEST_LENGTH];
-    
-    if ([data respondsToSelector:@selector(base64EncodedStringWithOptions:)]) {
-        return [data base64EncodedStringWithOptions:0];
-    }
-
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    return [data base64Encoding];
-#pragma clang diagnostic pop
-}
-
-@implementation NSData (SRWebSocket)
-
-- (NSString *)stringBySHA1ThenBase64Encoding;
-{
-    return newSHA1String(self.bytes, self.length);
-}
-
-@end
-
-
-@implementation NSString (SRWebSocket)
-
-- (NSString *)stringBySHA1ThenBase64Encoding;
-{
-    return newSHA1String(self.UTF8String, self.length);
-}
 
 @end
 
@@ -395,8 +342,8 @@ static __strong NSData *CRLFCRLF;
     }
     
     NSString *concattedString = [_secKey stringByAppendingString:SRWebSocketAppendToSecKeyString];
-    NSString *expectedAccept = [concattedString stringBySHA1ThenBase64Encoding];
-    
+    NSData *hashedString = SRSHA1HashFromString(concattedString);
+    NSString *expectedAccept = SRBase64EncodedStringFromData(hashedString);
     return [acceptHeader isEqualToString:expectedAccept];
 }
 
