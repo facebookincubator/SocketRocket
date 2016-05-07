@@ -23,19 +23,34 @@
 @interface SRTAutobahnTests : XCTestCase
 @end
 
-@interface NSInvocation (SRTBlockInvocation)
+static NSDictionary<NSString *, id> *SRAutobahnTestConfiguration() {
+    static NSDictionary *configuration;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        NSURL *configurationURL = [[NSBundle bundleForClass:[SRTAutobahnTests class]] URLForResource:@"autobahn_configuration"
+                                                                                       withExtension:@"json"];
+        NSInputStream *readStream = [NSInputStream inputStreamWithURL:configurationURL];
+        [readStream open];
+        configuration = [NSJSONSerialization JSONObjectWithStream:readStream options:0 error:nil];
+        [readStream close];
+    });
+    return configuration;
+}
 
-+ (NSInvocation *)invocationWithBlock:(dispatch_block_t)block;
+static BOOL SRAutobahnIsValidResultBehavior(NSString *caseIdentifier, NSString *behavior)
+{
+    if ([behavior isEqualToString:@"OK"]) {
+        return YES;
+    }
 
-@end
-
-@interface SRTBlockInvoker
-
-- (instancetype)initWithBlock:(dispatch_block_t)block;
-
-- (void)invoke;
-
-@end
+    NSArray *cases = SRAutobahnTestConfiguration()[behavior];
+    for (NSString *caseId in cases) {
+        if ([caseIdentifier hasPrefix:caseId]) {
+            return YES;
+        }
+    }
+    return NO;
+}
 
 @implementation SRTAutobahnTests {
     SRWebSocket *_curWebSocket;
@@ -46,13 +61,15 @@
     NSURL *_prefixURL;
     NSString *_agent;
     NSString *_description;
+    NSString *_identifier;
 }
 
-- (instancetype)initWithInvocation:(NSInvocation *)anInvocation description:(NSString *)description;
+- (instancetype)initWithInvocation:(NSInvocation *)anInvocation description:(NSString *)description identifier:(NSString *)identifier
 {
     self = [self initWithInvocation:anInvocation];
     if (self) {
         _description = description;
+        _identifier = identifier;
     }
     return self;
 }
@@ -88,11 +105,6 @@
     return count;
 }
 
-- (BOOL)isEmpty;
-{
-    return NO;
-}
-
 - (void)performTest:(XCTestCaseRun *) aRun
 {
     if (self.invocation) {
@@ -108,13 +120,14 @@
         invocation.target = self;
 
         [invocation setArgument:&i atIndex:2];
+        
+        NSDictionary *caseInfo = [self caseInfoForCaseNumber:i];
+        NSString *identifier = caseInfo[@"id"];
+        NSString *description = [NSString stringWithFormat:@"%@ - %@", caseInfo[@"id"], caseInfo[@"description"]];
 
-        NSString *description = [self caseDescriptionForCaseNumber:i];
-
-        XCTestCase *testCase = [[[self class] alloc] initWithInvocation:invocation description:description];
+        XCTestCase *testCase = [[[self class] alloc] initWithInvocation:invocation description:description identifier:identifier];
 
         XCTestCaseRun *run = [[XCTestCaseRun alloc] initWithTest:testCase];
-
         [testCase performTest:run];
     }
     [aRun stop];
@@ -129,11 +142,11 @@
     return i;
 }
 
-- (NSString *)caseDescriptionForCaseNumber:(NSInteger)caseNumber;
+- (NSDictionary *)caseInfoForCaseNumber:(NSInteger)caseNumber;
 {
     __block NSDictionary *caseInfo = nil;
-    SRAutobahnOperation *testInfoOperation = SRAutobahnTestCaseInfoOperation(_prefixURL, caseNumber, ^(NSDictionary * _Nullable caseInfo) {
-        caseInfo = caseInfo;
+    SRAutobahnOperation *testInfoOperation = SRAutobahnTestCaseInfoOperation(_prefixURL, caseNumber, ^(NSDictionary * _Nullable info) {
+        caseInfo = info;
     });
 
     [testInfoOperation start];
@@ -143,8 +156,7 @@
     } timeout:60 * 60];
 
     XCTAssertNil(testInfoOperation.error, @"Updating the report should not have errored");
-
-    return [NSString stringWithFormat:@"%@ - %@", caseInfo[@"id"], caseInfo[@"description"]];
+    return caseInfo;
 }
 
 - (NSString *)description;
@@ -185,7 +197,9 @@
     } timeout:60 * 60];
 
     XCTAssertTrue(!testOp.error, @"Test operation should not have failed");
-    XCTAssertEqualObjects(@"OK", resultInfo[@"behavior"], @"Test behavior should be OK");
+    if (!SRAutobahnIsValidResultBehavior(_identifier, resultInfo[@"behavior"])) {
+        XCTFail(@"Invalid test behavior %@ for %@.", resultInfo[@"behavior"], _identifier);
+    }
 }
 
 - (void)updateReports
