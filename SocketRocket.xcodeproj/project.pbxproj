@@ -18,6 +18,10 @@
 		3345DC881C52ACD70083CCB8 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F6B208301450F597009315AF /* Foundation.framework */; };
 		3345DC8A1C52ACD70083CCB8 /* SRWebSocket.h in Headers */ = {isa = PBXBuildFile; fileRef = F6A12CCF145119B700C1D980 /* SRWebSocket.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		555E0EB41C51E57A00E6BB92 /* SocketRocket.h in Headers */ = {isa = PBXBuildFile; fileRef = 555E0EB11C51E56D00E6BB92 /* SocketRocket.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		8105E4801CDD67B400AA12DB /* SRTAutobahnTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 8105E47A1CDD679A00AA12DB /* SRTAutobahnTests.m */; };
+		8105E4821CDD67BD00AA12DB /* SRTWebSocketOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 8105E4771CDD679A00AA12DB /* SRTWebSocketOperation.m */; };
+		8105E4841CDD67CE00AA12DB /* XCTestCase+SRTAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 8105E47E1CDD679A00AA12DB /* XCTestCase+SRTAdditions.m */; };
+		8105E4AE1CDD6E6200AA12DB /* SRAutobahnOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 8105E4AD1CDD6E6200AA12DB /* SRAutobahnOperation.m */; };
 		811934BC1CDAF725003AB243 /* SocketRocket.h in Headers */ = {isa = PBXBuildFile; fileRef = 555E0EB11C51E56D00E6BB92 /* SocketRocket.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		811934BE1CDAF725003AB243 /* SocketRocket.h in Headers */ = {isa = PBXBuildFile; fileRef = 555E0EB11C51E56D00E6BB92 /* SocketRocket.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		811934C01CDAF726003AB243 /* SocketRocket.h in Headers */ = {isa = PBXBuildFile; fileRef = 555E0EB11C51E56D00E6BB92 /* SocketRocket.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -56,7 +60,6 @@
 		F6016C8814620EC70037BB3D /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F6A12CD3145122FC00C1D980 /* Security.framework */; };
 		F6016C8914620ECC0037BB3D /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F6A12CD3145122FC00C1D980 /* Security.framework */; };
 		F6016C8A1462143C0037BB3D /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F6A12CD51451231B00C1D980 /* CFNetwork.framework */; };
-		F60CC2A114D4EA0500A005E4 /* SRTWebSocketOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = F60CC2A014D4EA0500A005E4 /* SRTWebSocketOperation.m */; };
 		F61A0DC81625F44D00365EBD /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = F61A0DC71625F44D00365EBD /* Default-568h@2x.png */; };
 		F62417E614D52F3C003CE997 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F62417E514D52F3C003CE997 /* UIKit.framework */; };
 		F62417E714D52F3C003CE997 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F6B208301450F597009315AF /* Foundation.framework */; };
@@ -81,10 +84,7 @@
 		F6AE451D145906A70022AF3C /* libSocketRocket.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F6B2082D1450F597009315AF /* libSocketRocket.a */; };
 		F6AE4520145906B20022AF3C /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F6B208301450F597009315AF /* Foundation.framework */; };
 		F6AE45241459071C0022AF3C /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F6A12CD51451231B00C1D980 /* CFNetwork.framework */; };
-		F6AE4528145907D30022AF3C /* SenTestCase+SRTAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = F6AE4527145907D30022AF3C /* SenTestCase+SRTAdditions.m */; };
 		F6BDA806145900D200FE3253 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F6B208301450F597009315AF /* Foundation.framework */; };
-		F6BDA80C145900D200FE3253 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = F6BDA80A145900D200FE3253 /* InfoPlist.strings */; };
-		F6BDA8161459016900FE3253 /* SRTAutobahnTests.m in Sources */ = {isa = PBXBuildFile; fileRef = F6BDA8151459016900FE3253 /* SRTAutobahnTests.m */; };
 		F6C41C98145F7C6100641356 /* libicucore.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = F6C41C95145F7C4700641356 /* libicucore.dylib */; };
 /* End PBXBuildFile section */
 
@@ -102,6 +102,14 @@
 		2D4227621BB4358C000C1A6C /* SocketRocket.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SocketRocket.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		3345DC901C52ACD70083CCB8 /* SocketRocket.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SocketRocket.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		555E0EB11C51E56D00E6BB92 /* SocketRocket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SocketRocket.h; sourceTree = "<group>"; };
+		8105E4761CDD679A00AA12DB /* SRTWebSocketOperation.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SRTWebSocketOperation.h; sourceTree = "<group>"; };
+		8105E4771CDD679A00AA12DB /* SRTWebSocketOperation.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SRTWebSocketOperation.m; sourceTree = "<group>"; };
+		8105E4791CDD679A00AA12DB /* SRWebSocketTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "SRWebSocketTests-Info.plist"; sourceTree = "<group>"; };
+		8105E47A1CDD679A00AA12DB /* SRTAutobahnTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SRTAutobahnTests.m; sourceTree = "<group>"; };
+		8105E47D1CDD679A00AA12DB /* XCTestCase+SRTAdditions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "XCTestCase+SRTAdditions.h"; sourceTree = "<group>"; };
+		8105E47E1CDD679A00AA12DB /* XCTestCase+SRTAdditions.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "XCTestCase+SRTAdditions.m"; sourceTree = "<group>"; };
+		8105E4AC1CDD6E6200AA12DB /* SRAutobahnOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SRAutobahnOperation.h; sourceTree = "<group>"; };
+		8105E4AD1CDD6E6200AA12DB /* SRAutobahnOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SRAutobahnOperation.m; sourceTree = "<group>"; };
 		811934B11CDAF711003AB243 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		81B31C0F1CDC404100D86D43 /* SRIOConsumer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SRIOConsumer.h; sourceTree = "<group>"; };
 		81B31C101CDC404100D86D43 /* SRIOConsumer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SRIOConsumer.m; sourceTree = "<group>"; };
@@ -111,8 +119,6 @@
 		81B31C2C1CDC406B00D86D43 /* SRHash.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SRHash.m; sourceTree = "<group>"; };
 		81B31C5D1CDC444900D86D43 /* SRRunLoopThread.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SRRunLoopThread.h; sourceTree = "<group>"; };
 		81B31C5E1CDC444900D86D43 /* SRRunLoopThread.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SRRunLoopThread.m; sourceTree = "<group>"; };
-		F60CC29F14D4EA0500A005E4 /* SRTWebSocketOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SRTWebSocketOperation.h; sourceTree = "<group>"; };
-		F60CC2A014D4EA0500A005E4 /* SRTWebSocketOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SRTWebSocketOperation.m; sourceTree = "<group>"; };
 		F61A0DC71625F44D00365EBD /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Default-568h@2x.png"; path = "en.lproj/Default-568h@2x.png"; sourceTree = "<group>"; };
 		F62417E314D52F3C003CE997 /* TestChat.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TestChat.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F62417E514D52F3C003CE997 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
@@ -138,14 +144,9 @@
 		F6A12CD0145119B700C1D980 /* SRWebSocket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SRWebSocket.m; sourceTree = "<group>"; };
 		F6A12CD3145122FC00C1D980 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		F6A12CD51451231B00C1D980 /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
-		F6AE4526145907D30022AF3C /* SenTestCase+SRTAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "SenTestCase+SRTAdditions.h"; sourceTree = "<group>"; };
-		F6AE4527145907D30022AF3C /* SenTestCase+SRTAdditions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "SenTestCase+SRTAdditions.m"; sourceTree = "<group>"; };
 		F6B2082D1450F597009315AF /* libSocketRocket.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libSocketRocket.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		F6B208301450F597009315AF /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		F6BDA802145900D200FE3253 /* SRWebSocketTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SRWebSocketTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		F6BDA809145900D200FE3253 /* SRWebSocketTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "SRWebSocketTests-Info.plist"; sourceTree = "<group>"; };
-		F6BDA80B145900D200FE3253 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
-		F6BDA8151459016900FE3253 /* SRTAutobahnTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SRTAutobahnTests.m; sourceTree = "<group>"; };
 		F6C41C95145F7C4700641356 /* libicucore.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libicucore.dylib; path = usr/lib/libicucore.dylib; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
@@ -219,6 +220,45 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		8105E4741CDD679A00AA12DB /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+				8105E47A1CDD679A00AA12DB /* SRTAutobahnTests.m */,
+				8105E4751CDD679A00AA12DB /* Operations */,
+				8105E47C1CDD679A00AA12DB /* Utilities */,
+				8105E4781CDD679A00AA12DB /* Resources */,
+			);
+			path = Tests;
+			sourceTree = "<group>";
+		};
+		8105E4751CDD679A00AA12DB /* Operations */ = {
+			isa = PBXGroup;
+			children = (
+				8105E4761CDD679A00AA12DB /* SRTWebSocketOperation.h */,
+				8105E4771CDD679A00AA12DB /* SRTWebSocketOperation.m */,
+				8105E4AC1CDD6E6200AA12DB /* SRAutobahnOperation.h */,
+				8105E4AD1CDD6E6200AA12DB /* SRAutobahnOperation.m */,
+			);
+			path = Operations;
+			sourceTree = "<group>";
+		};
+		8105E4781CDD679A00AA12DB /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				8105E4791CDD679A00AA12DB /* SRWebSocketTests-Info.plist */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		8105E47C1CDD679A00AA12DB /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				8105E47D1CDD679A00AA12DB /* XCTestCase+SRTAdditions.h */,
+				8105E47E1CDD679A00AA12DB /* XCTestCase+SRTAdditions.m */,
+			);
+			path = Utilities;
+			sourceTree = "<group>";
+		};
 		811934B01CDAF711003AB243 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
@@ -317,7 +357,7 @@
 			isa = PBXGroup;
 			children = (
 				F6B208321450F597009315AF /* SocketRocket */,
-				F6BDA807145900D200FE3253 /* SRWebSocketTests */,
+				8105E4741CDD679A00AA12DB /* Tests */,
 				F62417EA14D52F3C003CE997 /* TestChat */,
 				F6B2082F1450F597009315AF /* Frameworks */,
 				F6B2082E1450F597009315AF /* Products */,
@@ -364,28 +404,6 @@
 				811934B01CDAF711003AB243 /* Resources */,
 			);
 			path = SocketRocket;
-			sourceTree = "<group>";
-		};
-		F6BDA807145900D200FE3253 /* SRWebSocketTests */ = {
-			isa = PBXGroup;
-			children = (
-				F6BDA808145900D200FE3253 /* Supporting Files */,
-				F6BDA8151459016900FE3253 /* SRTAutobahnTests.m */,
-				F6AE4526145907D30022AF3C /* SenTestCase+SRTAdditions.h */,
-				F6AE4527145907D30022AF3C /* SenTestCase+SRTAdditions.m */,
-				F60CC29F14D4EA0500A005E4 /* SRTWebSocketOperation.h */,
-				F60CC2A014D4EA0500A005E4 /* SRTWebSocketOperation.m */,
-			);
-			path = SRWebSocketTests;
-			sourceTree = "<group>";
-		};
-		F6BDA808145900D200FE3253 /* Supporting Files */ = {
-			isa = PBXGroup;
-			children = (
-				F6BDA809145900D200FE3253 /* SRWebSocketTests-Info.plist */,
-				F6BDA80A145900D200FE3253 /* InfoPlist.strings */,
-			);
-			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -619,7 +637,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F6BDA80C145900D200FE3253 /* InfoPlist.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -689,9 +706,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F6BDA8161459016900FE3253 /* SRTAutobahnTests.m in Sources */,
-				F6AE4528145907D30022AF3C /* SenTestCase+SRTAdditions.m in Sources */,
-				F60CC2A114D4EA0500A005E4 /* SRTWebSocketOperation.m in Sources */,
+				8105E4AE1CDD6E6200AA12DB /* SRAutobahnOperation.m in Sources */,
+				8105E4841CDD67CE00AA12DB /* XCTestCase+SRTAdditions.m in Sources */,
+				8105E4801CDD67B400AA12DB /* SRTAutobahnTests.m in Sources */,
+				8105E4821CDD67BD00AA12DB /* SRTWebSocketOperation.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -720,14 +738,6 @@
 				F62417F714D52F3C003CE997 /* en */,
 			);
 			name = MainStoryboard.storyboard;
-			sourceTree = "<group>";
-		};
-		F6BDA80A145900D200FE3253 /* InfoPlist.strings */ = {
-			isa = PBXVariantGroup;
-			children = (
-				F6BDA80B145900D200FE3253 /* en */,
-			);
-			name = InfoPlist.strings;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */
@@ -1055,7 +1065,7 @@
 		F6BDA811145900D200FE3253 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				INFOPLIST_FILE = "SRWebSocketTests/SRWebSocketTests-Info.plist";
+				INFOPLIST_FILE = "$(SRCROOT)/Tests/Resources/SRWebSocketTests-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				OTHER_LDFLAGS = (
 					"-all_load",
@@ -1071,7 +1081,7 @@
 		F6BDA812145900D200FE3253 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				INFOPLIST_FILE = "SRWebSocketTests/SRWebSocketTests-Info.plist";
+				INFOPLIST_FILE = "$(SRCROOT)/Tests/Resources/SRWebSocketTests-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				OTHER_LDFLAGS = (
 					"-all_load",
