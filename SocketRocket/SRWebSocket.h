@@ -56,11 +56,29 @@ extern NSString *const SRHTTPResponseErrorKey;
 
 @interface SRWebSocket : NSObject <NSStreamDelegate>
 
+/**
+ The delegate of the web socket.
+
+ The web socket delegate is notified on all state changes that happen to the web socket.
+ */
 @property (nonatomic, weak) id <SRWebSocketDelegate> delegate;
+
+/**
+ A dispatch queue for scheduling the delegate calls. The queue doesn't need be a serial queue.
+
+ If `nil` and `delegateOperationQueue` is `nil`, the socket uses main queue for performing all delegate method calls.
+ */
+@property (nonatomic, strong) dispatch_queue_t delegateDispatchQueue;
+
+/**
+ An operation queue for scheduling the delegate calls.
+
+ If `nil` and `delegateOperationQueue` is `nil`, the socket uses main queue for performing all delegate method calls.
+ */
+@property (nonatomic, strong) NSOperationQueue *delegateOperationQueue;
 
 @property (nonatomic, readonly) SRReadyState readyState;
 @property (nonatomic, readonly, retain) NSURL *url;
-
 
 @property (nonatomic, readonly) CFHTTPMessageRef receivedHTTPHeaders;
 
@@ -80,11 +98,6 @@ extern NSString *const SRHTTPResponseErrorKey;
 - (instancetype)initWithURL:(NSURL *)url;
 - (instancetype)initWithURL:(NSURL *)url protocols:(NSArray<NSString *> *)protocols;
 - (instancetype)initWithURL:(NSURL *)url protocols:(NSArray<NSString *> *)protocols allowsUntrustedSSLCertificates:(BOOL)allowsUntrustedSSLCertificates;
-
-// Delegate queue will be dispatch_main_queue by default.
-// You cannot set both OperationQueue and dispatch_queue.
-- (void)setDelegateOperationQueue:(NSOperationQueue*) queue;
-- (void)setDelegateDispatchQueue:(dispatch_queue_t) queue;
 
 // By default, it will schedule itself on +[NSRunLoop SR_networkRunLoop] using defaultModes.
 - (void)scheduleInRunLoop:(NSRunLoop *)aRunLoop forMode:(NSString *)mode;
