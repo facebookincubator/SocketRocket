@@ -58,7 +58,11 @@ SRAutobahnOperation *SRAutobahnTestOperation(NSURL *serverURL, NSInteger caseNum
                                                caseNumber:@(caseNumber)
                                                     agent:agent
                                            messageHandler:^(SRWebSocket * _Nonnull socket, id  _Nullable message) {
+                                               //TODO: (nlutsenko) Use proper callbacks, instead of a unifying one.
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
                                                [socket send:message];
+#pragma clang diagnostic pop
                                            }];
 }
 
