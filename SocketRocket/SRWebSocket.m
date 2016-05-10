@@ -651,18 +651,35 @@ static __strong NSData *CRLFCRLF;
 
 - (void)send:(id)data;
 {
+    if (!data) {
+        [self sendData:nil]; // Send Data, but it doesn't matter since we are going to send the same text frame with 0 length.
+    } else if ([data isKindOfClass:[NSString class]]) {
+        [self sendString:data];
+    } else if ([data isKindOfClass:[NSData class]]) {
+        [self sendData:data];
+    } else {
+        NSAssert(NO, @"Unrecognized message. Not able to send anything other than a String or NSData.");
+    }
+}
+
+- (void)sendString:(NSString *)string
+{
     NSAssert(self.readyState != SR_CONNECTING, @"Invalid State: Cannot call send: until connection is open");
-    // TODO: maybe not copy this for performance
+    string = [string copy];
+    dispatch_async(_workQueue, ^{
+        [self _sendFrameWithOpcode:SROpCodeTextFrame data:[string dataUsingEncoding:NSUTF8StringEncoding]];
+    });
+}
+
+- (void)sendData:(NSData *)data
+{
+    NSAssert(self.readyState != SR_CONNECTING, @"Invalid State: Cannot call send: until connection is open");
     data = [data copy];
     dispatch_async(_workQueue, ^{
-        if ([data isKindOfClass:[NSString class]]) {
-            [self _sendFrameWithOpcode:SROpCodeTextFrame data:[(NSString *)data dataUsingEncoding:NSUTF8StringEncoding]];
-        } else if ([data isKindOfClass:[NSData class]]) {
+        if (data) {
             [self _sendFrameWithOpcode:SROpCodeBinaryFrame data:data];
-        } else if (data == nil) {
-            [self _sendFrameWithOpcode:SROpCodeTextFrame data:data];
         } else {
-            assert(NO);
+            [self _sendFrameWithOpcode:SROpCodeTextFrame data:nil];
         }
     });
 }
@@ -670,7 +687,6 @@ static __strong NSData *CRLFCRLF;
 - (void)sendPing:(NSData *)data;
 {
     NSAssert(self.readyState == SR_OPEN, @"Invalid State: Cannot call send: until connection is open");
-    // TODO: maybe not copy this for performance
     data = [data copy] ?: [NSData data]; // It's okay for a ping to be empty
     dispatch_async(_workQueue, ^{
         [self _sendFrameWithOpcode:SROpCodePing data:data];

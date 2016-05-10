@@ -109,15 +109,45 @@ extern NSString *const SRHTTPResponseErrorKey;
 - (void)close;
 - (void)closeWithCode:(NSInteger)code reason:(NSString *)reason;
 
-// Send a UTF8 String or Data.
-- (void)send:(id)data;
+///--------------------------------------
+#pragma mark Send
+///--------------------------------------
 
-// Send Data (can be nil) in a ping message.
+/**
+ Send a UTF-8 string or binary data to the server.
+
+ @param message UTF-8 String or Data to send.
+
+ @deprecated Please use `sendString:` or `sendData` instead.
+ */
+- (void)send:(id)message __attribute__((deprecated("Please use `sendString:` or `sendData` instead.")));
+
+/**
+ Send a UTF-8 String to the server.
+
+ @param string String to send.
+ */
+- (void)sendString:(NSString *)string;
+
+/**
+ Send binary data to the server.
+
+ @param data Data to send.
+ */
+- (void)sendData:(NSData *)data;
+
+/**
+ Send Ping message to the server with optional data.
+
+ @param data Instance of `NSData` or `nil`.
+ */
 - (void)sendPing:(NSData *)data;
 
 @end
 
+///--------------------------------------
 #pragma mark - SRWebSocketDelegate
+///--------------------------------------
 
 @protocol SRWebSocketDelegate <NSObject>
 
