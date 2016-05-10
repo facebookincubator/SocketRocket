@@ -1073,15 +1073,8 @@
 			buildSettings = {
 				CLANG_ENABLE_OBJC_ARC = YES;
 				DSTROOT = /tmp/SocketRocket.dst;
-				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "SocketRocket/SocketRocket-Prefix.pch";
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(DEVELOPER_DIR)/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator7.1.sdk/usr/lib/system\"",
-					"\"$(DEVELOPER_DIR)/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator7.1.sdk/usr/lib\"",
-				);
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				OTHER_LDFLAGS = "-Licucore";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PUBLIC_HEADERS_FOLDER_PATH = include/$PRODUCT_NAME;
@@ -1094,15 +1087,8 @@
 			buildSettings = {
 				CLANG_ENABLE_OBJC_ARC = YES;
 				DSTROOT = /tmp/SocketRocket.dst;
-				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "SocketRocket/SocketRocket-Prefix.pch";
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(DEVELOPER_DIR)/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator7.1.sdk/usr/lib/system\"",
-					"\"$(DEVELOPER_DIR)/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator7.1.sdk/usr/lib\"",
-				);
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				OTHER_LDFLAGS = "-Licucore";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PUBLIC_HEADERS_FOLDER_PATH = include/$PRODUCT_NAME;
