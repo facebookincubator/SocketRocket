@@ -24,4 +24,6 @@
 - (void)webSocket:(SRWebSocket *)webSocket didCloseWithCode:(NSInteger)code reason:(NSString *)reason wasClean:(BOOL)wasClean NS_REQUIRES_SUPER;
 - (void)webSocket:(SRWebSocket *)webSocket didFailWithError:(NSError *)error NS_REQUIRES_SUPER;
 
+- (BOOL)waitUntilFinishedWithTimeout:(NSTimeInterval)timeout;
+
 @end

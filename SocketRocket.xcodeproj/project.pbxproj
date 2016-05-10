@@ -18,9 +18,8 @@
 		3345DC881C52ACD70083CCB8 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F6B208301450F597009315AF /* Foundation.framework */; };
 		3345DC8A1C52ACD70083CCB8 /* SRWebSocket.h in Headers */ = {isa = PBXBuildFile; fileRef = F6A12CCF145119B700C1D980 /* SRWebSocket.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		555E0EB41C51E57A00E6BB92 /* SocketRocket.h in Headers */ = {isa = PBXBuildFile; fileRef = 555E0EB11C51E56D00E6BB92 /* SocketRocket.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		8105E4801CDD67B400AA12DB /* SRTAutobahnTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 8105E47A1CDD679A00AA12DB /* SRTAutobahnTests.m */; };
+		8105E4801CDD67B400AA12DB /* SRAutobahnTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 8105E47A1CDD679A00AA12DB /* SRAutobahnTests.m */; };
 		8105E4821CDD67BD00AA12DB /* SRTWebSocketOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 8105E4771CDD679A00AA12DB /* SRTWebSocketOperation.m */; };
-		8105E4841CDD67CE00AA12DB /* XCTestCase+SRTAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 8105E47E1CDD679A00AA12DB /* XCTestCase+SRTAdditions.m */; };
 		8105E4AE1CDD6E6200AA12DB /* SRAutobahnOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 8105E4AD1CDD6E6200AA12DB /* SRAutobahnOperation.m */; };
 		8105E5281CDD98E100AA12DB /* autobahn_configuration.json in Resources */ = {isa = PBXBuildFile; fileRef = 8105E5271CDD98E100AA12DB /* autobahn_configuration.json */; };
 		811934BC1CDAF725003AB243 /* SocketRocket.h in Headers */ = {isa = PBXBuildFile; fileRef = 555E0EB11C51E56D00E6BB92 /* SocketRocket.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -34,6 +33,7 @@
 		8179958B1CE139700084DA37 /* SRDelegateController.m in Sources */ = {isa = PBXBuildFile; fileRef = 817995851CE139700084DA37 /* SRDelegateController.m */; };
 		8179958C1CE139700084DA37 /* SRDelegateController.m in Sources */ = {isa = PBXBuildFile; fileRef = 817995851CE139700084DA37 /* SRDelegateController.m */; };
 		8179958D1CE139700084DA37 /* SRDelegateController.m in Sources */ = {isa = PBXBuildFile; fileRef = 817995851CE139700084DA37 /* SRDelegateController.m */; };
+		817996801CE184F40084DA37 /* SRAutobahnUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 8179967F1CE184F40084DA37 /* SRAutobahnUtilities.m */; };
 		81B31C141CDC404100D86D43 /* SRIOConsumer.h in Headers */ = {isa = PBXBuildFile; fileRef = 81B31C0F1CDC404100D86D43 /* SRIOConsumer.h */; };
 		81B31C151CDC404100D86D43 /* SRIOConsumer.h in Headers */ = {isa = PBXBuildFile; fileRef = 81B31C0F1CDC404100D86D43 /* SRIOConsumer.h */; };
 		81B31C161CDC404100D86D43 /* SRIOConsumer.h in Headers */ = {isa = PBXBuildFile; fileRef = 81B31C0F1CDC404100D86D43 /* SRIOConsumer.h */; };
@@ -114,15 +114,15 @@
 		8105E4761CDD679A00AA12DB /* SRTWebSocketOperation.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SRTWebSocketOperation.h; sourceTree = "<group>"; };
 		8105E4771CDD679A00AA12DB /* SRTWebSocketOperation.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SRTWebSocketOperation.m; sourceTree = "<group>"; };
 		8105E4791CDD679A00AA12DB /* SRWebSocketTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "SRWebSocketTests-Info.plist"; sourceTree = "<group>"; };
-		8105E47A1CDD679A00AA12DB /* SRTAutobahnTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SRTAutobahnTests.m; sourceTree = "<group>"; };
-		8105E47D1CDD679A00AA12DB /* XCTestCase+SRTAdditions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "XCTestCase+SRTAdditions.h"; sourceTree = "<group>"; };
-		8105E47E1CDD679A00AA12DB /* XCTestCase+SRTAdditions.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "XCTestCase+SRTAdditions.m"; sourceTree = "<group>"; };
+		8105E47A1CDD679A00AA12DB /* SRAutobahnTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SRAutobahnTests.m; sourceTree = "<group>"; };
 		8105E4AC1CDD6E6200AA12DB /* SRAutobahnOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SRAutobahnOperation.h; sourceTree = "<group>"; };
 		8105E4AD1CDD6E6200AA12DB /* SRAutobahnOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SRAutobahnOperation.m; sourceTree = "<group>"; };
 		8105E5271CDD98E100AA12DB /* autobahn_configuration.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = autobahn_configuration.json; sourceTree = "<group>"; };
 		811934B11CDAF711003AB243 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		817995841CE139700084DA37 /* SRDelegateController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SRDelegateController.h; sourceTree = "<group>"; };
 		817995851CE139700084DA37 /* SRDelegateController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SRDelegateController.m; sourceTree = "<group>"; };
+		8179967E1CE184F40084DA37 /* SRAutobahnUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SRAutobahnUtilities.h; sourceTree = "<group>"; };
+		8179967F1CE184F40084DA37 /* SRAutobahnUtilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SRAutobahnUtilities.m; sourceTree = "<group>"; };
 		81B31C0F1CDC404100D86D43 /* SRIOConsumer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SRIOConsumer.h; sourceTree = "<group>"; };
 		81B31C101CDC404100D86D43 /* SRIOConsumer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SRIOConsumer.m; sourceTree = "<group>"; };
 		81B31C111CDC404100D86D43 /* SRIOConsumerPool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SRIOConsumerPool.h; sourceTree = "<group>"; };
@@ -235,7 +235,7 @@
 		8105E4741CDD679A00AA12DB /* Tests */ = {
 			isa = PBXGroup;
 			children = (
-				8105E47A1CDD679A00AA12DB /* SRTAutobahnTests.m */,
+				8105E47A1CDD679A00AA12DB /* SRAutobahnTests.m */,
 				8105E4751CDD679A00AA12DB /* Operations */,
 				8105E47C1CDD679A00AA12DB /* Utilities */,
 				8105E4781CDD679A00AA12DB /* Resources */,
@@ -266,8 +266,8 @@
 		8105E47C1CDD679A00AA12DB /* Utilities */ = {
 			isa = PBXGroup;
 			children = (
-				8105E47D1CDD679A00AA12DB /* XCTestCase+SRTAdditions.h */,
-				8105E47E1CDD679A00AA12DB /* XCTestCase+SRTAdditions.m */,
+				8179967E1CE184F40084DA37 /* SRAutobahnUtilities.h */,
+				8179967F1CE184F40084DA37 /* SRAutobahnUtilities.m */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -739,8 +739,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				8105E4AE1CDD6E6200AA12DB /* SRAutobahnOperation.m in Sources */,
-				8105E4841CDD67CE00AA12DB /* XCTestCase+SRTAdditions.m in Sources */,
-				8105E4801CDD67B400AA12DB /* SRTAutobahnTests.m in Sources */,
+				817996801CE184F40084DA37 /* SRAutobahnUtilities.m in Sources */,
+				8105E4801CDD67B400AA12DB /* SRAutobahnTests.m in Sources */,
 				8105E4821CDD67BD00AA12DB /* SRTWebSocketOperation.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

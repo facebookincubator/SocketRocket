@@ -11,6 +11,8 @@
 
 #import "SRTWebSocketOperation.h"
 
+#import "SRAutobahnUtilities.h"
+
 @interface SRTWebSocketOperation ()
 
 @end
@@ -79,6 +81,16 @@
     [self didChangeValueForKey:@"isFinished"];
     _webSocket.delegate = nil;
     _webSocket = nil;
+}
+
+- (BOOL)waitUntilFinishedWithTimeout:(NSTimeInterval)timeout
+{
+    if (self.isFinished) {
+        return YES;
+    }
+    return SRRunLoopRunUntil(^BOOL{
+        return self.isFinished;
+    }, timeout);
 }
 
 @end
