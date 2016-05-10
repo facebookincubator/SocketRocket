@@ -92,18 +92,15 @@ NSUInteger SRAutobahnTestCaseCount(void)
     static NSUInteger count;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        SRAutobahnOperation *caseGetter = SRAutobahnTestCaseCountOperation(SRAutobahnTestServerURL(),
+        SRAutobahnOperation *operation = SRAutobahnTestCaseCountOperation(SRAutobahnTestServerURL(),
                                                                            SRAutobahnTestAgentName(),
                                                                            ^(NSInteger caseCount) {
                                                                                count = caseCount;
                                                                            });
-        [caseGetter start];
+        [operation start];
 
-        SRRunLoopRunUntil(^BOOL{
-            return caseGetter.isFinished;
-        }, 20.0);
-
-        NSCAssert(!caseGetter.error, @"CaseGetter should have successfully returned the number of testCases. Instead got error %@", caseGetter.error);
+        NSCAssert([operation waitUntilFinishedWithTimeout:10], @"Timed out fetching test case count.");
+        NSCAssert(!operation.error, @"CaseGetter should have successfully returned the number of testCases. Instead got error %@", operation.error);
     });
     return count;
 }
@@ -111,17 +108,13 @@ NSUInteger SRAutobahnTestCaseCount(void)
 NSDictionary<NSString *, id> *SRAutobahnTestCaseInfo(NSInteger caseNumber)
 {
     __block NSDictionary *caseInfo = nil;
-    SRAutobahnOperation *testInfoOperation = SRAutobahnTestCaseInfoOperation(SRAutobahnTestServerURL(), caseNumber, ^(NSDictionary * _Nullable info) {
+    SRAutobahnOperation *operation = SRAutobahnTestCaseInfoOperation(SRAutobahnTestServerURL(), caseNumber, ^(NSDictionary * _Nullable info) {
         caseInfo = info;
     });
+    [operation start];
 
-    [testInfoOperation start];
-
-    SRRunLoopRunUntil(^BOOL{
-        return testInfoOperation.isFinished;
-    }, 60 * 60);
-
-    NSCAssert(!testInfoOperation.error, @"Updating the report should not have errored");
+    NSCAssert([operation waitUntilFinishedWithTimeout:10], @"Timed out fetching test case info %ld.", (long)caseNumber);
+    NSCAssert(!operation.error, @"Updating the report should not have errored");
     return caseInfo;
 }
 

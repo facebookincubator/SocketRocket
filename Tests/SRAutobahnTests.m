@@ -16,7 +16,6 @@
 
 #import "SRTWebSocketOperation.h"
 #import "SRAutobahnOperation.h"
-#import "XCTestCase+SRTAdditions.h"
 #import "SRAutobahnUtilities.h"
 
 @interface SRAutobahnTests : XCTestCase
@@ -24,6 +23,33 @@
 
 @implementation SRAutobahnTests
 
+///--------------------------------------
+#pragma mark - Init
+///--------------------------------------
+
+/**
+ This method is called if Xcode is targeting a specific test or a set of them.
+ If you change this method - please make sure you test this behavior in Xcode by running all tests, then running 1+ test.
+ */
++ (instancetype)testCaseWithSelector:(SEL)selector
+{
+    NSArray<NSInvocation *> *invocations = [self testInvocations];
+    for (NSInvocation *invocation in invocations) {
+        if (invocation.selector == selector) {
+            return [super testCaseWithSelector:selector];
+        }
+    }
+    return nil;
+}
+
+///--------------------------------------
+#pragma mark - Setup
+///--------------------------------------
+
+/**
+ This method is called by xctest to figure out all the tests that are available.
+ All the selector names are also reported back to Xcode and displayed in Test Navigator/Console.
+ */
 + (NSArray<NSInvocation *> *)testInvocations
 {
     __block NSArray<NSInvocation *> *array = nil;
@@ -44,37 +70,6 @@
     });
     return array;
 }
-
-+ (void)updateReports
-{
-    SRAutobahnOperation *operation = SRAutobahnTestUpdateReportsOperation(SRAutobahnTestServerURL(), SRAutobahnTestAgentName());
-    [operation start];
-
-    SRRunLoopRunUntil(^BOOL{
-        return operation.isFinished;
-    }, 60 * 60);
-
-    NSAssert(!operation.error, @"Updating the report should not have errored %@", operation.error);
-}
-
-///--------------------------------------
-#pragma mark - Init
-///--------------------------------------
-
-+ (instancetype)testCaseWithSelector:(SEL)selector
-{
-    NSArray<NSInvocation *> *invocations = [self testInvocations];
-    for (NSInvocation *invocation in invocations) {
-        if (invocation.selector == selector) {
-            return [super testCaseWithSelector:selector];
-        }
-    }
-    return nil;
-}
-
-///--------------------------------------
-#pragma mark - Setup
-///--------------------------------------
 
 + (NSInvocation *)invocationWithCaseNumber:(NSUInteger)caseNumber identifier:(NSString *)identifier
 {
@@ -109,6 +104,15 @@
     [super tearDown];
 }
 
++ (void)updateReports
+{
+    SRAutobahnOperation *operation = SRAutobahnTestUpdateReportsOperation(SRAutobahnTestServerURL(), SRAutobahnTestAgentName());
+    [operation start];
+
+    NSAssert([operation waitUntilFinishedWithTimeout:60], @"Timed out on updating reports.");
+    NSAssert(!operation.error, @"Updating the report should not have errored %@", operation.error);
+}
+
 ///--------------------------------------
 #pragma mark - Test
 ///--------------------------------------
@@ -131,12 +135,8 @@
     [resultOp addDependency:testOp];
     [testQueue addOperation:resultOp];
 
-    testQueue.suspended = NO;
 
-    [self runCurrentRunLoopUntilTestPasses:^BOOL{
-        return resultOp.isFinished;
-    } timeout:60 * 60];
-
+    XCTAssertTrue([resultOp waitUntilFinishedWithTimeout:60 * 5], @"Test operation timed out.");
     XCTAssertTrue(!testOp.error, @"Test operation should not have failed");
     if (!SRAutobahnIsValidResultBehavior(identifier, resultInfo[@"behavior"])) {
         XCTFail(@"Invalid test behavior %@ for %@.", resultInfo[@"behavior"], identifier);
