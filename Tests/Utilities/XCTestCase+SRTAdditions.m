@@ -11,20 +11,13 @@
 
 #import "XCTestCase+SRTAdditions.h"
 
+#import "SRAutobahnUtilities.h"
+
 @implementation XCTestCase (SRTAdditions)
 
 - (void)runCurrentRunLoopUntilTestPasses:(BOOL (^)())predicate timeout:(NSTimeInterval)timeout
 {
-    NSDate *timeoutDate = [NSDate dateWithTimeIntervalSinceNow:timeout];
-
-    NSTimeInterval timeoutTime = [timeoutDate timeIntervalSinceReferenceDate];
-    NSTimeInterval currentTime = [NSDate timeIntervalSinceReferenceDate];
-
-    while (!predicate() && currentTime < timeoutTime) {
-        [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
-        currentTime = [NSDate timeIntervalSinceReferenceDate];
-    }
-    XCTAssertTrue(currentTime <= timeoutTime, @"Timed out");
+    XCTAssertTrue(SRRunLoopRunUntil(predicate, timeout), @"Timed out");
 }
 
 @end
