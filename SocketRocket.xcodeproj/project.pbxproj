@@ -26,6 +26,14 @@
 		811934BC1CDAF725003AB243 /* SocketRocket.h in Headers */ = {isa = PBXBuildFile; fileRef = 555E0EB11C51E56D00E6BB92 /* SocketRocket.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		811934BE1CDAF725003AB243 /* SocketRocket.h in Headers */ = {isa = PBXBuildFile; fileRef = 555E0EB11C51E56D00E6BB92 /* SocketRocket.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		811934C01CDAF726003AB243 /* SocketRocket.h in Headers */ = {isa = PBXBuildFile; fileRef = 555E0EB11C51E56D00E6BB92 /* SocketRocket.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		817995861CE139700084DA37 /* SRDelegateController.h in Headers */ = {isa = PBXBuildFile; fileRef = 817995841CE139700084DA37 /* SRDelegateController.h */; };
+		817995871CE139700084DA37 /* SRDelegateController.h in Headers */ = {isa = PBXBuildFile; fileRef = 817995841CE139700084DA37 /* SRDelegateController.h */; };
+		817995881CE139700084DA37 /* SRDelegateController.h in Headers */ = {isa = PBXBuildFile; fileRef = 817995841CE139700084DA37 /* SRDelegateController.h */; };
+		817995891CE139700084DA37 /* SRDelegateController.h in Headers */ = {isa = PBXBuildFile; fileRef = 817995841CE139700084DA37 /* SRDelegateController.h */; };
+		8179958A1CE139700084DA37 /* SRDelegateController.m in Sources */ = {isa = PBXBuildFile; fileRef = 817995851CE139700084DA37 /* SRDelegateController.m */; };
+		8179958B1CE139700084DA37 /* SRDelegateController.m in Sources */ = {isa = PBXBuildFile; fileRef = 817995851CE139700084DA37 /* SRDelegateController.m */; };
+		8179958C1CE139700084DA37 /* SRDelegateController.m in Sources */ = {isa = PBXBuildFile; fileRef = 817995851CE139700084DA37 /* SRDelegateController.m */; };
+		8179958D1CE139700084DA37 /* SRDelegateController.m in Sources */ = {isa = PBXBuildFile; fileRef = 817995851CE139700084DA37 /* SRDelegateController.m */; };
 		81B31C141CDC404100D86D43 /* SRIOConsumer.h in Headers */ = {isa = PBXBuildFile; fileRef = 81B31C0F1CDC404100D86D43 /* SRIOConsumer.h */; };
 		81B31C151CDC404100D86D43 /* SRIOConsumer.h in Headers */ = {isa = PBXBuildFile; fileRef = 81B31C0F1CDC404100D86D43 /* SRIOConsumer.h */; };
 		81B31C161CDC404100D86D43 /* SRIOConsumer.h in Headers */ = {isa = PBXBuildFile; fileRef = 81B31C0F1CDC404100D86D43 /* SRIOConsumer.h */; };
@@ -113,6 +121,8 @@
 		8105E4AD1CDD6E6200AA12DB /* SRAutobahnOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SRAutobahnOperation.m; sourceTree = "<group>"; };
 		8105E5271CDD98E100AA12DB /* autobahn_configuration.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = autobahn_configuration.json; sourceTree = "<group>"; };
 		811934B11CDAF711003AB243 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		817995841CE139700084DA37 /* SRDelegateController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SRDelegateController.h; sourceTree = "<group>"; };
+		817995851CE139700084DA37 /* SRDelegateController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SRDelegateController.m; sourceTree = "<group>"; };
 		81B31C0F1CDC404100D86D43 /* SRIOConsumer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SRIOConsumer.h; sourceTree = "<group>"; };
 		81B31C101CDC404100D86D43 /* SRIOConsumer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SRIOConsumer.m; sourceTree = "<group>"; };
 		81B31C111CDC404100D86D43 /* SRIOConsumerPool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SRIOConsumerPool.h; sourceTree = "<group>"; };
@@ -270,9 +280,19 @@
 			path = Resources;
 			sourceTree = "<group>";
 		};
+		817995831CE139540084DA37 /* Delegate */ = {
+			isa = PBXGroup;
+			children = (
+				817995841CE139700084DA37 /* SRDelegateController.h */,
+				817995851CE139700084DA37 /* SRDelegateController.m */,
+			);
+			path = Delegate;
+			sourceTree = "<group>";
+		};
 		81B31C0D1CDC404100D86D43 /* Internal */ = {
 			isa = PBXGroup;
 			children = (
+				817995831CE139540084DA37 /* Delegate */,
 				81B31C0E1CDC404100D86D43 /* IOConsumer */,
 				81B31C5C1CDC443A00D86D43 /* RunLoop */,
 				81B31C131CDC404100D86D43 /* Utilities */,
@@ -421,6 +441,7 @@
 				2D42277F1BB4365C000C1A6C /* SRWebSocket.h in Headers */,
 				81B31C2E1CDC406B00D86D43 /* SRHash.h in Headers */,
 				811934BE1CDAF725003AB243 /* SocketRocket.h in Headers */,
+				817995871CE139700084DA37 /* SRDelegateController.h in Headers */,
 				81B31C601CDC444900D86D43 /* SRRunLoopThread.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -434,6 +455,7 @@
 				3345DC8A1C52ACD70083CCB8 /* SRWebSocket.h in Headers */,
 				81B31C301CDC406B00D86D43 /* SRHash.h in Headers */,
 				811934C01CDAF726003AB243 /* SocketRocket.h in Headers */,
+				817995891CE139700084DA37 /* SRDelegateController.h in Headers */,
 				81B31C621CDC444900D86D43 /* SRRunLoopThread.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -447,6 +469,7 @@
 				F668C8AA153E92F90044DBAC /* SRWebSocket.h in Headers */,
 				81B31C2F1CDC406B00D86D43 /* SRHash.h in Headers */,
 				811934BC1CDAF725003AB243 /* SocketRocket.h in Headers */,
+				817995881CE139700084DA37 /* SRDelegateController.h in Headers */,
 				81B31C611CDC444900D86D43 /* SRRunLoopThread.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -460,6 +483,7 @@
 				F6A12CD1145119B700C1D980 /* SRWebSocket.h in Headers */,
 				81B31C2D1CDC406B00D86D43 /* SRHash.h in Headers */,
 				555E0EB41C51E57A00E6BB92 /* SocketRocket.h in Headers */,
+				817995861CE139700084DA37 /* SRDelegateController.h in Headers */,
 				81B31C5F1CDC444900D86D43 /* SRRunLoopThread.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -656,6 +680,7 @@
 				81B31C211CDC404100D86D43 /* SRIOConsumerPool.m in Sources */,
 				81B31C641CDC444900D86D43 /* SRRunLoopThread.m in Sources */,
 				81B31C321CDC406B00D86D43 /* SRHash.m in Sources */,
+				8179958B1CE139700084DA37 /* SRDelegateController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -668,6 +693,7 @@
 				81B31C231CDC404100D86D43 /* SRIOConsumerPool.m in Sources */,
 				81B31C661CDC444900D86D43 /* SRRunLoopThread.m in Sources */,
 				81B31C341CDC406B00D86D43 /* SRHash.m in Sources */,
+				8179958D1CE139700084DA37 /* SRDelegateController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -691,6 +717,7 @@
 				81B31C221CDC404100D86D43 /* SRIOConsumerPool.m in Sources */,
 				81B31C651CDC444900D86D43 /* SRRunLoopThread.m in Sources */,
 				81B31C331CDC406B00D86D43 /* SRHash.m in Sources */,
+				8179958C1CE139700084DA37 /* SRDelegateController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -703,6 +730,7 @@
 				81B31C201CDC404100D86D43 /* SRIOConsumerPool.m in Sources */,
 				81B31C631CDC444900D86D43 /* SRRunLoopThread.m in Sources */,
 				81B31C311CDC406B00D86D43 /* SRHash.m in Sources */,
+				8179958A1CE139700084DA37 /* SRDelegateController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
