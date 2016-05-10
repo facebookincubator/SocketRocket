@@ -47,6 +47,7 @@
 #error SocketRocket must be compiled with ARC enabled
 #endif
 
+#import "TargetConditionals.h"
 
 typedef enum  {
     SROpCodeTextFrame = 0x1,
@@ -893,7 +894,22 @@ static inline BOOL closeCodeIsValid(int closeCode) {
         }
     } else {
         assert(frame_header.payload_length <= SIZE_T_MAX);
-        [self _addConsumerWithDataLength:(size_t)frame_header.payload_length callback:^(SRWebSocket *self, NSData *newData) {
+        NSUInteger dataLength;
+#if TARGET_RT_64_BIT == 1
+        // 64 bit architecture
+        dataLength = frame_header.payload_length;
+#else
+        // 32 bit architecture
+        if (frame_header.payload_length > UINT32_MAX) {
+            // bail out, the payload is bigger than we can handle.
+            [self _closeWithProtocolError:[NSString stringWithFormat:@"Unable to handle frame_header.payload_length > UINT32_MAX (%llu > %u)", frame_header.payload_length, UINT32_MAX]];
+            return;
+        } else {
+            // payload_length can be stored in a 32 bit NSUinteger, it is safe to coerce it
+            dataLength = (NSUInteger) frame_header.payload_length;
+        }
+#endif
+        [self _addConsumerWithDataLength:dataLength callback:^(SRWebSocket *self, NSData *newData) {
             if (isControlFrame) {
                 [self _handleFrameWithData:newData opCode:frame_header.opcode];
             } else {
