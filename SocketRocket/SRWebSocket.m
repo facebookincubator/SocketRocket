@@ -109,7 +109,7 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
     dispatch_data_t _readBuffer;
     NSUInteger _readBufferOffset;
  
-    NSMutableData *_outputBuffer;
+    dispatch_data_t _outputBuffer;
     NSUInteger _outputBufferOffset;
 
     uint8_t _currentFrameOpcode;
@@ -195,7 +195,7 @@ static __strong NSData *CRLFCRLF;
     _delegateController = [[SRDelegateController alloc] init];
 
     _readBuffer = dispatch_data_empty;
-    _outputBuffer = [[NSMutableData alloc] init];
+    _outputBuffer = dispatch_data_empty;
 
     _currentFrameData = [[NSMutableData alloc] init];
 
@@ -643,7 +643,12 @@ static __strong NSData *CRLFCRLF;
     if (_closeWhenFinishedWriting) {
         return;
     }
-    [_outputBuffer appendData:data];
+
+    __block NSData *strongData = data;
+    dispatch_data_t newData = dispatch_data_create(data.bytes, data.length, nil, ^{
+        strongData = nil;
+    });
+    _outputBuffer = dispatch_data_create_concat(_outputBuffer, newData);
     [self _pumpWriting];
 }
 
@@ -1037,40 +1042,47 @@ static const uint8_t SRPayloadLenMask   = 0x7F;
 - (void)_pumpWriting;
 {
     [self assertOnWorkQueue];
-    
-    NSUInteger dataLength = _outputBuffer.length;
+
+    NSUInteger dataLength = dispatch_data_get_size(_outputBuffer);
     if (dataLength - _outputBufferOffset > 0 && _outputStream.hasSpaceAvailable) {
-        NSInteger bytesWritten = [_outputStream write:_outputBuffer.bytes + _outputBufferOffset maxLength:dataLength - _outputBufferOffset];
-        if (bytesWritten == -1) {
+        __block NSInteger bytesWritten = 0;
+
+        dispatch_data_t dataToSend = dispatch_data_create_subrange(_outputBuffer, _outputBufferOffset, dataLength - _outputBufferOffset);
+        BOOL written = dispatch_data_apply(dataToSend, ^bool(dispatch_data_t region, size_t offset, const void *buffer, size_t size) {
+            NSInteger written = [_outputStream write:buffer maxLength:size];
+            bytesWritten += written;
+            return written != -1;
+        });
+        if (!written) {
             [self _failWithError:[NSError errorWithDomain:SRWebSocketErrorDomain code:2145 userInfo:[NSDictionary dictionaryWithObject:@"Error writing to stream" forKey:NSLocalizedDescriptionKey]]];
-             return;
+            return;
         }
-        
+
         _outputBufferOffset += bytesWritten;
-        
-        if (_outputBufferOffset > 4096 && _outputBufferOffset > (_outputBuffer.length >> 1)) {
-            _outputBuffer = [[NSMutableData alloc] initWithBytes:(char *)_outputBuffer.bytes + _outputBufferOffset length:_outputBuffer.length - _outputBufferOffset];
+
+        if (_outputBufferOffset > 4096 && _outputBufferOffset > dataLength / 2) {
+            _outputBuffer = dispatch_data_create_subrange(_outputBuffer, _outputBufferOffset, dataLength - _outputBufferOffset);
             _outputBufferOffset = 0;
         }
     }
-    
-    if (_closeWhenFinishedWriting && 
-        _outputBuffer.length - _outputBufferOffset == 0 && 
+
+    if (_closeWhenFinishedWriting &&
+        (dispatch_data_get_size(_outputBuffer) - _outputBufferOffset) == 0 &&
         (_inputStream.streamStatus != NSStreamStatusNotOpen &&
          _inputStream.streamStatus != NSStreamStatusClosed) &&
         !_sentClose) {
         _sentClose = YES;
-        
+
         @synchronized(self) {
             [_outputStream close];
             [_inputStream close];
-            
-            
+
+
             for (NSArray *runLoop in [_scheduledRunloops copy]) {
                 [self unscheduleFromRunLoop:[runLoop objectAtIndex:0] forMode:[runLoop objectAtIndex:1]];
             }
         }
-        
+
         if (!_failed) {
             [self.delegateController performDelegateBlock:^(id<SRWebSocketDelegate>  _Nullable delegate, SRDelegateAvailableMethods availableMethods) {
                 if (availableMethods.didCloseWithCode) {
