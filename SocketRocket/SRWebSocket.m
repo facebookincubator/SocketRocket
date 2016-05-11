@@ -804,7 +804,8 @@ static inline BOOL closeCodeIsValid(int closeCode) {
 }
 
 - (void)_handleFrameWithData:(NSData *)frameData opCode:(NSInteger)opcode;
-{                
+{
+    frameData = [frameData copy];
     // Check that the current data is valid UTF8
     
     BOOL isControlFrame = (opcode == SROpCodePing || opcode == SROpCodePong || opcode == SROpCodeConnectionClose);
@@ -820,32 +821,35 @@ static inline BOOL closeCodeIsValid(int closeCode) {
     //otherwise there can be misbehaviours when value at the pointer is changed
     switch (opcode) {
         case SROpCodeTextFrame: {
-            if ([self.delegate respondsToSelector:@selector(webSocketShouldConvertTextFrameToString:)] && ![self.delegate webSocketShouldConvertTextFrameToString:self]) {
-                [self _handleMessage:[frameData copy]];
-            } else {
-                NSString *str = [[NSString alloc] initWithData:frameData encoding:NSUTF8StringEncoding];
-                if (str == nil && frameData) {
-                    [self closeWithCode:SRStatusCodeInvalidUTF8 reason:@"Text frames must be valid UTF-8"];
-                    dispatch_async(_workQueue, ^{
-                        [self closeConnection];
-                    });
-                    return;
-                }
-                [self _handleMessage:str];
+            NSString *string = [[NSString alloc] initWithData:frameData encoding:NSUTF8StringEncoding];
+            if (!string && frameData) {
+                [self closeWithCode:SRStatusCodeInvalidUTF8 reason:@"Text frames must be valid UTF-8."];
+                dispatch_async(_workQueue, ^{
+                    [self closeConnection];
+                });
+                return;
             }
+            [self.delegateController performDelegateBlock:^(id<SRWebSocketDelegate>  _Nullable delegate, SRDelegateAvailableMethods availableMethods) {
+                // Don't convert into string - iff `delegate` tells us not to. Otherwise - create UTF8 string and handle that.
+                if (availableMethods.shouldConvertTextFrameToString && ![delegate webSocketShouldConvertTextFrameToString:self]) {
+                    [delegate webSocket:self didReceiveMessage:frameData];
+                } else {
+                    [delegate webSocket:self didReceiveMessage:string];
+                }
+            }];
             break;
         }
         case SROpCodeBinaryFrame:
-            [self _handleMessage:[frameData copy]];
+            [self _handleMessage:frameData];
             break;
         case SROpCodeConnectionClose:
-            [self handleCloseWithData:[frameData copy]];
+            [self handleCloseWithData:frameData];
             break;
         case SROpCodePing:
-            [self handlePing:[frameData copy]];
+            [self handlePing:frameData];
             break;
         case SROpCodePong:
-            [self handlePong:[frameData copy]];
+            [self handlePong:frameData];
             break;
         default:
             [self _closeWithProtocolError:[NSString stringWithFormat:@"Unknown opcode %ld", (long)opcode]];
