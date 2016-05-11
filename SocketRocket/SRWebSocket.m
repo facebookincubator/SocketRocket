@@ -148,13 +148,6 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
 @synthesize readyState = _readyState;
 @synthesize protocol = _protocol;
 
-static __strong NSData *CRLFCRLF;
-
-+ (void)initialize;
-{
-    CRLFCRLF = [[NSData alloc] initWithBytes:"\r\n\r\n" length:4];
-}
-
 - (instancetype)initWithURLRequest:(NSURLRequest *)request protocols:(NSArray<NSString *> *)protocols allowsUntrustedSSLCertificates:(BOOL)allowsUntrustedSSLCertificates
 {
     self = [super init];
