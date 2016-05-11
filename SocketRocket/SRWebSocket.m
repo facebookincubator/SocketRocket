@@ -32,7 +32,6 @@
 #import "SRIOConsumerPool.h"
 #import "SRHash.h"
 #import "SRRunLoopThread.h"
-
 #if OS_OBJECT_USE_OBJC_RETAIN_RELEASE
 #define sr_dispatch_retain(x)
 #define sr_dispatch_release(x)
@@ -46,7 +45,6 @@
 #if !__has_feature(objc_arc) 
 #error SocketRocket must be compiled with ARC enabled
 #endif
-
 
 typedef enum  {
     SROpCodeTextFrame = 0x1,
@@ -108,7 +106,7 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
     NSInputStream *_inputStream;
     NSOutputStream *_outputStream;
    
-    NSMutableData *_readBuffer;
+    dispatch_data_t _readBuffer;
     NSUInteger _readBufferOffset;
  
     NSMutableData *_outputBuffer;
@@ -196,7 +194,7 @@ static __strong NSData *CRLFCRLF;
 
     _delegateController = [[SRDelegateController alloc] init];
 
-    _readBuffer = [[NSMutableData alloc] init];
+    _readBuffer = dispatch_data_empty;
     _outputBuffer = [[NSMutableData alloc] init];
 
     _currentFrameData = [[NSMutableData alloc] init];
@@ -1184,12 +1182,14 @@ static const char CRLFCRLFBytes[] = {'\r', '\n', '\r', '\n'};
     if (self.readyState >= SR_CLOSED) {
         return didWork;
     }
+
+    size_t readBufferSize = dispatch_data_get_size(_readBuffer);
     
     if (!_consumers.count) {
         return didWork;
     }
-    
-    size_t curSize = _readBuffer.length - _readBufferOffset;
+
+    size_t curSize = readBufferSize - _readBufferOffset;
     if (!curSize) {
         return didWork;
     }
@@ -1200,8 +1200,8 @@ static const char CRLFCRLFBytes[] = {'\r', '\n', '\r', '\n'};
     
     size_t foundSize = 0;
     if (consumer.consumer) {
-        NSData *tempView = [NSData dataWithBytesNoCopy:(char *)_readBuffer.bytes + _readBufferOffset length:_readBuffer.length - _readBufferOffset freeWhenDone:NO];  
-        foundSize = consumer.consumer(tempView);
+        NSData *subdata = (NSData *)dispatch_data_create_subrange(_readBuffer, _readBufferOffset, readBufferSize - _readBufferOffset);
+        foundSize = consumer.consumer(subdata);
     } else {
         assert(consumer.bytesNeeded);
         if (curSize >= bytesNeeded) {
@@ -1210,16 +1210,15 @@ static const char CRLFCRLFBytes[] = {'\r', '\n', '\r', '\n'};
             foundSize = curSize;
         }
     }
-    
-    NSData *slice = nil;
+
     if (consumer.readToCurrentFrame || foundSize) {
-        NSRange sliceRange = NSMakeRange(_readBufferOffset, foundSize);
-        slice = [_readBuffer subdataWithRange:sliceRange];
+        NSData *slice = (NSData *)dispatch_data_create_subrange(_readBuffer, _readBufferOffset, foundSize);
         
         _readBufferOffset += foundSize;
-        
-        if (_readBufferOffset > 4096 && _readBufferOffset > (_readBuffer.length >> 1)) {
-            _readBuffer = [[NSMutableData alloc] initWithBytes:(char *)_readBuffer.bytes + _readBufferOffset length:_readBuffer.length - _readBufferOffset];            _readBufferOffset = 0;
+
+        if (_readBufferOffset > 4096 && _readBufferOffset > readBufferSize / 2) {
+            _readBuffer = dispatch_data_create_subrange(_readBuffer, _readBufferOffset, readBufferSize - _readBufferOffset);
+            _readBufferOffset = 0;
         }
         
         if (consumer.unmaskBytes) {
@@ -1455,7 +1454,7 @@ static const size_t SRFrameHeaderOverhead = 32;
                 /// TODO specify error better!
                 [self _failWithError:aStream.streamError];
                 _readBufferOffset = 0;
-                [_readBuffer setLength:0];
+                _readBuffer = dispatch_data_empty;
                 break;
                 
             }
@@ -1496,18 +1495,21 @@ static const size_t SRFrameHeaderOverhead = 32;
                 uint8_t buffer[bufferSize];
                 
                 while (_inputStream.hasBytesAvailable) {
-                    NSInteger bytes_read = [_inputStream read:buffer maxLength:bufferSize];
-                    
-                    if (bytes_read > 0) {
-                        [_readBuffer appendBytes:buffer length:bytes_read];
-                    } else if (bytes_read < 0) {
+                    NSInteger bytesRead = [_inputStream read:buffer maxLength:bufferSize];
+                    if (bytesRead > 0) {
+                        dispatch_data_t data = dispatch_data_create(buffer, bytesRead, nil, DISPATCH_DATA_DESTRUCTOR_DEFAULT);
+                        if (!data) {
+                            NSError *error = [NSError errorWithDomain:SRWebSocketErrorDomain
+                                                                 code:SRStatusCodeMessageTooBig
+                                                             userInfo:@{ NSLocalizedDescriptionKey : @"Unable to allocate memory to read from socket." }];
+                            [self _failWithError:error];
+                            return;
+                        }
+                        _readBuffer = dispatch_data_create_concat(_readBuffer, data);
+                    } else if (bytesRead == -1) {
                         [self _failWithError:_inputStream.streamError];
                     }
-                    
-                    if (bytes_read != bufferSize) {
-                        break;
-                    }
-                };
+                }
                 [self _pumpScanner];
                 break;
             }
