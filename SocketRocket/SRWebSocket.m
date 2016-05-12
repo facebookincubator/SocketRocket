@@ -32,15 +32,6 @@
 #import "SRIOConsumerPool.h"
 #import "SRHash.h"
 #import "SRRunLoopThread.h"
-#if OS_OBJECT_USE_OBJC_RETAIN_RELEASE
-#define sr_dispatch_retain(x)
-#define sr_dispatch_release(x)
-#define maybe_bridge(x) ((__bridge void *) x)
-#else
-#define sr_dispatch_retain(x) dispatch_retain(x)
-#define sr_dispatch_release(x) dispatch_release(x)
-#define maybe_bridge(x) (x)
-#endif
 
 #if !__has_feature(objc_arc) 
 #error SocketRocket must be compiled with ARC enabled
@@ -157,13 +148,6 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
 @synthesize readyState = _readyState;
 @synthesize protocol = _protocol;
 
-static __strong NSData *CRLFCRLF;
-
-+ (void)initialize;
-{
-    CRLFCRLF = [[NSData alloc] initWithBytes:"\r\n\r\n" length:4];
-}
-
 - (instancetype)initWithURLRequest:(NSURLRequest *)request protocols:(NSArray<NSString *> *)protocols allowsUntrustedSSLCertificates:(BOOL)allowsUntrustedSSLCertificates
 {
     self = [super init];
@@ -190,7 +174,7 @@ static __strong NSData *CRLFCRLF;
     _workQueue = dispatch_queue_create(NULL, DISPATCH_QUEUE_SERIAL);
 
     // Going to set a specific on the queue so we can validate we're on the work queue
-    dispatch_queue_set_specific(_workQueue, (__bridge void *)self, maybe_bridge(_workQueue), NULL);
+    dispatch_queue_set_specific(_workQueue, (__bridge void *)self, (__bridge void *)(_workQueue), NULL);
 
     _delegateController = [[SRDelegateController alloc] init];
 
@@ -238,7 +222,7 @@ static __strong NSData *CRLFCRLF;
 
 - (void)assertOnWorkQueue;
 {
-    assert(dispatch_get_specific((__bridge void *)self) == maybe_bridge(_workQueue));
+    assert(dispatch_get_specific((__bridge void *)self) == (__bridge void *)_workQueue);
 }
 
 - (void)dealloc
@@ -248,11 +232,6 @@ static __strong NSData *CRLFCRLF;
 
     [_inputStream close];
     [_outputStream close];
-    
-    if (_workQueue) {
-        sr_dispatch_release(_workQueue);
-        _workQueue = NULL;
-    }
     
     if (_receivedHTTPHeaders) {
         CFRelease(_receivedHTTPHeaders);
