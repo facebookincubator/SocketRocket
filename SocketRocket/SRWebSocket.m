@@ -1688,21 +1688,11 @@ static inline int32_t validate_dispatch_data_partial_string(NSData *data) {
 
 #endif
 
-static SRRunLoopThread *networkThread = nil;
-static NSRunLoop *networkRunLoop = nil;
-
 @implementation NSRunLoop (SRWebSocket)
 
-+ (NSRunLoop *)SR_networkRunLoop {
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        networkThread = [[SRRunLoopThread alloc] init];
-        networkThread.name = @"com.squareup.SocketRocket.NetworkThread";
-        [networkThread start];
-        networkRunLoop = networkThread.runLoop;
-    });
-    
-    return networkRunLoop;
++ (NSRunLoop *)SR_networkRunLoop
+{
+    return [SRRunLoopThread sharedThread].runLoop;
 }
 
 @end
