@@ -1,7 +1,5 @@
 //
-// Copyright 2012 Square Inc.
-// Portions Copyright (c) 2016-present, Facebook, Inc.
-//
+// Copyright (c) 2016-present, Facebook, Inc.
 // All rights reserved.
 //
 // This source code is licensed under the BSD-style license found in the
@@ -13,12 +11,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SRRunLoopThread : NSThread
-
-@property (nonatomic, strong, readonly) NSRunLoop *runLoop;
-
-+ (instancetype)sharedThread;
-
-@end
+// The origin isn't really applicable for a native application.
+// So instead, just map ws -> http and wss -> https.
+extern NSString *SRURLOrigin(NSURL *url);
 
 NS_ASSUME_NONNULL_END

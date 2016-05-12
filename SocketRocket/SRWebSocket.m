@@ -32,6 +32,7 @@
 #import "SRIOConsumerPool.h"
 #import "SRHash.h"
 #import "SRRunLoopThread.h"
+#import "SRURLUtilities.h"
 
 #if !__has_feature(objc_arc) 
 #error SocketRocket must be compiled with ARC enabled
@@ -61,14 +62,6 @@ static NSString *const SRWebSocketAppendToSecKeyString = @"258EAFA5-E914-47DA-95
 
 static inline int32_t validate_dispatch_data_partial_string(NSData *data);
 static inline void SRFastLog(NSString *format, ...);
-
-@interface NSURL (SRWebSocket)
-
-// The origin isn't really applicable for a native application.
-// So instead, just map ws -> http and wss -> https.
-- (NSString *)SR_origin;
-
-@end
 
 NSString *const SRWebSocketErrorDomain = @"SRWebSocketErrorDomain";
 NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
@@ -394,7 +387,7 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
     CFHTTPMessageSetHeaderFieldValue(request, CFSTR("Sec-WebSocket-Key"), (__bridge CFStringRef)_secKey);
     CFHTTPMessageSetHeaderFieldValue(request, CFSTR("Sec-WebSocket-Version"), (__bridge CFStringRef)[NSString stringWithFormat:@"%ld", (long)_webSocketVersion]);
     
-    CFHTTPMessageSetHeaderFieldValue(request, CFSTR("Origin"), (__bridge CFStringRef)_url.SR_origin);
+    CFHTTPMessageSetHeaderFieldValue(request, CFSTR("Origin"), (__bridge CFStringRef)SRURLOrigin(_url));
     
     if (_requestedProtocols) {
         CFHTTPMessageSetHeaderFieldValue(request, CFSTR("Sec-WebSocket-Protocol"), (__bridge CFStringRef)[_requestedProtocols componentsJoinedByString:@", "]);
@@ -1580,31 +1573,6 @@ static const size_t SRFrameHeaderOverhead = 32;
 
 @end
 
-@implementation NSURL (SRWebSocket)
-
-- (NSString *)SR_origin;
-{
-    NSString *scheme = [self.scheme lowercaseString];
-        
-    if ([scheme isEqualToString:@"wss"]) {
-        scheme = @"https";
-    } else if ([scheme isEqualToString:@"ws"]) {
-        scheme = @"http";
-    }
-    
-    BOOL portIsDefault = !self.port ||
-                         ([scheme isEqualToString:@"http"] && self.port.integerValue == 80) ||
-                         ([scheme isEqualToString:@"https"] && self.port.integerValue == 443);
-    
-    if (!portIsDefault) {
-        return [NSString stringWithFormat:@"%@://%@:%@", scheme, self.host, self.port];
-    } else {
-        return [NSString stringWithFormat:@"%@://%@", scheme, self.host];
-    }
-}
-
-@end
-
 //#define SR_ENABLE_LOG
 
 static inline void SRFastLog(NSString *format, ...)  {
@@ -1688,21 +1656,11 @@ static inline int32_t validate_dispatch_data_partial_string(NSData *data) {
 
 #endif
 
-static SRRunLoopThread *networkThread = nil;
-static NSRunLoop *networkRunLoop = nil;
-
 @implementation NSRunLoop (SRWebSocket)
 
-+ (NSRunLoop *)SR_networkRunLoop {
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        networkThread = [[SRRunLoopThread alloc] init];
-        networkThread.name = @"com.squareup.SocketRocket.NetworkThread";
-        [networkThread start];
-        networkRunLoop = networkThread.runLoop;
-    });
-    
-    return networkRunLoop;
++ (NSRunLoop *)SR_networkRunLoop
+{
+    return [SRRunLoopThread sharedThread].runLoop;
 }
 
 @end

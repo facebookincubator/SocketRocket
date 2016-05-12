@@ -28,6 +28,18 @@
 #endif
 }
 
++ (instancetype)sharedThread
+{
+    static SRRunLoopThread *thread;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        thread = [[SRRunLoopThread alloc] init];
+        thread.name = @"com.facebook.SocketRocket.NetworkThread";
+        [thread start];
+    });
+    return thread;
+}
+
 - (instancetype)init
 {
     self = [super init];
