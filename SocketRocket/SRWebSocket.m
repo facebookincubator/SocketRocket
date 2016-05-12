@@ -1026,21 +1026,25 @@ static const uint8_t SRPayloadLenMask   = 0x7F;
     NSUInteger dataLength = dispatch_data_get_size(_outputBuffer);
     if (dataLength - _outputBufferOffset > 0 && _outputStream.hasSpaceAvailable) {
         __block NSInteger bytesWritten = 0;
+        __block BOOL streamFailed = NO;
 
         dispatch_data_t dataToSend = dispatch_data_create_subrange(_outputBuffer, _outputBufferOffset, dataLength - _outputBufferOffset);
-        BOOL written = dispatch_data_apply(dataToSend, ^bool(dispatch_data_t region, size_t offset, const void *buffer, size_t size) {
-            NSInteger written = [_outputStream write:buffer maxLength:size];
-            bytesWritten += written;
-            return written != -1;
+        dispatch_data_apply(dataToSend, ^bool(dispatch_data_t region, size_t offset, const void *buffer, size_t size) {
+            NSInteger sentLength = [_outputStream write:buffer maxLength:size];
+            if (sentLength == -1) {
+                streamFailed = YES;
+                return false;
+            }
+            bytesWritten += sentLength;
+            return (sentLength >= (NSInteger)size); // If we can't write all the data into the stream - bail-out early.
         });
-        if (!written) {
+        if (streamFailed) {
             NSError *error = SRErrorWithCodeDescriptionUnderlyingError(2145, @"Error writing to stream.", _outputStream.streamError);
             [self _failWithError:error];
             return;
         }
 
         _outputBufferOffset += bytesWritten;
-
         if (_outputBufferOffset > 4096 && _outputBufferOffset > dataLength / 2) {
             _outputBuffer = dispatch_data_create_subrange(_outputBuffer, _outputBufferOffset, dataLength - _outputBufferOffset);
             _outputBufferOffset = 0;
