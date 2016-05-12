@@ -39,6 +39,11 @@
 #error SocketRocket must be compiled with ARC enabled
 #endif
 
+/**
+ Default buffer size that is used for reading/writing to streams.
+ */
+static const size_t SRDefaultBufferSize = PAGE_SIZE;
+
 typedef enum  {
     SROpCodeTextFrame = 0x1,
     SROpCodeBinaryFrame = 0x2,
@@ -1045,7 +1050,8 @@ static const uint8_t SRPayloadLenMask   = 0x7F;
         }
 
         _outputBufferOffset += bytesWritten;
-        if (_outputBufferOffset > 4096 && _outputBufferOffset > dataLength / 2) {
+
+        if (_outputBufferOffset > SRDefaultBufferSize && _outputBufferOffset > dataLength / 2) {
             _outputBuffer = dispatch_data_create_subrange(_outputBuffer, _outputBufferOffset, dataLength - _outputBufferOffset);
             _outputBufferOffset = 0;
         }
@@ -1213,7 +1219,7 @@ static const char CRLFCRLFBytes[] = {'\r', '\n', '\r', '\n'};
         
         _readBufferOffset += foundSize;
 
-        if (_readBufferOffset > 4096 && _readBufferOffset > readBufferSize / 2) {
+        if (_readBufferOffset > SRDefaultBufferSize && _readBufferOffset > readBufferSize / 2) {
             _readBuffer = dispatch_data_create_subrange(_readBuffer, _readBufferOffset, readBufferSize - _readBufferOffset);
             _readBufferOffset = 0;
         }
@@ -1492,11 +1498,10 @@ static const size_t SRFrameHeaderOverhead = 32;
                 
             case NSStreamEventHasBytesAvailable: {
                 SRFastLog(@"NSStreamEventHasBytesAvailable %@", aStream);
-                const int bufferSize = 2048;
-                uint8_t buffer[bufferSize];
+                uint8_t buffer[SRDefaultBufferSize];
                 
                 while (_inputStream.hasBytesAvailable) {
-                    NSInteger bytesRead = [_inputStream read:buffer maxLength:bufferSize];
+                    NSInteger bytesRead = [_inputStream read:buffer maxLength:SRDefaultBufferSize];
                     if (bytesRead > 0) {
                         dispatch_data_t data = dispatch_data_create(buffer, bytesRead, nil, DISPATCH_DATA_DESTRUCTOR_DEFAULT);
                         if (!data) {
