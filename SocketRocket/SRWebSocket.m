@@ -1209,7 +1209,7 @@ static const char CRLFCRLFBytes[] = {'\r', '\n', '\r', '\n'};
     }
 
     if (consumer.readToCurrentFrame || foundSize) {
-        NSData *slice = (NSData *)dispatch_data_create_subrange(_readBuffer, _readBufferOffset, foundSize);
+        dispatch_data_t slice = dispatch_data_create_subrange(_readBuffer, _readBufferOffset, foundSize);
         
         _readBufferOffset += foundSize;
 
@@ -1219,7 +1219,7 @@ static const char CRLFCRLFBytes[] = {'\r', '\n', '\r', '\n'};
         }
         
         if (consumer.unmaskBytes) {
-            NSMutableData *mutableSlice = [slice mutableCopy];
+            __block NSMutableData *mutableSlice = [slice mutableCopy];
             
             NSUInteger len = mutableSlice.length;
             uint8_t *bytes = mutableSlice.mutableBytes;
@@ -1229,11 +1229,16 @@ static const char CRLFCRLFBytes[] = {'\r', '\n', '\r', '\n'};
                 _currentReadMaskOffset += 1;
             }
             
-            slice = mutableSlice;
+            slice = dispatch_data_create(bytes, len, nil, ^{
+                mutableSlice = nil;
+            });
         }
         
         if (consumer.readToCurrentFrame) {
-            [_currentFrameData appendData:slice];
+            dispatch_data_apply(slice, ^bool(dispatch_data_t region, size_t offset, const void *buffer, size_t size) {
+                [_currentFrameData appendBytes:buffer length:size];
+                return true;
+            });
             
             _readOpCount += 1;
             
@@ -1271,7 +1276,7 @@ static const char CRLFCRLFBytes[] = {'\r', '\n', '\r', '\n'};
             }
         } else if (foundSize) {
             [_consumers removeObjectAtIndex:0];
-            consumer.handler(self, slice);
+            consumer.handler(self, (NSData *)slice);
             [_consumerPool returnConsumer:consumer];
             didWork = YES;
         }
