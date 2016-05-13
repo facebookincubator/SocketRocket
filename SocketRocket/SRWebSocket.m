@@ -33,6 +33,7 @@
 #import "SRHash.h"
 #import "SRRunLoopThread.h"
 #import "SRURLUtilities.h"
+#import "SRError.h"
 
 #if !__has_feature(objc_arc) 
 #error SocketRocket must be compiled with ARC enabled
@@ -254,9 +255,8 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
         dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, _urlRequest.timeoutInterval * NSEC_PER_SEC);
         dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
             if (self.readyState == SR_CONNECTING) {
-                [self _failWithError:[NSError errorWithDomain:NSURLErrorDomain
-                                                         code:NSURLErrorTimedOut
-                                                     userInfo:@{ NSLocalizedDescriptionKey: @"Timeout Connecting to Server" }]];
+                NSError *error = SRErrorWithDomainCodeDescription(NSURLErrorDomain, NSURLErrorTimedOut, @"Timed out connecting to server.");
+                [self _failWithError:error];
             }
         });
     }
@@ -281,15 +281,18 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
 - (void)_HTTPHeadersDidFinish;
 {
     NSInteger responseCode = CFHTTPMessageGetResponseStatusCode(_receivedHTTPHeaders);
-    
     if (responseCode >= 400) {
         SRFastLog(@"Request failed with response code %d", responseCode);
-        [self _failWithError:[NSError errorWithDomain:SRWebSocketErrorDomain code:2132 userInfo:@{NSLocalizedDescriptionKey:[NSString stringWithFormat:@"received bad response code from server %ld", (long)responseCode], SRHTTPResponseErrorKey:@(responseCode)}]];
+        NSError *error = SRHTTPErrorWithCodeDescription(responseCode, 2132,
+                                                        [NSString stringWithFormat:@"Received bad response code from server: %d.",
+                                                         (int)responseCode]);
+        [self _failWithError:error];
         return;
     }
     
     if(![self _checkHandshake:_receivedHTTPHeaders]) {
-        [self _failWithError:[NSError errorWithDomain:SRWebSocketErrorDomain code:2133 userInfo:[NSDictionary dictionaryWithObject:[NSString stringWithFormat:@"Invalid Sec-WebSocket-Accept response"] forKey:NSLocalizedDescriptionKey]]];
+        NSError *error = SRErrorWithCodeDescription(2133, @"Invalid Sec-WebSocket-Accept response.");
+        [self _failWithError:error];
         return;
     }
     
@@ -297,7 +300,8 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
     if (negotiatedProtocol) {
         // Make sure we requested the protocol
         if ([_requestedProtocols indexOfObject:negotiatedProtocol] == NSNotFound) {
-            [self _failWithError:[NSError errorWithDomain:SRWebSocketErrorDomain code:2133 userInfo:[NSDictionary dictionaryWithObject:[NSString stringWithFormat:@"Server specified Sec-WebSocket-Protocol that wasn't requested"] forKey:NSLocalizedDescriptionKey]]];
+            NSError *error = SRErrorWithCodeDescription(2133, @"Server specified Sec-WebSocket-Protocol that wasn't requested.");
+            [self _failWithError:error];
             return;
         }
         
@@ -1030,7 +1034,8 @@ static const uint8_t SRPayloadLenMask   = 0x7F;
             return written != -1;
         });
         if (!written) {
-            [self _failWithError:[NSError errorWithDomain:SRWebSocketErrorDomain code:2145 userInfo:[NSDictionary dictionaryWithObject:@"Error writing to stream" forKey:NSLocalizedDescriptionKey]]];
+            NSError *error = SRErrorWithCodeDescriptionUnderlyingError(2145, @"Error writing to stream.", _outputStream.streamError);
+            [self _failWithError:error];
             return;
         }
 
@@ -1398,9 +1403,8 @@ static const size_t SRFrameHeaderOverhead = 32;
             
             if (!_pinnedCertFound) {
                 dispatch_async(_workQueue, ^{
-                    NSError *error = [NSError errorWithDomain:NSURLErrorDomain
-                                                         code:NSURLErrorClientCertificateRejected
-                                                     userInfo:@{ NSLocalizedDescriptionKey : @"Invalid server cert" }];
+                    NSError *error = SRErrorWithDomainCodeDescription(NSURLErrorDomain, NSURLErrorClientCertificateRejected,
+                                                                      @"Invalid server certificate.");
                     [weakSelf _failWithError:error];
                 });
                 return;
@@ -1487,9 +1491,8 @@ static const size_t SRFrameHeaderOverhead = 32;
                     if (bytesRead > 0) {
                         dispatch_data_t data = dispatch_data_create(buffer, bytesRead, nil, DISPATCH_DATA_DESTRUCTOR_DEFAULT);
                         if (!data) {
-                            NSError *error = [NSError errorWithDomain:SRWebSocketErrorDomain
-                                                                 code:SRStatusCodeMessageTooBig
-                                                             userInfo:@{ NSLocalizedDescriptionKey : @"Unable to allocate memory to read from socket." }];
+                            NSError *error = SRErrorWithCodeDescription(SRStatusCodeMessageTooBig,
+                                                                        @"Unable to allocate memory to read from socket.");
                             [self _failWithError:error];
                             return;
                         }
