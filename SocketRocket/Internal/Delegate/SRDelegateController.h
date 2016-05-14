@@ -14,6 +14,9 @@
 NS_ASSUME_NONNULL_BEGIN
 
 struct SRDelegateAvailableMethods {
+    BOOL didReceiveMessage : 1;
+    BOOL didReceiveMessageWithString : 1;
+    BOOL didReceiveMessageWithData : 1;
     BOOL didOpen : 1;
     BOOL didFailWithError : 1;
     BOOL didCloseWithCode : 1;

@@ -151,11 +151,36 @@ extern NSString *const SRHTTPResponseErrorKey;
 
 @protocol SRWebSocketDelegate <NSObject>
 
-// message will either be an NSString if the server is using text
-// or NSData if the server is using binary.
+@optional
+
+#pragma mark Receive Messages
+
+/**
+ Called when any message was received from a web socket.
+ This method is suboptimal and might be deprecated in a future release.
+
+ @param webSocket An instance of `SRWebSocket` that received a message.
+ @param message   Received message. Either a `String` or `NSData`.
+ */
 - (void)webSocket:(SRWebSocket *)webSocket didReceiveMessage:(id)message;
 
-@optional
+/**
+ Called when a frame was received from a web socket.
+
+ @param webSocket An instance of `SRWebSocket` that received a message.
+ @param string    Received text in a form of UTF-8 `String`.
+ */
+- (void)webSocket:(SRWebSocket *)webSocket didReceiveMessageWithString:(NSString *)string;
+
+/**
+ Called when a frame was received from a web socket.
+
+ @param webSocket An instance of `SRWebSocket` that received a message.
+ @param data      Received data in a form of `NSData`.
+ */
+- (void)webSocket:(SRWebSocket *)webSocket didReceiveMessageWithData:(NSData *)data;
+
+#pragma mark Status & Connection
 
 - (void)webSocketDidOpen:(SRWebSocket *)webSocket;
 - (void)webSocket:(SRWebSocket *)webSocket didFailWithError:(NSError *)error;
