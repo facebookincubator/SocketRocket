@@ -697,14 +697,6 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
     }];
 }
 
-- (void)_handleMessage:(id)message
-{
-    SRFastLog(@"Received message");
-    [self.delegateController performDelegateBlock:^(id<SRWebSocketDelegate>  _Nullable delegate, SRDelegateAvailableMethods availableMethods) {
-        [delegate webSocket:self didReceiveMessage:message];
-    }];
-}
-
 
 static inline BOOL closeCodeIsValid(int closeCode) {
     if (closeCode < 1000) {
@@ -813,18 +805,38 @@ static inline BOOL closeCodeIsValid(int closeCode) {
                 });
                 return;
             }
+            SRFastLog(@"Received text message.");
             [self.delegateController performDelegateBlock:^(id<SRWebSocketDelegate>  _Nullable delegate, SRDelegateAvailableMethods availableMethods) {
                 // Don't convert into string - iff `delegate` tells us not to. Otherwise - create UTF8 string and handle that.
                 if (availableMethods.shouldConvertTextFrameToString && ![delegate webSocketShouldConvertTextFrameToString:self]) {
-                    [delegate webSocket:self didReceiveMessage:frameData];
+                    if (availableMethods.didReceiveMessage) {
+                        [delegate webSocket:self didReceiveMessage:frameData];
+                    }
+                    if (availableMethods.didReceiveMessageWithData) {
+                        [delegate webSocket:self didReceiveMessageWithData:frameData];
+                    }
                 } else {
-                    [delegate webSocket:self didReceiveMessage:string];
+                    if (availableMethods.didReceiveMessage) {
+                        [delegate webSocket:self didReceiveMessage:string];
+                    }
+                    if (availableMethods.didReceiveMessageWithString) {
+                        [delegate webSocket:self didReceiveMessageWithString:string];
+                    }
                 }
             }];
             break;
         }
-        case SROpCodeBinaryFrame:
-            [self _handleMessage:frameData];
+        case SROpCodeBinaryFrame: {
+            SRFastLog(@"Received data message.");
+            [self.delegateController performDelegateBlock:^(id<SRWebSocketDelegate>  _Nullable delegate, SRDelegateAvailableMethods availableMethods) {
+                if (availableMethods.didReceiveMessage) {
+                    [delegate webSocket:self didReceiveMessage:frameData];
+                }
+                if (availableMethods.didReceiveMessageWithData) {
+                    [delegate webSocket:self didReceiveMessageWithData:frameData];
+                }
+            }];
+        }
             break;
         case SROpCodeConnectionClose:
             [self handleCloseWithData:frameData];

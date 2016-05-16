@@ -65,11 +65,6 @@
     _webSocket = nil;
 }
 
-- (void)webSocket:(SRWebSocket *)webSocket didReceiveMessage:(id)message;
-{
-    NSAssert(NO, @"Not implemented");
-}
-
 - (void)webSocket:(SRWebSocket *)webSocket didFailWithError:(NSError *)error;
 {
     _error = error;

@@ -50,6 +50,9 @@ NS_ASSUME_NONNULL_BEGIN
         _delegate = delegate;
 
         self.availableDelegateMethods = (SRDelegateAvailableMethods){
+            .didReceiveMessage = [delegate respondsToSelector:@selector(webSocket:didReceiveMessage:)],
+            .didReceiveMessageWithString = [delegate respondsToSelector:@selector(webSocket:didReceiveMessageWithString:)],
+            .didReceiveMessageWithData = [delegate respondsToSelector:@selector(webSocket:didReceiveMessageWithData:)],
             .didOpen = [delegate respondsToSelector:@selector(webSocketDidOpen:)],
             .didFailWithError = [delegate respondsToSelector:@selector(webSocket:didFailWithError:)],
             .didCloseWithCode = [delegate respondsToSelector:@selector(webSocket:didCloseWithCode:reason:wasClean:)],

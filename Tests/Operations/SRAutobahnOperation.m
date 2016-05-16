@@ -13,7 +13,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SRAutobahnOperation ()
 
-@property (nonatomic, copy, readonly) SRAutobahnSocketMessageHandler messageHandler;
+@property (nullable, nonatomic, copy, readonly) SRAutobahnSocketTextMessageHandler textMessageHandler;
+@property (nullable, nonatomic, copy, readonly) SRAutobahnSocketDataMessageHandler dataMessageHandler;
 
 @end
 
@@ -23,7 +24,8 @@ NS_ASSUME_NONNULL_BEGIN
                   testCommandPath:(NSString *)path
                        caseNumber:(nullable NSNumber *)caseNumber
                             agent:(nullable NSString *)agent
-                   messageHandler:(SRAutobahnSocketMessageHandler)messageHandler
+               textMessageHandler:(nullable SRAutobahnSocketTextMessageHandler)textMessageHandler
+               dataMessageHandler:(nullable SRAutobahnSocketDataMessageHandler)dataMessageHandler
 {
     NSURLComponents *components = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:NO];
     components.path = (components.path ? [components.path stringByAppendingPathComponent:path] : path);
@@ -39,14 +41,24 @@ NS_ASSUME_NONNULL_BEGIN
     self = [self initWithURL:components.URL];
     if (!self) return self;
 
-    _messageHandler = [messageHandler copy];
+    _textMessageHandler = [textMessageHandler copy];
+    _dataMessageHandler = [dataMessageHandler copy];
 
     return self;
 }
 
-- (void)webSocket:(SRWebSocket *)webSocket didReceiveMessage:(id)message
+- (void)webSocket:(SRWebSocket *)webSocket didReceiveMessageWithString:(NSString *)string
 {
-    self.messageHandler(webSocket, message);
+    if (self.textMessageHandler) {
+        self.textMessageHandler(webSocket, string);
+    }
+}
+
+- (void)webSocket:(SRWebSocket *)webSocket didReceiveMessageWithData:(NSData *)data
+{
+    if (self.dataMessageHandler) {
+        self.dataMessageHandler(webSocket, data);
+    }
 }
 
 @end
@@ -57,26 +69,26 @@ SRAutobahnOperation *SRAutobahnTestOperation(NSURL *serverURL, NSInteger caseNum
                                           testCommandPath:@"/runCase"
                                                caseNumber:@(caseNumber)
                                                     agent:agent
-                                           messageHandler:^(SRWebSocket * _Nonnull socket, id  _Nullable message) {
-                                               //TODO: (nlutsenko) Use proper callbacks, instead of a unifying one.
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-                                               [socket send:message];
-#pragma clang diagnostic pop
-                                           }];
+                                       textMessageHandler:^(SRWebSocket * _Nonnull socket, NSString  * _Nullable message) {
+                                           [socket sendString:message];
+                                       }
+                                       dataMessageHandler:^(SRWebSocket * _Nonnull socket, NSData * _Nullable message) {
+                                           [socket sendData:message];
+                                       }];
 }
 
-extern SRAutobahnOperation *SRAutobahnTestResultOperation(NSURL *serverURL, NSInteger caseNumber, NSString *agent, SRAutobahnTestResultHandler resultHandler)
+extern SRAutobahnOperation *SRAutobahnTestResultOperation(NSURL *serverURL, NSInteger caseNumber, NSString *agent, SRAutobahnTestResultHandler handler)
 {
     return [[SRAutobahnOperation alloc] initWithServerURL:serverURL
                                           testCommandPath:@"/getCaseStatus"
                                                caseNumber:@(caseNumber)
                                                     agent:agent
-                                           messageHandler:^(SRWebSocket * _Nonnull socket, id  _Nullable message) {
-                                               NSData *messageData = [message dataUsingEncoding:NSUTF8StringEncoding];
-                                               NSDictionary *result = [NSJSONSerialization JSONObjectWithData:messageData options:0 error:NULL];
-                                               resultHandler(result);
-                                           }];
+                                       textMessageHandler:^(SRWebSocket * _Nonnull socket, NSString * _Nullable message) {
+                                           NSData *messageData = [message dataUsingEncoding:NSUTF8StringEncoding];
+                                           NSDictionary *result = [NSJSONSerialization JSONObjectWithData:messageData options:0 error:NULL];
+                                           handler(result);
+                                       }
+                                       dataMessageHandler:nil];
 }
 
 extern SRAutobahnOperation *SRAutobahnTestCaseInfoOperation(NSURL *serverURL, NSInteger caseNumber, SRAutobahnTestCaseInfoHandler handler)
@@ -85,11 +97,12 @@ extern SRAutobahnOperation *SRAutobahnTestCaseInfoOperation(NSURL *serverURL, NS
                                           testCommandPath:@"/getCaseInfo"
                                                caseNumber:@(caseNumber)
                                                     agent:nil
-                                           messageHandler:^(SRWebSocket * _Nonnull socket, id  _Nullable message) {
-                                               NSData *messageData = [message dataUsingEncoding:NSUTF8StringEncoding];
-                                               NSDictionary *result = [NSJSONSerialization JSONObjectWithData:messageData options:0 error:NULL];
-                                               handler(result);
-                                           }];
+                                       textMessageHandler:^(SRWebSocket * _Nonnull socket, NSString * _Nullable message) {
+                                           NSData *messageData = [message dataUsingEncoding:NSUTF8StringEncoding];
+                                           NSDictionary *result = [NSJSONSerialization JSONObjectWithData:messageData options:0 error:NULL];
+                                           handler(result);
+                                       }
+                                       dataMessageHandler:nil];
 }
 
 extern SRAutobahnOperation *SRAutobahnTestCaseCountOperation(NSURL *serverURL, NSString *agent, SRAutobahnTestCaseCountHandler handler)
@@ -98,10 +111,11 @@ extern SRAutobahnOperation *SRAutobahnTestCaseCountOperation(NSURL *serverURL, N
                                           testCommandPath:@"/getCaseCount"
                                                caseNumber:nil
                                                     agent:agent
-                                           messageHandler:^(SRWebSocket * _Nonnull socket, id  _Nullable message) {
-                                               NSInteger count = [message integerValue];
-                                               handler(count);
-                                           }];
+                                       textMessageHandler:^(SRWebSocket * _Nonnull socket, NSString * _Nullable message) {
+                                           NSInteger count = [message integerValue];
+                                           handler(count);
+                                       }
+                                       dataMessageHandler:nil];
 }
 
 extern SRAutobahnOperation *SRAutobahnTestUpdateReportsOperation(NSURL *serverURL, NSString *agent)
@@ -110,9 +124,8 @@ extern SRAutobahnOperation *SRAutobahnTestUpdateReportsOperation(NSURL *serverUR
                                           testCommandPath:@"/updateReports"
                                                caseNumber:nil
                                                     agent:agent
-                                           messageHandler:^(SRWebSocket * _Nonnull socket, id  _Nullable message) {
-                                               // Nothing to do
-                                           }];
+                                       textMessageHandler:nil
+                                       dataMessageHandler:nil];
 }
 
 NS_ASSUME_NONNULL_END

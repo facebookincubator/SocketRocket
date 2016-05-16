@@ -11,7 +11,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-typedef void(^SRAutobahnSocketMessageHandler)(SRWebSocket *socket, id _Nullable message);
+typedef void(^SRAutobahnSocketTextMessageHandler)(SRWebSocket *socket, NSString  * _Nullable message);
+typedef void(^SRAutobahnSocketDataMessageHandler)(SRWebSocket *socket, NSData  * _Nullable message);
 
 @interface SRAutobahnOperation : SRTWebSocketOperation
 
@@ -19,14 +20,15 @@ typedef void(^SRAutobahnSocketMessageHandler)(SRWebSocket *socket, id _Nullable 
                   testCommandPath:(NSString *)path
                        caseNumber:(nullable NSNumber *)caseNumber
                             agent:(nullable NSString *)agent
-                   messageHandler:(SRAutobahnSocketMessageHandler)messageHandler;
+               textMessageHandler:(nullable SRAutobahnSocketTextMessageHandler)textMessageHandler
+               dataMessageHandler:(nullable SRAutobahnSocketDataMessageHandler)dataMessageHandler;
 
 @end
 
 extern SRAutobahnOperation *SRAutobahnTestOperation(NSURL *serverURL, NSInteger caseNumber, NSString *agent);
 
 typedef void(^SRAutobahnTestResultHandler)(NSDictionary *_Nullable result);
-extern SRAutobahnOperation *SRAutobahnTestResultOperation(NSURL *serverURL, NSInteger caseNumber, NSString *agent, SRAutobahnTestResultHandler resultHandler);
+extern SRAutobahnOperation *SRAutobahnTestResultOperation(NSURL *serverURL, NSInteger caseNumber, NSString *agent, SRAutobahnTestResultHandler handler);
 
 typedef void(^SRAutobahnTestCaseInfoHandler)(NSDictionary *_Nullable caseInfo);
 extern SRAutobahnOperation *SRAutobahnTestCaseInfoOperation(NSURL *serverURL, NSInteger caseNumber, SRAutobahnTestCaseInfoHandler handler);
