@@ -1063,7 +1063,10 @@ static const uint8_t SRPayloadLenMask   = 0x7F;
             return (sentLength >= (NSInteger)size); // If we can't write all the data into the stream - bail-out early.
         });
         if (streamFailed) {
-            NSError *error = SRErrorWithCodeDescriptionUnderlyingError(2145, @"Error writing to stream.", _outputStream.streamError);
+            NSInteger code = 2145;
+            NSString *description = @"Error writing to stream.";
+            NSError *streamError = _outputStream.streamError;
+            NSError *error = _outputStream.streamError ? SRErrorWithCodeDescriptionUnderlyingError(code, description, streamError) : SRErrorWithCodeDescription(code, description);
             [self _failWithError:error];
             return;
         }
