@@ -42,7 +42,14 @@
 /**
  Default buffer size that is used for reading/writing to streams.
  */
-static const size_t SRDefaultBufferSize = PAGE_SIZE;
+static size_t SRDefaultBufferSize(void) {
+    static size_t size;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        size = getpagesize();
+    });
+    return size;
+}
 
 typedef enum  {
     SROpCodeTextFrame = 0x1,
@@ -1063,7 +1070,7 @@ static const uint8_t SRPayloadLenMask   = 0x7F;
 
         _outputBufferOffset += bytesWritten;
 
-        if (_outputBufferOffset > SRDefaultBufferSize && _outputBufferOffset > dataLength / 2) {
+        if (_outputBufferOffset > SRDefaultBufferSize() && _outputBufferOffset > dataLength / 2) {
             _outputBuffer = dispatch_data_create_subrange(_outputBuffer, _outputBufferOffset, dataLength - _outputBufferOffset);
             _outputBufferOffset = 0;
         }
@@ -1231,7 +1238,7 @@ static const char CRLFCRLFBytes[] = {'\r', '\n', '\r', '\n'};
         
         _readBufferOffset += foundSize;
 
-        if (_readBufferOffset > SRDefaultBufferSize && _readBufferOffset > readBufferSize / 2) {
+        if (_readBufferOffset > SRDefaultBufferSize() && _readBufferOffset > readBufferSize / 2) {
             _readBuffer = dispatch_data_create_subrange(_readBuffer, _readBufferOffset, readBufferSize - _readBufferOffset);
             _readBufferOffset = 0;
         }
@@ -1510,10 +1517,10 @@ static const size_t SRFrameHeaderOverhead = 32;
                 
             case NSStreamEventHasBytesAvailable: {
                 SRFastLog(@"NSStreamEventHasBytesAvailable %@", aStream);
-                uint8_t buffer[SRDefaultBufferSize];
+                uint8_t buffer[SRDefaultBufferSize()];
                 
                 while (_inputStream.hasBytesAvailable) {
-                    NSInteger bytesRead = [_inputStream read:buffer maxLength:SRDefaultBufferSize];
+                    NSInteger bytesRead = [_inputStream read:buffer maxLength:SRDefaultBufferSize()];
                     if (bytesRead > 0) {
                         dispatch_data_t data = dispatch_data_create(buffer, bytesRead, nil, DISPATCH_DATA_DESTRUCTOR_DEFAULT);
                         if (!data) {
