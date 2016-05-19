@@ -1066,7 +1066,7 @@ static const uint8_t SRPayloadLenMask   = 0x7F;
             NSInteger code = 2145;
             NSString *description = @"Error writing to stream.";
             NSError *streamError = _outputStream.streamError;
-            NSError *error = _outputStream.streamError ? SRErrorWithCodeDescriptionUnderlyingError(code, description, streamError) : SRErrorWithCodeDescription(code, description);
+            NSError *error = streamError ? SRErrorWithCodeDescriptionUnderlyingError(code, description, streamError) : SRErrorWithCodeDescription(code, description);
             [self _failWithError:error];
             return;
         }
