@@ -311,11 +311,3 @@ extern NSString *const SRHTTPResponseErrorKey;
 - (BOOL)webSocketShouldConvertTextFrameToString:(SRWebSocket *)webSocket;
 
 @end
-
-#pragma mark - NSRunLoop (SRWebSocket)
-
-@interface NSRunLoop (SRWebSocket)
-
-+ (NSRunLoop *)SR_networkRunLoop;
-
-@end

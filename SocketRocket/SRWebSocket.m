@@ -31,10 +31,10 @@
 #import "SRIOConsumer.h"
 #import "SRIOConsumerPool.h"
 #import "SRHash.h"
-#import "SRRunLoopThread.h"
 #import "SRURLUtilities.h"
 #import "SRError.h"
 #import "NSURLRequest+SRWebSocket.h"
+#import "NSRunLoop+SRWebSocket.h"
 
 #if !__has_feature(objc_arc) 
 #error SocketRocket must be compiled with ARC enabled
@@ -1672,12 +1672,3 @@ static inline int32_t validate_dispatch_data_partial_string(NSData *data) {
 }
 
 #endif
-
-@implementation NSRunLoop (SRWebSocket)
-
-+ (NSRunLoop *)SR_networkRunLoop
-{
-    return [SRRunLoopThread sharedThread].runLoop;
-}
-
-@end
