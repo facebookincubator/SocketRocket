@@ -9,6 +9,8 @@
 
 #import "SRURLUtilities.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 NSString *SRURLOrigin(NSURL *url)
 {
     NSMutableString *origin = [NSMutableString string];
@@ -30,3 +32,20 @@ NSString *SRURLOrigin(NSURL *url)
     }
     return origin;
 }
+
+extern NSString *_Nullable SRBasicAuthorizationHeaderFromURL(NSURL *url)
+{
+    NSData *data = [[NSString stringWithFormat:@"%@:%@", url.user, url.password] dataUsingEncoding:NSUTF8StringEncoding];
+    NSString *userAndPasswordBase64Encoded;
+    if ([data respondsToSelector:@selector(base64EncodedStringWithOptions:)]) {
+        userAndPasswordBase64Encoded = [data base64EncodedStringWithOptions:0];
+    } else {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+        userAndPasswordBase64Encoded = [data base64Encoding];
+#pragma clang diagnostic pop
+    }
+    return [NSString stringWithFormat:@"Basic %@", userAndPasswordBase64Encoded];
+}
+
+NS_ASSUME_NONNULL_END
