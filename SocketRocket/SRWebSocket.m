@@ -34,6 +34,7 @@
 #import "SRRunLoopThread.h"
 #import "SRURLUtilities.h"
 #import "SRError.h"
+#import "NSURLRequest+SRWebSocket.h"
 
 #if !__has_feature(objc_arc) 
 #error SocketRocket must be compiled with ARC enabled
@@ -1585,29 +1586,6 @@ static const size_t SRFrameHeaderOverhead = 32;
 - (NSOperationQueue *_Nullable)delegateOperationQueue
 {
     return self.delegateController.operationQueue;
-}
-
-@end
-
-@implementation  NSURLRequest (SRCertificateAdditions)
-
-- (NSArray *)SR_SSLPinnedCertificates;
-{
-    return [NSURLProtocol propertyForKey:@"SR_SSLPinnedCertificates" inRequest:self];
-}
-
-@end
-
-@implementation  NSMutableURLRequest (SRCertificateAdditions)
-
-- (NSArray *)SR_SSLPinnedCertificates;
-{
-    return [NSURLProtocol propertyForKey:@"SR_SSLPinnedCertificates" inRequest:self];
-}
-
-- (void)setSR_SSLPinnedCertificates:(NSArray *)SR_SSLPinnedCertificates;
-{
-    [NSURLProtocol setProperty:SR_SSLPinnedCertificates forKey:@"SR_SSLPinnedCertificates" inRequest:self];
 }
 
 @end

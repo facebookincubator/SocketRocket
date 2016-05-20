@@ -10,3 +10,4 @@
 //
 
 #import <SocketRocket/SRWebSocket.h>
+#import <SocketRocket/NSURLRequest+SRWebSocket.h>

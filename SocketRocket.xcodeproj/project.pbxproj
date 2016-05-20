@@ -82,6 +82,14 @@
 		81B31C641CDC444900D86D43 /* SRRunLoopThread.m in Sources */ = {isa = PBXBuildFile; fileRef = 81B31C5E1CDC444900D86D43 /* SRRunLoopThread.m */; };
 		81B31C651CDC444900D86D43 /* SRRunLoopThread.m in Sources */ = {isa = PBXBuildFile; fileRef = 81B31C5E1CDC444900D86D43 /* SRRunLoopThread.m */; };
 		81B31C661CDC444900D86D43 /* SRRunLoopThread.m in Sources */ = {isa = PBXBuildFile; fileRef = 81B31C5E1CDC444900D86D43 /* SRRunLoopThread.m */; };
+		81CD05D71CEEC47300497F47 /* NSURLRequest+SRWebSocket.h in Headers */ = {isa = PBXBuildFile; fileRef = 81CD05D51CEEC47300497F47 /* NSURLRequest+SRWebSocket.h */; };
+		81CD05D81CEEC47300497F47 /* NSURLRequest+SRWebSocket.h in Headers */ = {isa = PBXBuildFile; fileRef = 81CD05D51CEEC47300497F47 /* NSURLRequest+SRWebSocket.h */; };
+		81CD05D91CEEC47300497F47 /* NSURLRequest+SRWebSocket.h in Headers */ = {isa = PBXBuildFile; fileRef = 81CD05D51CEEC47300497F47 /* NSURLRequest+SRWebSocket.h */; };
+		81CD05DA1CEEC47300497F47 /* NSURLRequest+SRWebSocket.h in Headers */ = {isa = PBXBuildFile; fileRef = 81CD05D51CEEC47300497F47 /* NSURLRequest+SRWebSocket.h */; };
+		81CD05DB1CEEC47300497F47 /* NSURLRequest+SRWebSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 81CD05D61CEEC47300497F47 /* NSURLRequest+SRWebSocket.m */; };
+		81CD05DC1CEEC47300497F47 /* NSURLRequest+SRWebSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 81CD05D61CEEC47300497F47 /* NSURLRequest+SRWebSocket.m */; };
+		81CD05DD1CEEC47300497F47 /* NSURLRequest+SRWebSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 81CD05D61CEEC47300497F47 /* NSURLRequest+SRWebSocket.m */; };
+		81CD05DE1CEEC47300497F47 /* NSURLRequest+SRWebSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 81CD05D61CEEC47300497F47 /* NSURLRequest+SRWebSocket.m */; };
 		F6016C8814620EC70037BB3D /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F6A12CD3145122FC00C1D980 /* Security.framework */; };
 		F6016C8914620ECC0037BB3D /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F6A12CD3145122FC00C1D980 /* Security.framework */; };
 		F6016C8A1462143C0037BB3D /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F6A12CD51451231B00C1D980 /* CFNetwork.framework */; };
@@ -151,6 +159,8 @@
 		81B31C2C1CDC406B00D86D43 /* SRHash.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SRHash.m; sourceTree = "<group>"; };
 		81B31C5D1CDC444900D86D43 /* SRRunLoopThread.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SRRunLoopThread.h; sourceTree = "<group>"; };
 		81B31C5E1CDC444900D86D43 /* SRRunLoopThread.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SRRunLoopThread.m; sourceTree = "<group>"; };
+		81CD05D51CEEC47300497F47 /* NSURLRequest+SRWebSocket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSURLRequest+SRWebSocket.h"; sourceTree = "<group>"; };
+		81CD05D61CEEC47300497F47 /* NSURLRequest+SRWebSocket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSURLRequest+SRWebSocket.m"; sourceTree = "<group>"; };
 		F61A0DC71625F44D00365EBD /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Default-568h@2x.png"; path = "en.lproj/Default-568h@2x.png"; sourceTree = "<group>"; };
 		F62417E314D52F3C003CE997 /* TestChat.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TestChat.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F62417E514D52F3C003CE997 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
@@ -448,6 +458,8 @@
 				555E0EB11C51E56D00E6BB92 /* SocketRocket.h */,
 				F6A12CCF145119B700C1D980 /* SRWebSocket.h */,
 				F6A12CD0145119B700C1D980 /* SRWebSocket.m */,
+				81CD05D51CEEC47300497F47 /* NSURLRequest+SRWebSocket.h */,
+				81CD05D61CEEC47300497F47 /* NSURLRequest+SRWebSocket.m */,
 				811934B01CDAF711003AB243 /* Resources */,
 			);
 			path = SocketRocket;
@@ -466,6 +478,7 @@
 				2D42277F1BB4365C000C1A6C /* SRWebSocket.h in Headers */,
 				81B31C2E1CDC406B00D86D43 /* SRHash.h in Headers */,
 				811934BE1CDAF725003AB243 /* SocketRocket.h in Headers */,
+				81CD05D81CEEC47300497F47 /* NSURLRequest+SRWebSocket.h in Headers */,
 				817995871CE139700084DA37 /* SRDelegateController.h in Headers */,
 				81B22EC61CE42D7E0073C636 /* SRError.h in Headers */,
 				81B31C601CDC444900D86D43 /* SRRunLoopThread.h in Headers */,
@@ -482,6 +495,7 @@
 				3345DC8A1C52ACD70083CCB8 /* SRWebSocket.h in Headers */,
 				81B31C301CDC406B00D86D43 /* SRHash.h in Headers */,
 				811934C01CDAF726003AB243 /* SocketRocket.h in Headers */,
+				81CD05DA1CEEC47300497F47 /* NSURLRequest+SRWebSocket.h in Headers */,
 				817995891CE139700084DA37 /* SRDelegateController.h in Headers */,
 				81B22EC81CE42D7E0073C636 /* SRError.h in Headers */,
 				81B31C621CDC444900D86D43 /* SRRunLoopThread.h in Headers */,
@@ -498,6 +512,7 @@
 				F668C8AA153E92F90044DBAC /* SRWebSocket.h in Headers */,
 				81B31C2F1CDC406B00D86D43 /* SRHash.h in Headers */,
 				811934BC1CDAF725003AB243 /* SocketRocket.h in Headers */,
+				81CD05D91CEEC47300497F47 /* NSURLRequest+SRWebSocket.h in Headers */,
 				817995881CE139700084DA37 /* SRDelegateController.h in Headers */,
 				81B22EC71CE42D7E0073C636 /* SRError.h in Headers */,
 				81B31C611CDC444900D86D43 /* SRRunLoopThread.h in Headers */,
@@ -514,6 +529,7 @@
 				F6A12CD1145119B700C1D980 /* SRWebSocket.h in Headers */,
 				81B31C2D1CDC406B00D86D43 /* SRHash.h in Headers */,
 				555E0EB41C51E57A00E6BB92 /* SocketRocket.h in Headers */,
+				81CD05D71CEEC47300497F47 /* NSURLRequest+SRWebSocket.h in Headers */,
 				817995861CE139700084DA37 /* SRDelegateController.h in Headers */,
 				81B22EC51CE42D7E0073C636 /* SRError.h in Headers */,
 				81B31C5F1CDC444900D86D43 /* SRRunLoopThread.h in Headers */,
@@ -707,6 +723,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				81CD05DC1CEEC47300497F47 /* NSURLRequest+SRWebSocket.m in Sources */,
 				81B22ECA1CE42D7E0073C636 /* SRError.m in Sources */,
 				81B31C191CDC404100D86D43 /* SRIOConsumer.m in Sources */,
 				2D4227851BB43734000C1A6C /* SRWebSocket.m in Sources */,
@@ -722,6 +739,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				81CD05DE1CEEC47300497F47 /* NSURLRequest+SRWebSocket.m in Sources */,
 				81B22ECC1CE42D7E0073C636 /* SRError.m in Sources */,
 				81B31C1B1CDC404100D86D43 /* SRIOConsumer.m in Sources */,
 				3345DC841C52ACD70083CCB8 /* SRWebSocket.m in Sources */,
@@ -748,6 +766,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				81CD05DD1CEEC47300497F47 /* NSURLRequest+SRWebSocket.m in Sources */,
 				81B22ECB1CE42D7E0073C636 /* SRError.m in Sources */,
 				81B31C1A1CDC404100D86D43 /* SRIOConsumer.m in Sources */,
 				F6396B86153E67EC00345B5E /* SRWebSocket.m in Sources */,
@@ -763,6 +782,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				81CD05DB1CEEC47300497F47 /* NSURLRequest+SRWebSocket.m in Sources */,
 				81B22EC91CE42D7E0073C636 /* SRError.m in Sources */,
 				81B31C181CDC404100D86D43 /* SRIOConsumer.m in Sources */,
 				F6A12CD2145119B700C1D980 /* SRWebSocket.m in Sources */,
