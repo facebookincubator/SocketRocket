@@ -12,6 +12,8 @@
 #import <Foundation/Foundation.h>
 #import <Security/SecCertificate.h>
 
+NS_ASSUME_NONNULL_BEGIN
+
 typedef NS_ENUM(NSInteger, SRReadyState) {
     SR_CONNECTING   = 0,
     SR_OPEN         = 1,
@@ -78,39 +80,39 @@ extern NSString *const SRHTTPResponseErrorKey;
 
  If `nil` and `delegateOperationQueue` is `nil`, the socket uses main queue for performing all delegate method calls.
  */
-@property (nonatomic, strong) dispatch_queue_t delegateDispatchQueue;
+@property (nullable, nonatomic, strong) dispatch_queue_t delegateDispatchQueue;
 
 /**
  An operation queue for scheduling the delegate calls.
 
  If `nil` and `delegateOperationQueue` is `nil`, the socket uses main queue for performing all delegate method calls.
  */
-@property (nonatomic, strong) NSOperationQueue *delegateOperationQueue;
+@property (nullable, nonatomic, strong) NSOperationQueue *delegateOperationQueue;
 
 /**
  Current ready state of the socket. Default: `SR_CONNECTING`.
  */
-@property (nonatomic, readonly) SRReadyState readyState;
+@property (nonatomic, assign, readonly) SRReadyState readyState;
 
 /**
  An instance of `NSURL` that this socket connects to.
  */
-@property (nonatomic, readonly, retain) NSURL *url;
+@property (nullable, nonatomic, strong, readonly) NSURL *url;
 
 /**
  All HTTP headers that were received by socket or `nil` if none were received so far.
  */
-@property (nonatomic, readonly) CFHTTPMessageRef receivedHTTPHeaders;
+@property (nullable, nonatomic, assign, readonly) CFHTTPMessageRef receivedHTTPHeaders;
 
 /**
  Array of `NSHTTPCookie` cookies to apply to the connection.
  */
-@property (nonatomic, copy) NSArray<NSHTTPCookie *> *requestCookies;
+@property (nullable, nonatomic, copy) NSArray<NSHTTPCookie *> *requestCookies;
 
 /**
  The negotiated web socket protocol or `nil` if handshake did not yet complete.
  */
-@property (nonatomic, copy, readonly) NSString *protocol;
+@property (nullable, nonatomic, copy, readonly) NSString *protocol;
 
 ///--------------------------------------
 #pragma mark - Constructors
@@ -129,16 +131,16 @@ extern NSString *const SRHTTPResponseErrorKey;
  @param request   Request to initialize with.
  @param protocols An array of strings that turn into `Sec-WebSocket-Protocol`. Default: `nil`.
  */
-- (instancetype)initWithURLRequest:(NSURLRequest *)request protocols:(NSArray<NSString *> *)protocols;
+- (instancetype)initWithURLRequest:(NSURLRequest *)request protocols:(nullable NSArray<NSString *> *)protocols;
 
 /**
  Initializes a web socket with a given `NSURLRequest`, list of sub-protocols and whether untrusted SSL certificates are allowed.
 
  @param request                        Request to initialize with.
- @param protocols                      An array of strings that turn into `Sec-WebSocket-Protocol`.
+ @param protocols                      An array of strings that turn into `Sec-WebSocket-Protocol`. Default: `nil`.
  @param allowsUntrustedSSLCertificates Boolean value indicating whether untrusted SSL certificates are allowed. Default: `false`.
  */
-- (instancetype)initWithURLRequest:(NSURLRequest *)request protocols:(NSArray<NSString *> *)protocols allowsUntrustedSSLCertificates:(BOOL)allowsUntrustedSSLCertificates
+- (instancetype)initWithURLRequest:(NSURLRequest *)request protocols:(nullable NSArray<NSString *> *)protocols allowsUntrustedSSLCertificates:(BOOL)allowsUntrustedSSLCertificates
 NS_DESIGNATED_INITIALIZER;
 
 /**
@@ -154,16 +156,16 @@ NS_DESIGNATED_INITIALIZER;
  @param url       URL to initialize with.
  @param protocols An array of strings that turn into `Sec-WebSocket-Protocol`. Default: `nil`.
  */
-- (instancetype)initWithURL:(NSURL *)url protocols:(NSArray<NSString *> *)protocols;
+- (instancetype)initWithURL:(NSURL *)url protocols:(nullable NSArray<NSString *> *)protocols;
 
 /**
  Initializes a web socket with a given `NSURL`, list of sub-protocols and whether untrusted SSL certificates are allowed.
 
  @param url                            URL to initialize with.
- @param protocols                      An array of strings that turn into `Sec-WebSocket-Protocol`.
+ @param protocols                      An array of strings that turn into `Sec-WebSocket-Protocol`. Default: `nil`.
  @param allowsUntrustedSSLCertificates Boolean value indicating whether untrusted SSL certificates are allowed. Default: `false`.
  */
-- (instancetype)initWithURL:(NSURL *)url protocols:(NSArray<NSString *> *)protocols allowsUntrustedSSLCertificates:(BOOL)allowsUntrustedSSLCertificates;
+- (instancetype)initWithURL:(NSURL *)url protocols:(nullable NSArray<NSString *> *)protocols allowsUntrustedSSLCertificates:(BOOL)allowsUntrustedSSLCertificates;
 
 /**
  Unavailable initializer. Please use any other initializer.
@@ -217,7 +219,7 @@ NS_DESIGNATED_INITIALIZER;
  @param code   Code to close the socket with.
  @param reason Reason to send to the server or `nil`.
  */
-- (void)closeWithCode:(NSInteger)code reason:(NSString *)reason;
+- (void)closeWithCode:(NSInteger)code reason:(nullable NSString *)reason;
 
 ///--------------------------------------
 #pragma mark Send
@@ -244,14 +246,14 @@ NS_DESIGNATED_INITIALIZER;
 
  @param data Data to send.
  */
-- (void)sendData:(NSData *)data;
+- (void)sendData:(nullable NSData *)data;
 
 /**
  Send Ping message to the server with optional data.
 
  @param data Instance of `NSData` or `nil`.
  */
-- (void)sendPing:(NSData *)data;
+- (void)sendPing:(nullable NSData *)data;
 
 @end
 
@@ -319,7 +321,7 @@ NS_DESIGNATED_INITIALIZER;
  @param reason    Reason in a form of a String that was reported by the server or `nil`.
  @param wasClean  Boolean value indicating whether a socket was closed in a clean state.
  */
-- (void)webSocket:(SRWebSocket *)webSocket didCloseWithCode:(NSInteger)code reason:(NSString *)reason wasClean:(BOOL)wasClean;
+- (void)webSocket:(SRWebSocket *)webSocket didCloseWithCode:(NSInteger)code reason:(nullable NSString *)reason wasClean:(BOOL)wasClean;
 
 /**
  Called when a pong data was received in response to ping.
@@ -327,7 +329,7 @@ NS_DESIGNATED_INITIALIZER;
  @param webSocket   An instance of `SRWebSocket` that received a pong frame.
  @param pongPayload Payload that was received or `nil` if there was no payload.
  */
-- (void)webSocket:(SRWebSocket *)webSocket didReceivePong:(NSData *)pongData;
+- (void)webSocket:(SRWebSocket *)webSocket didReceivePong:(nullable NSData *)pongData;
 
 /**
  Sent before reporting a text frame to be able to configure if it shuold be convert to a UTF-8 String or passed as `NSData`.
@@ -340,3 +342,5 @@ NS_DESIGNATED_INITIALIZER;
 - (BOOL)webSocketShouldConvertTextFrameToString:(SRWebSocket *)webSocket;
 
 @end
+
+NS_ASSUME_NONNULL_END
