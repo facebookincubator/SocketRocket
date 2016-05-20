@@ -76,18 +76,20 @@ static NSString *const SRWebSocketAppendToSecKeyString = @"258EAFA5-E914-47DA-95
 static inline int32_t validate_dispatch_data_partial_string(NSData *data);
 static inline void SRFastLog(NSString *format, ...);
 
+static uint8_t const SRWebSocketProtocolVersion = 13;
+
 NSString *const SRWebSocketErrorDomain = @"SRWebSocketErrorDomain";
 NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
 
 @interface SRWebSocket ()  <NSStreamDelegate>
 
-@property (nonatomic) SRReadyState readyState;
+@property (nonatomic, assign, readwrite) SRReadyState readyState;
 
 // Specifies whether SSL trust chain should NOT be evaluated.
 // By default this flag is set to NO, meaning only secure SSL connections are allowed.
 // For DEBUG builds this flag is ignored, and SSL connections are allowed regardless
 // of the certificate trust configuration
-@property (nonatomic, readwrite) BOOL allowsUntrustedSSLCertificates;
+@property (nonatomic, assign, readwrite) BOOL allowsUntrustedSSLCertificates;
 
 @property (nonatomic, strong, readonly) SRDelegateController *delegateController;
 
@@ -95,8 +97,6 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
 
 
 @implementation SRWebSocket {
-    NSInteger _webSocketVersion;
-    
     dispatch_queue_t _workQueue;
     NSMutableArray<SRIOConsumer *> *_consumers;
 
@@ -118,14 +118,11 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
     NSString *_closeReason;
     
     NSString *_secKey;
-    NSString *_basicAuthorizationString;
     
     BOOL _pinnedCertFound;
     
     uint8_t _currentReadMaskKey[4];
     size_t _currentReadMaskOffset;
-
-    BOOL _consumerStopped;
     
     BOOL _closeWhenFinishedWriting;
     BOOL _failed;
@@ -149,11 +146,6 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
     SRIOConsumerPool *_consumerPool;
 }
 
-@synthesize delegate = _delegate;
-@synthesize url = _url;
-@synthesize readyState = _readyState;
-@synthesize protocol = _protocol;
-
 - (instancetype)initWithURLRequest:(NSURLRequest *)request protocols:(NSArray<NSString *> *)protocols allowsUntrustedSSLCertificates:(BOOL)allowsUntrustedSSLCertificates
 {
     self = [super init];
@@ -174,8 +166,6 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
     }
 
     _readyState = SR_CONNECTING;
-    _consumerStopped = YES;
-    _webSocketVersion = 13;
 
     _workQueue = dispatch_queue_create(NULL, DISPATCH_QUEUE_SERIAL);
 
@@ -383,25 +373,15 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
     }];
  
     // set header for http basic auth
-    if (_url.user.length && _url.password.length) {
-        NSData *userAndPassword = [[NSString stringWithFormat:@"%@:%@", _url.user, _url.password] dataUsingEncoding:NSUTF8StringEncoding];
-        NSString *userAndPasswordBase64Encoded;
-        if ([keyBytes respondsToSelector:@selector(base64EncodedStringWithOptions:)]) {
-            userAndPasswordBase64Encoded = [userAndPassword base64EncodedStringWithOptions:0];
-        } else {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-            userAndPasswordBase64Encoded = [userAndPassword base64Encoding];
-#pragma clang diagnostic pop
-        }
-        _basicAuthorizationString = [NSString stringWithFormat:@"Basic %@", userAndPasswordBase64Encoded];
-        CFHTTPMessageSetHeaderFieldValue(request, CFSTR("Authorization"), (__bridge CFStringRef)_basicAuthorizationString);
+    NSString *basicAuthorizationString = SRBasicAuthorizationHeaderFromURL(_url);
+    if (basicAuthorizationString) {
+        CFHTTPMessageSetHeaderFieldValue(request, CFSTR("Authorization"), (__bridge CFStringRef)basicAuthorizationString);
     }
 
     CFHTTPMessageSetHeaderFieldValue(request, CFSTR("Upgrade"), CFSTR("websocket"));
     CFHTTPMessageSetHeaderFieldValue(request, CFSTR("Connection"), CFSTR("Upgrade"));
     CFHTTPMessageSetHeaderFieldValue(request, CFSTR("Sec-WebSocket-Key"), (__bridge CFStringRef)_secKey);
-    CFHTTPMessageSetHeaderFieldValue(request, CFSTR("Sec-WebSocket-Version"), (__bridge CFStringRef)[NSString stringWithFormat:@"%ld", (long)_webSocketVersion]);
+    CFHTTPMessageSetHeaderFieldValue(request, CFSTR("Sec-WebSocket-Version"), (__bridge CFStringRef)@(SRWebSocketProtocolVersion).stringValue);
     
     CFHTTPMessageSetHeaderFieldValue(request, CFSTR("Origin"), (__bridge CFStringRef)SRURLOrigin(_url));
     
