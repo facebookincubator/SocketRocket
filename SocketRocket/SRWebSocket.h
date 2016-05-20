@@ -45,10 +45,15 @@ typedef enum SRStatusCode : NSInteger {
 
 @class SRWebSocket;
 
+/**
+ Error domain used for errors reported by SRWebSocket.
+ */
 extern NSString *const SRWebSocketErrorDomain;
-extern NSString *const SRHTTPResponseErrorKey;
 
-#pragma mark - SRWebSocketDelegate
+/**
+ Key used for HTTP status code if bad response was received from the server.
+ */
+extern NSString *const SRHTTPResponseErrorKey;
 
 @protocol SRWebSocketDelegate;
 
@@ -89,24 +94,100 @@ extern NSString *const SRHTTPResponseErrorKey;
 // It will be nil until after the handshake completes.
 @property (nonatomic, readonly, copy) NSString *protocol;
 
-// Protocols should be an array of strings that turn into Sec-WebSocket-Protocol.
+///--------------------------------------
+#pragma mark - Constructors
+///--------------------------------------
+
+/**
+ Initializes a web socket with a given `NSURLRequest`.
+
+ @param request Request to initialize with.
+ */
 - (instancetype)initWithURLRequest:(NSURLRequest *)request;
+
+/**
+ Initializes a web socket with a given `NSURLRequest` and list of sub-protocols.
+
+ @param request   Request to initialize with.
+ @param protocols An array of strings that turn into `Sec-WebSocket-Protocol`. Default: `nil`.
+ */
 - (instancetype)initWithURLRequest:(NSURLRequest *)request protocols:(NSArray<NSString *> *)protocols;
+
+/**
+ Initializes a web socket with a given `NSURLRequest`, list of sub-protocols and whether untrusted SSL certificates are allowed.
+
+ @param request                        Request to initialize with.
+ @param protocols                      An array of strings that turn into `Sec-WebSocket-Protocol`.
+ @param allowsUntrustedSSLCertificates Boolean value indicating whether untrusted SSL certificates are allowed. Default: `false`.
+ */
 - (instancetype)initWithURLRequest:(NSURLRequest *)request protocols:(NSArray<NSString *> *)protocols allowsUntrustedSSLCertificates:(BOOL)allowsUntrustedSSLCertificates;
 
-// Some helper constructors.
+/**
+ Initializes a web socket with a given `NSURL`.
+
+ @param url URL to initialize with.
+ */
 - (instancetype)initWithURL:(NSURL *)url;
+
+/**
+ Initializes a web socket with a given `NSURL` and list of sub-protocols.
+
+ @param url       URL to initialize with.
+ @param protocols An array of strings that turn into `Sec-WebSocket-Protocol`. Default: `nil`.
+ */
 - (instancetype)initWithURL:(NSURL *)url protocols:(NSArray<NSString *> *)protocols;
+
+/**
+ Initializes a web socket with a given `NSURL`, list of sub-protocols and whether untrusted SSL certificates are allowed.
+
+ @param url                            URL to initialize with.
+ @param protocols                      An array of strings that turn into `Sec-WebSocket-Protocol`.
+ @param allowsUntrustedSSLCertificates Boolean value indicating whether untrusted SSL certificates are allowed. Default: `false`.
+ */
 - (instancetype)initWithURL:(NSURL *)url protocols:(NSArray<NSString *> *)protocols allowsUntrustedSSLCertificates:(BOOL)allowsUntrustedSSLCertificates;
 
-// By default, it will schedule itself on +[NSRunLoop SR_networkRunLoop] using defaultModes.
-- (void)scheduleInRunLoop:(NSRunLoop *)aRunLoop forMode:(NSString *)mode;
-- (void)unscheduleFromRunLoop:(NSRunLoop *)aRunLoop forMode:(NSString *)mode;
+///--------------------------------------
+#pragma mark - Schedule
+///--------------------------------------
 
-// SRWebSockets are intended for one-time-use only.  Open should be called once and only once.
+/**
+ Schedules a received on a given run loop in a given mode.
+ By default, a web socket will schedule itself on `+[NSRunLoop SR_networkRunLoop]` using `NSDefaultRunLoopMode`.
+
+ @param runLoop The run loop on which to schedule the receiver.
+ @param mode     The mode for the run loop.
+ */
+- (void)scheduleInRunLoop:(NSRunLoop *)runLoop forMode:(NSString *)mode;
+
+/**
+ Removes the receiver from a given run loop running in a given mode.
+
+ @param runLoop The run loop on which the receiver was scheduled.
+ @param mode    The mode for the run loop.
+ */
+- (void)unscheduleFromRunLoop:(NSRunLoop *)runLoop forMode:(NSString *)mode;
+
+///--------------------------------------
+#pragma mark - Open / Close
+///--------------------------------------
+
+/**
+ Opens web socket, which will trigger connection, authentication and start receiving/sending events.
+ An instance of `SRWebSocket` is intended for one-time-use only. This method should be called once and only once.
+ */
 - (void)open;
 
+/**
+ Closes a web socket using `SRStatusCodeNormal` code and no reason.
+ */
 - (void)close;
+
+/**
+ Closes a web socket using a given code and reason.
+
+ @param code   Code to close the socket with.
+ @param reason Reason to send to the server or `nil`.
+ */
 - (void)closeWithCode:(NSInteger)code reason:(NSString *)reason;
 
 ///--------------------------------------
