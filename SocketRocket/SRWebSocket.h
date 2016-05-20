@@ -12,6 +12,8 @@
 #import <Foundation/Foundation.h>
 #import <Security/SecCertificate.h>
 
+NS_ASSUME_NONNULL_BEGIN
+
 typedef NS_ENUM(NSInteger, SRReadyState) {
     SR_CONNECTING   = 0,
     SR_OPEN         = 1,
@@ -45,15 +47,25 @@ typedef enum SRStatusCode : NSInteger {
 
 @class SRWebSocket;
 
+/**
+ Error domain used for errors reported by SRWebSocket.
+ */
 extern NSString *const SRWebSocketErrorDomain;
-extern NSString *const SRHTTPResponseErrorKey;
 
-#pragma mark - SRWebSocketDelegate
+/**
+ Key used for HTTP status code if bad response was received from the server.
+ */
+extern NSString *const SRHTTPResponseErrorKey;
 
 @protocol SRWebSocketDelegate;
 
+///--------------------------------------
 #pragma mark - SRWebSocket
+///--------------------------------------
 
+/**
+ A `SRWebSocket` object lets you connect, send and receive data to a remote Web Socket.
+ */
 @interface SRWebSocket : NSObject <NSStreamDelegate>
 
 /**
@@ -68,46 +80,146 @@ extern NSString *const SRHTTPResponseErrorKey;
 
  If `nil` and `delegateOperationQueue` is `nil`, the socket uses main queue for performing all delegate method calls.
  */
-@property (nonatomic, strong) dispatch_queue_t delegateDispatchQueue;
+@property (nullable, nonatomic, strong) dispatch_queue_t delegateDispatchQueue;
 
 /**
  An operation queue for scheduling the delegate calls.
 
  If `nil` and `delegateOperationQueue` is `nil`, the socket uses main queue for performing all delegate method calls.
  */
-@property (nonatomic, strong) NSOperationQueue *delegateOperationQueue;
+@property (nullable, nonatomic, strong) NSOperationQueue *delegateOperationQueue;
 
-@property (nonatomic, readonly) SRReadyState readyState;
-@property (nonatomic, readonly, retain) NSURL *url;
+/**
+ Current ready state of the socket. Default: `SR_CONNECTING`.
+ */
+@property (nonatomic, assign, readonly) SRReadyState readyState;
 
-@property (nonatomic, readonly) CFHTTPMessageRef receivedHTTPHeaders;
+/**
+ An instance of `NSURL` that this socket connects to.
+ */
+@property (nullable, nonatomic, strong, readonly) NSURL *url;
 
-// Optional array of cookies (NSHTTPCookie objects) to apply to the connections
-@property (nonatomic, copy) NSArray<NSHTTPCookie *> *requestCookies;
+/**
+ All HTTP headers that were received by socket or `nil` if none were received so far.
+ */
+@property (nullable, nonatomic, assign, readonly) CFHTTPMessageRef receivedHTTPHeaders;
 
-// This returns the negotiated protocol.
-// It will be nil until after the handshake completes.
-@property (nonatomic, readonly, copy) NSString *protocol;
+/**
+ Array of `NSHTTPCookie` cookies to apply to the connection.
+ */
+@property (nullable, nonatomic, copy) NSArray<NSHTTPCookie *> *requestCookies;
 
-// Protocols should be an array of strings that turn into Sec-WebSocket-Protocol.
+/**
+ The negotiated web socket protocol or `nil` if handshake did not yet complete.
+ */
+@property (nullable, nonatomic, copy, readonly) NSString *protocol;
+
+///--------------------------------------
+#pragma mark - Constructors
+///--------------------------------------
+
+/**
+ Initializes a web socket with a given `NSURLRequest`.
+
+ @param request Request to initialize with.
+ */
 - (instancetype)initWithURLRequest:(NSURLRequest *)request;
-- (instancetype)initWithURLRequest:(NSURLRequest *)request protocols:(NSArray<NSString *> *)protocols;
-- (instancetype)initWithURLRequest:(NSURLRequest *)request protocols:(NSArray<NSString *> *)protocols allowsUntrustedSSLCertificates:(BOOL)allowsUntrustedSSLCertificates;
 
-// Some helper constructors.
+/**
+ Initializes a web socket with a given `NSURLRequest` and list of sub-protocols.
+
+ @param request   Request to initialize with.
+ @param protocols An array of strings that turn into `Sec-WebSocket-Protocol`. Default: `nil`.
+ */
+- (instancetype)initWithURLRequest:(NSURLRequest *)request protocols:(nullable NSArray<NSString *> *)protocols;
+
+/**
+ Initializes a web socket with a given `NSURLRequest`, list of sub-protocols and whether untrusted SSL certificates are allowed.
+
+ @param request                        Request to initialize with.
+ @param protocols                      An array of strings that turn into `Sec-WebSocket-Protocol`. Default: `nil`.
+ @param allowsUntrustedSSLCertificates Boolean value indicating whether untrusted SSL certificates are allowed. Default: `false`.
+ */
+- (instancetype)initWithURLRequest:(NSURLRequest *)request protocols:(nullable NSArray<NSString *> *)protocols allowsUntrustedSSLCertificates:(BOOL)allowsUntrustedSSLCertificates
+NS_DESIGNATED_INITIALIZER;
+
+/**
+ Initializes a web socket with a given `NSURL`.
+
+ @param url URL to initialize with.
+ */
 - (instancetype)initWithURL:(NSURL *)url;
-- (instancetype)initWithURL:(NSURL *)url protocols:(NSArray<NSString *> *)protocols;
-- (instancetype)initWithURL:(NSURL *)url protocols:(NSArray<NSString *> *)protocols allowsUntrustedSSLCertificates:(BOOL)allowsUntrustedSSLCertificates;
 
-// By default, it will schedule itself on +[NSRunLoop SR_networkRunLoop] using defaultModes.
-- (void)scheduleInRunLoop:(NSRunLoop *)aRunLoop forMode:(NSString *)mode;
-- (void)unscheduleFromRunLoop:(NSRunLoop *)aRunLoop forMode:(NSString *)mode;
+/**
+ Initializes a web socket with a given `NSURL` and list of sub-protocols.
 
-// SRWebSockets are intended for one-time-use only.  Open should be called once and only once.
+ @param url       URL to initialize with.
+ @param protocols An array of strings that turn into `Sec-WebSocket-Protocol`. Default: `nil`.
+ */
+- (instancetype)initWithURL:(NSURL *)url protocols:(nullable NSArray<NSString *> *)protocols;
+
+/**
+ Initializes a web socket with a given `NSURL`, list of sub-protocols and whether untrusted SSL certificates are allowed.
+
+ @param url                            URL to initialize with.
+ @param protocols                      An array of strings that turn into `Sec-WebSocket-Protocol`. Default: `nil`.
+ @param allowsUntrustedSSLCertificates Boolean value indicating whether untrusted SSL certificates are allowed. Default: `false`.
+ */
+- (instancetype)initWithURL:(NSURL *)url protocols:(nullable NSArray<NSString *> *)protocols allowsUntrustedSSLCertificates:(BOOL)allowsUntrustedSSLCertificates;
+
+/**
+ Unavailable initializer. Please use any other initializer.
+ */
+- (instancetype)init NS_UNAVAILABLE;
+
+/**
+ Unavailable constructor. Please use any other initializer.
+ */
++ (instancetype)new NS_UNAVAILABLE;
+
+///--------------------------------------
+#pragma mark - Schedule
+///--------------------------------------
+
+/**
+ Schedules a received on a given run loop in a given mode.
+ By default, a web socket will schedule itself on `+[NSRunLoop SR_networkRunLoop]` using `NSDefaultRunLoopMode`.
+
+ @param runLoop The run loop on which to schedule the receiver.
+ @param mode     The mode for the run loop.
+ */
+- (void)scheduleInRunLoop:(NSRunLoop *)runLoop forMode:(NSString *)mode;
+
+/**
+ Removes the receiver from a given run loop running in a given mode.
+
+ @param runLoop The run loop on which the receiver was scheduled.
+ @param mode    The mode for the run loop.
+ */
+- (void)unscheduleFromRunLoop:(NSRunLoop *)runLoop forMode:(NSString *)mode;
+
+///--------------------------------------
+#pragma mark - Open / Close
+///--------------------------------------
+
+/**
+ Opens web socket, which will trigger connection, authentication and start receiving/sending events.
+ An instance of `SRWebSocket` is intended for one-time-use only. This method should be called once and only once.
+ */
 - (void)open;
 
+/**
+ Closes a web socket using `SRStatusCodeNormal` code and no reason.
+ */
 - (void)close;
-- (void)closeWithCode:(NSInteger)code reason:(NSString *)reason;
+
+/**
+ Closes a web socket using a given code and reason.
+
+ @param code   Code to close the socket with.
+ @param reason Reason to send to the server or `nil`.
+ */
+- (void)closeWithCode:(NSInteger)code reason:(nullable NSString *)reason;
 
 ///--------------------------------------
 #pragma mark Send
@@ -134,14 +246,14 @@ extern NSString *const SRHTTPResponseErrorKey;
 
  @param data Data to send.
  */
-- (void)sendData:(NSData *)data;
+- (void)sendData:(nullable NSData *)data;
 
 /**
  Send Ping message to the server with optional data.
 
  @param data Instance of `NSData` or `nil`.
  */
-- (void)sendPing:(NSData *)data;
+- (void)sendPing:(nullable NSData *)data;
 
 @end
 
@@ -149,6 +261,10 @@ extern NSString *const SRHTTPResponseErrorKey;
 #pragma mark - SRWebSocketDelegate
 ///--------------------------------------
 
+/**
+ The `SRWebSocketDelegate` protocol describes the methods that `SRWebSocket` objects
+ call on their delegates to handle status and messsage events.
+ */
 @protocol SRWebSocketDelegate <NSObject>
 
 @optional
@@ -182,36 +298,49 @@ extern NSString *const SRHTTPResponseErrorKey;
 
 #pragma mark Status & Connection
 
-- (void)webSocketDidOpen:(SRWebSocket *)webSocket;
-- (void)webSocket:(SRWebSocket *)webSocket didFailWithError:(NSError *)error;
-- (void)webSocket:(SRWebSocket *)webSocket didCloseWithCode:(NSInteger)code reason:(NSString *)reason wasClean:(BOOL)wasClean;
-- (void)webSocket:(SRWebSocket *)webSocket didReceivePong:(NSData *)pongPayload;
+/**
+ Called when a given web socket was open and authenticated.
 
-// Return YES to convert messages sent as Text to an NSString. Return NO to skip NSData -> NSString conversion for Text messages. Defaults to YES.
+ @param webSocket An instance of `SRWebSocket` that was open.
+ */
+- (void)webSocketDidOpen:(SRWebSocket *)webSocket;
+
+/**
+ Called when a given web socket encountered an error.
+
+ @param webSocket An instance of `SRWebSocket` that failed with an error.
+ @param error     An instance of `NSError`.
+ */
+- (void)webSocket:(SRWebSocket *)webSocket didFailWithError:(NSError *)error;
+
+/**
+ Called when a given web socket was closed.
+
+ @param webSocket An instance of `SRWebSocket` that was closed.
+ @param code      Code reported by the server.
+ @param reason    Reason in a form of a String that was reported by the server or `nil`.
+ @param wasClean  Boolean value indicating whether a socket was closed in a clean state.
+ */
+- (void)webSocket:(SRWebSocket *)webSocket didCloseWithCode:(NSInteger)code reason:(nullable NSString *)reason wasClean:(BOOL)wasClean;
+
+/**
+ Called when a pong data was received in response to ping.
+
+ @param webSocket   An instance of `SRWebSocket` that received a pong frame.
+ @param pongPayload Payload that was received or `nil` if there was no payload.
+ */
+- (void)webSocket:(SRWebSocket *)webSocket didReceivePong:(nullable NSData *)pongData;
+
+/**
+ Sent before reporting a text frame to be able to configure if it shuold be convert to a UTF-8 String or passed as `NSData`.
+ If the method is not implemented - it will always convert text frames to String.
+
+ @param webSocket An instance of `SRWebSocket` that received a text frame.
+
+ @return `YES` if text frame should be converted to UTF-8 String, otherwise - `NO`. Default: `YES`.
+ */
 - (BOOL)webSocketShouldConvertTextFrameToString:(SRWebSocket *)webSocket;
 
 @end
 
-#pragma mark - NSURLRequest (SRCertificateAdditions)
-
-@interface NSURLRequest (SRCertificateAdditions)
-
-@property (nonatomic, retain, readonly) NSArray *SR_SSLPinnedCertificates;
-
-@end
-
-#pragma mark - NSMutableURLRequest (SRCertificateAdditions)
-
-@interface NSMutableURLRequest (SRCertificateAdditions)
-
-@property (nonatomic, retain) NSArray *SR_SSLPinnedCertificates;
-
-@end
-
-#pragma mark - NSRunLoop (SRWebSocket)
-
-@interface NSRunLoop (SRWebSocket)
-
-+ (NSRunLoop *)SR_networkRunLoop;
-
-@end
+NS_ASSUME_NONNULL_END
