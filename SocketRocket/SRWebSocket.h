@@ -120,7 +120,8 @@ extern NSString *const SRHTTPResponseErrorKey;
  @param protocols                      An array of strings that turn into `Sec-WebSocket-Protocol`.
  @param allowsUntrustedSSLCertificates Boolean value indicating whether untrusted SSL certificates are allowed. Default: `false`.
  */
-- (instancetype)initWithURLRequest:(NSURLRequest *)request protocols:(NSArray<NSString *> *)protocols allowsUntrustedSSLCertificates:(BOOL)allowsUntrustedSSLCertificates;
+- (instancetype)initWithURLRequest:(NSURLRequest *)request protocols:(NSArray<NSString *> *)protocols allowsUntrustedSSLCertificates:(BOOL)allowsUntrustedSSLCertificates
+NS_DESIGNATED_INITIALIZER;
 
 /**
  Initializes a web socket with a given `NSURL`.
@@ -145,6 +146,16 @@ extern NSString *const SRHTTPResponseErrorKey;
  @param allowsUntrustedSSLCertificates Boolean value indicating whether untrusted SSL certificates are allowed. Default: `false`.
  */
 - (instancetype)initWithURL:(NSURL *)url protocols:(NSArray<NSString *> *)protocols allowsUntrustedSSLCertificates:(BOOL)allowsUntrustedSSLCertificates;
+
+/**
+ Unavailable initializer. Please use any other initializer.
+ */
+- (instancetype)init NS_UNAVAILABLE;
+
+/**
+ Unavailable constructor. Please use any other initializer.
+ */
++ (instancetype)new NS_UNAVAILABLE;
 
 ///--------------------------------------
 #pragma mark - Schedule
