@@ -230,6 +230,10 @@ extern NSString *const SRHTTPResponseErrorKey;
 #pragma mark - SRWebSocketDelegate
 ///--------------------------------------
 
+/**
+ The `SRWebSocketDelegate` protocol describes the methods that `SRWebSocket` objects
+ call on their delegates to handle status and messsage events.
+ */
 @protocol SRWebSocketDelegate <NSObject>
 
 @optional
@@ -263,29 +267,48 @@ extern NSString *const SRHTTPResponseErrorKey;
 
 #pragma mark Status & Connection
 
+/**
+ Called when a given web socket was open and authenticated.
+
+ @param webSocket An instance of `SRWebSocket` that was open.
+ */
 - (void)webSocketDidOpen:(SRWebSocket *)webSocket;
+
+/**
+ Called when a given web socket encountered an error.
+
+ @param webSocket An instance of `SRWebSocket` that failed with an error.
+ @param error     An instance of `NSError`.
+ */
 - (void)webSocket:(SRWebSocket *)webSocket didFailWithError:(NSError *)error;
+
+/**
+ Called when a given web socket was closed.
+
+ @param webSocket An instance of `SRWebSocket` that was closed.
+ @param code      Code reported by the server.
+ @param reason    Reason in a form of a String that was reported by the server or `nil`.
+ @param wasClean  Boolean value indicating whether a socket was closed in a clean state.
+ */
 - (void)webSocket:(SRWebSocket *)webSocket didCloseWithCode:(NSInteger)code reason:(NSString *)reason wasClean:(BOOL)wasClean;
-- (void)webSocket:(SRWebSocket *)webSocket didReceivePong:(NSData *)pongPayload;
 
-// Return YES to convert messages sent as Text to an NSString. Return NO to skip NSData -> NSString conversion for Text messages. Defaults to YES.
+/**
+ Called when a pong data was received in response to ping.
+
+ @param webSocket   An instance of `SRWebSocket` that received a pong frame.
+ @param pongPayload Payload that was received or `nil` if there was no payload.
+ */
+- (void)webSocket:(SRWebSocket *)webSocket didReceivePong:(NSData *)pongData;
+
+/**
+ Sent before reporting a text frame to be able to configure if it shuold be convert to a UTF-8 String or passed as `NSData`.
+ If the method is not implemented - it will always convert text frames to String.
+
+ @param webSocket An instance of `SRWebSocket` that received a text frame.
+
+ @return `YES` if text frame should be converted to UTF-8 String, otherwise - `NO`. Default: `YES`.
+ */
 - (BOOL)webSocketShouldConvertTextFrameToString:(SRWebSocket *)webSocket;
-
-@end
-
-#pragma mark - NSURLRequest (SRCertificateAdditions)
-
-@interface NSURLRequest (SRCertificateAdditions)
-
-@property (nonatomic, retain, readonly) NSArray *SR_SSLPinnedCertificates;
-
-@end
-
-#pragma mark - NSMutableURLRequest (SRCertificateAdditions)
-
-@interface NSMutableURLRequest (SRCertificateAdditions)
-
-@property (nonatomic, retain) NSArray *SR_SSLPinnedCertificates;
 
 @end
 
