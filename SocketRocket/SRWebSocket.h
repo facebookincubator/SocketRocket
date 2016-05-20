@@ -57,8 +57,13 @@ extern NSString *const SRHTTPResponseErrorKey;
 
 @protocol SRWebSocketDelegate;
 
+///--------------------------------------
 #pragma mark - SRWebSocket
+///--------------------------------------
 
+/**
+ A `SRWebSocket` object lets you connect, send and receive data to a remote Web Socket.
+ */
 @interface SRWebSocket : NSObject <NSStreamDelegate>
 
 /**
@@ -82,17 +87,30 @@ extern NSString *const SRHTTPResponseErrorKey;
  */
 @property (nonatomic, strong) NSOperationQueue *delegateOperationQueue;
 
+/**
+ Current ready state of the socket. Default: `SR_CONNECTING`.
+ */
 @property (nonatomic, readonly) SRReadyState readyState;
+
+/**
+ An instance of `NSURL` that this socket connects to.
+ */
 @property (nonatomic, readonly, retain) NSURL *url;
 
+/**
+ All HTTP headers that were received by socket or `nil` if none were received so far.
+ */
 @property (nonatomic, readonly) CFHTTPMessageRef receivedHTTPHeaders;
 
-// Optional array of cookies (NSHTTPCookie objects) to apply to the connections
+/**
+ Array of `NSHTTPCookie` cookies to apply to the connection.
+ */
 @property (nonatomic, copy) NSArray<NSHTTPCookie *> *requestCookies;
 
-// This returns the negotiated protocol.
-// It will be nil until after the handshake completes.
-@property (nonatomic, readonly, copy) NSString *protocol;
+/**
+ The negotiated web socket protocol or `nil` if handshake did not yet complete.
+ */
+@property (nonatomic, copy, readonly) NSString *protocol;
 
 ///--------------------------------------
 #pragma mark - Constructors
