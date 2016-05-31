@@ -621,14 +621,14 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
     [self _pumpWriting];
 }
 
-- (void)send:(id)data;
+- (void)send:(nullable id)message
 {
-    if (!data) {
+    if (!message) {
         [self sendData:nil]; // Send Data, but it doesn't matter since we are going to send the same text frame with 0 length.
-    } else if ([data isKindOfClass:[NSString class]]) {
-        [self sendString:data];
-    } else if ([data isKindOfClass:[NSData class]]) {
-        [self sendData:data];
+    } else if ([message isKindOfClass:[NSString class]]) {
+        [self sendString:message];
+    } else if ([message isKindOfClass:[NSData class]]) {
+        [self sendData:message];
     } else {
         NSAssert(NO, @"Unrecognized message. Not able to send anything other than a String or NSData.");
     }
