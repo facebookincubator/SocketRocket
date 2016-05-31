@@ -114,6 +114,12 @@ extern NSString *const SRHTTPResponseErrorKey;
  */
 @property (nullable, nonatomic, copy, readonly) NSString *protocol;
 
+/**
+ A boolean value indicating whether this socket will allow connection without SSL trust chain evaluation.
+ For DEBUG builds this flag is ignored, and SSL connections are allowed regardless of the certificate trust configuration
+ */
+@property (nonatomic, assign, readonly) BOOL allowsUntrustedSSLCertificates;
+
 ///--------------------------------------
 #pragma mark - Constructors
 ///--------------------------------------
