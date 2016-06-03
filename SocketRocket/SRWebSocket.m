@@ -35,6 +35,7 @@
 #import "SRError.h"
 #import "NSURLRequest+SRWebSocket.h"
 #import "NSRunLoop+SRWebSocket.h"
+#import "ProxyConnect.h"
 
 #if !__has_feature(objc_arc) 
 #error SocketRocket must be compiled with ARC enabled
@@ -146,121 +147,8 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
     NSArray<NSString *> *_requestedProtocols;
     SRIOConsumerPool *_consumerPool;
 
-    //Proxy support
-    NSString *_httpProxyHost;
-    uint32_t _httpProxyPort;
-    BOOL _connectingToProxy;
-
-}
-
-// get proxy setting from device setting
--(void) configureProxy
-{
-    SRFastLog(@"configureProxy");
-    NSDictionary *proxySettings = CFBridgingRelease(CFNetworkCopySystemProxySettings());
-    NSArray *proxies = CFBridgingRelease(CFNetworkCopyProxiesForURL((__bridge CFURLRef)_url, (__bridge CFDictionaryRef)proxySettings));
-    if (proxies.count == 0) {
-        SRFastLog(@"configureProxy no proxies");
-        [self openConnection];
-        return;                 // no proxy
-    }
-    NSDictionary *settings = [proxies objectAtIndex:0];
-    NSString *proxyType = settings[(NSString *)kCFProxyTypeKey];
-    if ([proxyType isEqualToString:(NSString *)kCFProxyTypeAutoConfigurationURL]) {
-        NSURL *pacURL = settings[(NSString *)kCFProxyAutoConfigurationURLKey];
-        if (pacURL) {
-            [self fetchPAC:pacURL];
-            return;
-        }
-    }
-    if ([proxyType isEqualToString:(NSString *)kCFProxyTypeHTTP] || [proxyType isEqualToString:(NSString *)kCFProxyTypeHTTPS]) {
-        _httpProxyHost = settings[(NSString *)kCFProxyHostNameKey];
-        _httpProxyPort = [settings[(NSString *)kCFProxyPortNumberKey] intValue];
-    }
-    if (_httpProxyHost) {
-        SRFastLog(@"SRWebSocket using proxy %@:%u", _httpProxyHost, _httpProxyPort);
-    }
-    [self openConnection];
-}
-
-- (void)fetchPAC:(NSURL *)PACurl
-{
-    SRFastLog(@"SRWebSocket fetchPAC:%@", PACurl);
-
-	if ([PACurl isFileURL]) {
-        NSError *nsError = nil;
-        NSString *script = [NSString stringWithContentsOfURL:PACurl
-                                                usedEncoding:NULL
-                                                       error:&nsError];
-
-        if (nsError) {
-            [self openConnection];
-            return;
-        }
-        [self runPACScript:script];
-		return;
-	}
-
-	NSString *scheme = [PACurl.scheme lowercaseString];
-    if (![scheme isEqualToString:@"http"] && ![scheme isEqualToString:@"https"]) {
-        // Don't know how to read data from this URL, we'll have to give up
-        // We'll simply assume no proxies, and start the request as normal
-        [self openConnection];
-		return;
-	}
-    __weak typeof(self) weakSelf = self;
-    NSURLRequest *request = [NSURLRequest requestWithURL:PACurl
-                                             cachePolicy:NSURLRequestReturnCacheDataElseLoad
-                                         timeoutInterval:120.0];
-    [NSURLConnection sendAsynchronousRequest:request queue:[NSOperationQueue mainQueue]
-                           completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError) {
-            if (!connectionError) {
-                NSString* script = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-                [weakSelf runPACScript:script];
-            } else {
-                [weakSelf openConnection];
-            }
-                
-        }];
-}
-
-- (void)runPACScript:(NSString *)script
-{
-	if (!script) {
-        [self openConnection];
-        return;
-    }
-    SRFastLog(@"runPACScript");
-    // From: http://developer.apple.com/samplecode/CFProxySupportTool/listing1.html
-    // Work around <rdar://problem/5530166>.  This dummy call to 
-    // CFNetworkCopyProxiesForURL initialise some state within CFNetwork 
-    // that is required by CFNetworkCopyProxiesForAutoConfigurationScript.
-    NSDictionary *empty;
-    CFBridgingRelease(CFNetworkCopyProxiesForURL((__bridge CFURLRef)_url, (__bridge CFDictionaryRef)empty));
-        
-    // Obtain the list of proxies by running the autoconfiguration script
-    CFErrorRef err = NULL;
-
-    // CFNetworkCopyProxiesForAutoConfigurationScript doesn't understand ws:// or wss://
-    NSURL *httpURL;
-    if (_secure)
-        httpURL = [NSURL URLWithString:[NSString stringWithFormat:@"https://%@", _url.host]];
-    else
-        httpURL = [NSURL URLWithString:[NSString stringWithFormat:@"http://%@", _url.host]];
-                     
-    NSArray *proxies = CFBridgingRelease(CFNetworkCopyProxiesForAutoConfigurationScript((__bridge CFStringRef)script,(__bridge CFURLRef)httpURL, &err));
-    if (!err && [proxies count] > 0) {
-        NSDictionary *settings = [proxies objectAtIndex:0];
-        NSString *proxyType = settings[(NSString *)kCFProxyTypeKey];
-        if ([proxyType isEqualToString:(NSString *)kCFProxyTypeHTTP] || [proxyType isEqualToString:(NSString *)kCFProxyTypeHTTPS]) {
-            _httpProxyHost = settings[(NSString *)kCFProxyHostNameKey];
-            _httpProxyPort = [settings[(NSString *)kCFProxyPortNumberKey] intValue];
-        }
-    }
-    if (_httpProxyHost) {
-        SRFastLog(@"SRWebSocket using proxy %@:%u", _httpProxyHost, _httpProxyPort);
-    }
-    [self openConnection];
+    // proxy support
+    ProxyConnect *_proxyConnect;
 }
 
 - (instancetype)initWithURLRequest:(NSURLRequest *)request protocols:(NSArray<NSString *> *)protocols allowsUntrustedSSLCertificates:(BOOL)allowsUntrustedSSLCertificates
@@ -378,7 +266,7 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
         });
     }
 
-    [self configureProxy];
+    [self openConnection];
 }
 
 - (BOOL)_checkHandshake:(CFHTTPMessageRef)httpMessage;
@@ -393,27 +281,6 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
     NSData *hashedString = SRSHA1HashFromString(concattedString);
     NSString *expectedAccept = SRBase64EncodedStringFromData(hashedString);
     return [acceptHeader isEqualToString:expectedAccept];
-}
-
-- (void)_ProxyHTTPHeadersDidFinish;
-{
-    NSInteger responseCode = CFHTTPMessageGetResponseStatusCode(_receivedHTTPHeaders);
-    
-    if (responseCode >= 299) {
-        SRFastLog(@"Connect to Proxy Request failed with response code %d", responseCode);
-        NSError *error = SRHTTPErrorWithCodeDescription(responseCode, 2132,
-                                                        [NSString stringWithFormat:@"Received bad response code from proxy server: %d.",
-                                                                  (int)responseCode]);
-        [self _failWithError:error];
-        return;
-    }
-    SRFastLog(@"proxy connect return %d, call socket connect", responseCode);
-    _connectingToProxy = NO;
-    if (_receivedHTTPHeaders) {
-        CFRelease(_receivedHTTPHeaders);
-        _receivedHTTPHeaders = NULL;
-    }
-    [self didConnect];
 }
 
 - (void)_HTTPHeadersDidFinish;
@@ -471,43 +338,17 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
         
         if (CFHTTPMessageIsHeaderComplete(_receivedHTTPHeaders)) {
             SRFastLog(@"Finished reading headers %@", CFBridgingRelease(CFHTTPMessageCopyAllHeaderFields(_receivedHTTPHeaders)));
-            if (_connectingToProxy)
-                [self _ProxyHTTPHeadersDidFinish];
-            else
-                [self _HTTPHeadersDidFinish];
+            [self _HTTPHeadersDidFinish];
         } else {
             [self _readHTTPHeader];
         }
     }];
 }
 
-- (void)proxyDidConnect
-{
-    SRFastLog(@"Proxy Connected");
-    uint32_t port = _url.port.unsignedIntValue;
-    if (port == 0) {
-        if (!_secure) {
-            port = 80;
-        } else {
-            port = 443;
-        }
-    }
-    // Send HTTP CONNECT Request
-    NSString *connectRequestStr = [NSString stringWithFormat:@"CONNECT %@:%u HTTP/1.1\r\nHost: %@\r\nConnection: keep-alive\r\nProxy-Connection: keep-alive\r\n\r\n", _url.host, port, _url.host];
-
-    NSData *message =  [connectRequestStr dataUsingEncoding:NSUTF8StringEncoding];
-    SRFastLog(@"Proxy sending %@", connectRequestStr);
-    
-    [self _writeData:message];
-    [self _readHTTPHeader];
-}
-
 - (void)didConnect;
 {
     SRFastLog(@"Connected");
-
-    [self _updateSecureStreamOptions];
-    
+    _proxyConnect = nil;        // don't need it anymore
     CFHTTPMessageRef request = CFHTTPMessageCreateRequest(NULL, CFSTR("GET"), (__bridge CFURLRef)_url, kCFHTTPVersion1_1);
     
     // Set host first so it defaults
@@ -564,49 +405,9 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
     [self _readHTTPHeader];
 }
 
-- (void)_initializeStreams;
-{
-    assert(_url.port.unsignedIntValue <= UINT32_MAX);
-    uint32_t port = _url.port.unsignedIntValue;
-    if (port == 0) {
-        if (!_secure) {
-            port = 80;
-        } else {
-            port = 443;
-        }
-    }
-    NSString *host = _url.host;
-    
-   if (_httpProxyHost) {
-        host = _httpProxyHost;
-        if (_httpProxyPort)
-            port = _httpProxyPort;
-        else
-            port = 80;
-        _connectingToProxy = YES;
-    }
-
-    CFReadStreamRef readStream = NULL;
-    CFWriteStreamRef writeStream = NULL;
-    
-    CFStreamCreatePairWithSocketToHost(NULL, (__bridge CFStringRef)host, port, &readStream, &writeStream);
-    
-    _outputStream = CFBridgingRelease(writeStream);
-    _inputStream = CFBridgingRelease(readStream);
-    
-    _inputStream.delegate = self;
-    _outputStream.delegate = self;
-}
-
 - (void)_updateSecureStreamOptions;
 {
     if (_secure) {
-        if (_httpProxyHost) {
-            // Must set the real peer name before turning on SSL
-            SRFastLog(@"proxy set peer name to real host %@", _url.host);
-            [_outputStream setProperty:_url.host forKey:@"_kCFStreamPropertySocketPeerName"];
-        }
-
         [_outputStream setProperty:(__bridge NSString *)kCFStreamSocketSecurityLevelNegotiatedSSL
                             forKey:(__bridge NSString *)kCFStreamPropertySocketSecurityLevel];
 
@@ -629,10 +430,10 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
         [_outputStream setProperty:sslOptions forKey:(__bridge NSString *)kCFStreamPropertySSLSettings];
     }
     
-    //_inputStream.delegate = self;
-    //_outputStream.delegate = self;
+    _inputStream.delegate = self;
+    _outputStream.delegate = self;
     
-    //[self setupNetworkServiceType:_urlRequest.networkServiceType];
+    [self setupNetworkServiceType:_urlRequest.networkServiceType];
 }
 
 - (void)setupNetworkServiceType:(NSURLRequestNetworkServiceType)requestNetworkServiceType
@@ -672,15 +473,29 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
 
 - (void)openConnection;
 {
-    [self _initializeStreams];
+    __weak typeof(self) weakSelf = self;
 
-    if (!_scheduledRunloops.count) {
-        [self scheduleInRunLoop:[NSRunLoop SR_networkRunLoop] forMode:NSDefaultRunLoopMode];
-    }
-    
-    
-    [_outputStream open];
-    [_inputStream open];
+    _proxyConnect = [[ProxyConnect alloc] initWithURL:_url];
+    [_proxyConnect openNetworkStreamWithCompletion:^(NSError *error, NSInputStream *readStream, NSOutputStream *writeStream) {
+            if (error != nil) {
+                [self _failWithError:error];
+            } else {
+                _outputStream = writeStream;
+                _inputStream = readStream;
+                
+                _inputStream.delegate = self;
+                _outputStream.delegate = self;
+                [weakSelf _updateSecureStreamOptions];
+                
+                if (!_scheduledRunloops.count) {
+                    [weakSelf scheduleInRunLoop:[NSRunLoop SR_networkRunLoop] forMode:NSDefaultRunLoopMode];
+                }
+                
+                dispatch_async(_workQueue, ^{
+                        [weakSelf didConnect];
+                    });
+            }
+        }];
 }
 
 - (void)scheduleInRunLoop:(NSRunLoop *)aRunLoop forMode:(NSString *)mode;
@@ -1573,7 +1388,7 @@ static const size_t SRFrameHeaderOverhead = 32;
 {
     __weak typeof(self) weakSelf = self;
     
-    if (!_httpProxyHost && _secure && !_pinnedCertFound && (eventCode == NSStreamEventHasBytesAvailable || eventCode == NSStreamEventHasSpaceAvailable)) {
+    if (_secure && !_pinnedCertFound && (eventCode == NSStreamEventHasBytesAvailable || eventCode == NSStreamEventHasSpaceAvailable)) {
         
         NSArray *sslCerts = [_urlRequest SR_SSLPinnedCertificates];
         if (sslCerts) {
@@ -1625,16 +1440,11 @@ static const size_t SRFrameHeaderOverhead = 32;
                     return;
                 }
                 assert(_readBuffer);
-
-                if (_httpProxyHost) {
-                    if (self.readyState == SR_CONNECTING && aStream == _inputStream)
-                        [self proxyDidConnect];
-                } else {
-                    // didConnect fires after certificate verification if we're using pinned certificates.
-                    BOOL usingPinnedCerts = [[_urlRequest SR_SSLPinnedCertificates] count] > 0;
-                    if ((!_secure || !usingPinnedCerts) && self.readyState == SR_CONNECTING && aStream == _inputStream) {
-                        [self didConnect];
-                    }
+                
+                // didConnect fires after certificate verification if we're using pinned certificates.
+                BOOL usingPinnedCerts = [[_urlRequest SR_SSLPinnedCertificates] count] > 0;
+                if ((!_secure || !usingPinnedCerts) && self.readyState == SR_CONNECTING && aStream == _inputStream) {
+                    [self didConnect];
                 }
                 [self _pumpWriting];
                 [self _pumpScanner];
