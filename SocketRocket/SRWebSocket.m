@@ -478,7 +478,7 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
     _proxyConnect = [[ProxyConnect alloc] initWithURL:_url];
     [_proxyConnect openNetworkStreamWithCompletion:^(NSError *error, NSInputStream *readStream, NSOutputStream *writeStream) {
             if (error != nil) {
-                [self _failWithError:error];
+                [weakSelf _failWithError:error];
             } else {
                 _outputStream = writeStream;
                 _inputStream = readStream;
