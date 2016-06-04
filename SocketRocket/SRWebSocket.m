@@ -35,7 +35,7 @@
 #import "SRError.h"
 #import "NSURLRequest+SRWebSocket.h"
 #import "NSRunLoop+SRWebSocket.h"
-#import "ProxyConnect.h"
+#import "SRProxyConnect.h"
 
 #if !__has_feature(objc_arc) 
 #error SocketRocket must be compiled with ARC enabled
@@ -148,7 +148,7 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
     SRIOConsumerPool *_consumerPool;
 
     // proxy support
-    ProxyConnect *_proxyConnect;
+    SRProxyConnect *_proxyConnect;
 }
 
 - (instancetype)initWithURLRequest:(NSURLRequest *)request protocols:(NSArray<NSString *> *)protocols allowsUntrustedSSLCertificates:(BOOL)allowsUntrustedSSLCertificates
@@ -348,7 +348,6 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
 - (void)didConnect;
 {
     SRFastLog(@"Connected");
-    _proxyConnect = nil;        // don't need it anymore
     CFHTTPMessageRef request = CFHTTPMessageCreateRequest(NULL, CFSTR("GET"), (__bridge CFURLRef)_url, kCFHTTPVersion1_1);
     
     // Set host first so it defaults
@@ -475,27 +474,33 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
 {
     __weak typeof(self) weakSelf = self;
 
-    _proxyConnect = [[ProxyConnect alloc] initWithURL:_url];
+    _proxyConnect = [[SRProxyConnect alloc] initWithURL:_url];
     [_proxyConnect openNetworkStreamWithCompletion:^(NSError *error, NSInputStream *readStream, NSOutputStream *writeStream) {
-            if (error != nil) {
-                [weakSelf _failWithError:error];
-            } else {
-                _outputStream = writeStream;
-                _inputStream = readStream;
-                
-                _inputStream.delegate = self;
-                _outputStream.delegate = self;
-                [weakSelf _updateSecureStreamOptions];
-                
-                if (!_scheduledRunloops.count) {
-                    [weakSelf scheduleInRunLoop:[NSRunLoop SR_networkRunLoop] forMode:NSDefaultRunLoopMode];
-                }
-                
-                dispatch_async(_workQueue, ^{
-                        [weakSelf didConnect];
-                    });
-            }
+            [weakSelf _connectionDoneWithError:error readStream:readStream writeStream:writeStream];
         }];
+}
+
+- (void) _connectionDoneWithError:(NSError *)error readStream:(NSInputStream *)readStream writeStream:(NSOutputStream *)writeStream
+{
+    _proxyConnect = nil;        // don't need it anymore
+    if (error != nil) {
+        [self _failWithError:error];
+    } else {
+        _outputStream = writeStream;
+        _inputStream = readStream;
+                
+        _inputStream.delegate = self;
+        _outputStream.delegate = self;
+        [self _updateSecureStreamOptions];
+                
+        if (!_scheduledRunloops.count) {
+            [self scheduleInRunLoop:[NSRunLoop SR_networkRunLoop] forMode:NSDefaultRunLoopMode];
+        }
+        
+        dispatch_async(_workQueue, ^{
+                [self didConnect];
+            });
+    }
 }
 
 - (void)scheduleInRunLoop:(NSRunLoop *)aRunLoop forMode:(NSString *)mode;
@@ -1562,7 +1567,7 @@ static const size_t SRFrameHeaderOverhead = 32;
 
 @end
 
-//#define SR_ENABLE_LOG
+#define SR_ENABLE_LOG
 
 static inline void SRFastLog(NSString *format, ...)  {
 #ifdef SR_ENABLE_LOG

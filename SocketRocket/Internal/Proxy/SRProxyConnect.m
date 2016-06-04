@@ -1,21 +1,31 @@
-#import "ProxyConnect.h"
+//
+// Copyright (c) 2016-present, Facebook, Inc.
+// All rights reserved.
+//
+// This source code is licensed under the BSD-style license found in the
+// LICENSE file in the root directory of this source tree. An additional grant
+// of patent rights can be found in the PATENTS file in the same directory.
+//
+
+#import "SRProxyConnect.h"
 #import "SRError.h"
 #import "NSRunLoop+SRWebSocket.h"
 
-static inline void ProxyFastLog(NSString *format, ...);
+static inline void SRProxyFastLog(NSString *format, ...);
 
-typedef void (^connectDoneBlock_t)(NSError * error, NSInputStream *readStream, NSOutputStream *writeStream);
+typedef void (^SRProxyConnectionCompletion)(NSError *error, NSInputStream *readStream, NSOutputStream *writeStream);
 
-@interface ProxyConnect() <NSStreamDelegate>
+@interface SRProxyConnect() <NSStreamDelegate>
 
 @property (nonatomic, strong) NSURL *url;
 @property (nonatomic, strong) NSInputStream * inputStream;
 @property (nonatomic, strong) NSOutputStream * outputStream;
 
 @end
-@implementation ProxyConnect {
+
+@implementation SRProxyConnect {
     
-    connectDoneBlock_t  connectDoneHandler;
+    SRProxyConnectionCompletion  _connectDoneHandler;
     
     NSString *_httpProxyHost;
     uint32_t _httpProxyPort;
@@ -28,7 +38,7 @@ typedef void (^connectDoneBlock_t)(NSError * error, NSInputStream *readStream, N
     NSString *_socksProxyPassword;
     
     BOOL _secure;
-    
+
     NSMutableArray<NSData *> *_inputQueue;
     NSOperationQueue * _writeQueue;
     
@@ -36,34 +46,36 @@ typedef void (^connectDoneBlock_t)(NSError * error, NSInputStream *readStream, N
 
 -(instancetype)initWithURL:(NSURL *)url
 {
-    if ([super init]) {
-        self.url = url;
+    self = [super init];
+    if (!self) return self;
+    
+    _url = url;
         
-        NSString *scheme = url.scheme.lowercaseString;
+    NSString *scheme = url.scheme.lowercaseString;
         
-        if ([scheme isEqualToString:@"wss"] || [scheme isEqualToString:@"https"]) {
-            _secure = YES;
-        }
-        
-        _writeQueue =  [[NSOperationQueue alloc] init];
-        _inputQueue = [NSMutableArray arrayWithCapacity:2];
+    if ([scheme isEqualToString:@"wss"] || [scheme isEqualToString:@"https"]) {
+        _secure = YES;
     }
+    
+    _writeQueue =  [[NSOperationQueue alloc] init];
+    _inputQueue = [NSMutableArray arrayWithCapacity:2];
+
     return self;
 }
 
 -(void) openNetworkStreamWithCompletion:(void (^)(NSError *error, NSInputStream *readStream, NSOutputStream *writeStream ))completion
 {
-    connectDoneHandler = completion;
+    _connectDoneHandler = completion;
     [self _configureProxy];
 }
 
 -(void) _didConnect
 {
-    ProxyFastLog(@"_didConnect, return streams");
+    SRProxyFastLog(@"_didConnect, return streams");
     if (_secure) {
         if (_httpProxyHost) {
             // Must set the real peer name before turning on SSL
-            ProxyFastLog(@"proxy set peer name to real host %@", self.url.host);
+            SRProxyFastLog(@"proxy set peer name to real host %@", self.url.host);
             [self.outputStream setProperty:self.url.host forKey:@"_kCFStreamPropertySocketPeerName"];
         }
     }
@@ -79,12 +91,12 @@ typedef void (^connectDoneBlock_t)(NSError * error, NSInputStream *readStream, N
                            forMode:NSDefaultRunLoopMode];
     inputStream.delegate = nil;
     outputStream.delegate = nil;
-    connectDoneHandler(nil, inputStream, outputStream);
+    _connectDoneHandler(nil, inputStream, outputStream);
 }
 
 -(void) _failWithError:(NSError *)error
 {
-    ProxyFastLog(@"_failWithError, return error");
+    SRProxyFastLog(@"_failWithError, return error");
     if (!error) {
         error = SRHTTPErrorWithCodeDescription(500, 2132,@"Proxy Error");
     }
@@ -99,13 +111,13 @@ typedef void (^connectDoneBlock_t)(NSError * error, NSInputStream *readStream, N
     [self.outputStream close];
     self.inputStream = nil;
     self.outputStream = nil;
-    connectDoneHandler(error, nil, nil);
+    _connectDoneHandler(error, nil, nil);
 }
 
 // get proxy setting from device setting
 -(void) _configureProxy
 {
-    ProxyFastLog(@"configureProxy");
+    SRProxyFastLog(@"configureProxy");
     NSDictionary *proxySettings = CFBridgingRelease(CFNetworkCopySystemProxySettings());
     // CFNetworkCopyProxiesForURL doesn't understand ws:// or wss://
     NSURL *httpURL;
@@ -116,7 +128,7 @@ typedef void (^connectDoneBlock_t)(NSError * error, NSInputStream *readStream, N
     
     NSArray *proxies = CFBridgingRelease(CFNetworkCopyProxiesForURL((__bridge CFURLRef)httpURL, (__bridge CFDictionaryRef)proxySettings));
     if (proxies.count == 0) {
-        ProxyFastLog(@"configureProxy no proxies");
+        SRProxyFastLog(@"configureProxy no proxies");
         [self _openConnection];
         return;                 // no proxy
     }
@@ -158,17 +170,17 @@ typedef void (^connectDoneBlock_t)(NSError * error, NSInputStream *readStream, N
         _socksProxyPassword = settings[(NSString *)kCFProxyPasswordKey];
     }
     if (_httpProxyHost) {
-        ProxyFastLog(@"Using http proxy %@:%u", _httpProxyHost, _httpProxyPort);
+        SRProxyFastLog(@"Using http proxy %@:%u", _httpProxyHost, _httpProxyPort);
     } else if (_socksProxyHost) {
-        ProxyFastLog(@"Using socks proxy %@:%u", _socksProxyHost, _socksProxyPort);
+        SRProxyFastLog(@"Using socks proxy %@:%u", _socksProxyHost, _socksProxyPort);
     } else {
-        ProxyFastLog(@"configureProxy no proxies");
+        SRProxyFastLog(@"configureProxy no proxies");
     }
 }
 
 - (void)_fetchPAC:(NSURL *)PACurl
 {
-    ProxyFastLog(@"SRWebSocket fetchPAC:%@", PACurl);
+    SRProxyFastLog(@"SRWebSocket fetchPAC:%@", PACurl);
     
     if ([PACurl isFileURL]) {
         NSError *nsError = nil;
@@ -214,7 +226,7 @@ typedef void (^connectDoneBlock_t)(NSError * error, NSInputStream *readStream, N
         [self _openConnection];
         return;
     }
-    ProxyFastLog(@"runPACScript");
+    SRProxyFastLog(@"runPACScript");
     // From: http://developer.apple.com/samplecode/CFProxySupportTool/listing1.html
     // Work around <rdar://problem/5530166>.  This dummy call to
     // CFNetworkCopyProxiesForURL initialise some state within CFNetwork
@@ -277,14 +289,14 @@ typedef void (^connectDoneBlock_t)(NSError * error, NSInputStream *readStream, N
     CFReadStreamRef readStream = NULL;
     CFWriteStreamRef writeStream = NULL;
     
-    ProxyFastLog(@"ProxyConnect connect stream to %@:%u", host, port);
+    SRProxyFastLog(@"ProxyConnect connect stream to %@:%u", host, port);
     CFStreamCreatePairWithSocketToHost(NULL, (__bridge CFStringRef)host, port, &readStream, &writeStream);
     
     self.outputStream = CFBridgingRelease(writeStream);
     self.inputStream = CFBridgingRelease(readStream);
 
     if (_socksProxyHost) {
-        ProxyFastLog(@"ProxyConnect set sock property stream to %@:%u user %@ password %@", _socksProxyHost, _socksProxyPort, _socksProxyUsername, _socksProxyPassword);
+        SRProxyFastLog(@"ProxyConnect set sock property stream to %@:%u user %@ password %@", _socksProxyHost, _socksProxyPort, _socksProxyUsername, _socksProxyPassword);
         NSMutableDictionary *settings = [NSMutableDictionary dictionaryWithCapacity:4];
         settings[NSStreamSOCKSProxyHostKey] = _socksProxyHost;
         if (_socksProxyPort) {
@@ -305,7 +317,7 @@ typedef void (^connectDoneBlock_t)(NSError * error, NSInputStream *readStream, N
 
 - (void)stream:(NSStream *)aStream handleEvent:(NSStreamEvent)eventCode;
 {
-    ProxyFastLog(@"stream handleEvent %u", eventCode);
+    SRProxyFastLog(@"stream handleEvent %u", eventCode);
     switch (eventCode) {
         case NSStreamEventOpenCompleted: {
             if (aStream == self.inputStream) {
@@ -338,14 +350,14 @@ typedef void (^connectDoneBlock_t)(NSError * error, NSInputStream *readStream, N
         }
             
         default:
-            ProxyFastLog(@"(default)  %@", aStream);
+            SRProxyFastLog(@"(default)  %@", aStream);
             break;
     }
 }
 
 - (void)_proxyDidConnect
 {
-    ProxyFastLog(@"Proxy Connected");
+    SRProxyFastLog(@"Proxy Connected");
     uint32_t port = _url.port.unsignedIntValue;
     if (port == 0) {
         if (!_secure) {
@@ -358,19 +370,19 @@ typedef void (^connectDoneBlock_t)(NSError * error, NSInputStream *readStream, N
     NSString *connectRequestStr = [NSString stringWithFormat:@"CONNECT %@:%u HTTP/1.1\r\nHost: %@\r\nConnection: keep-alive\r\nProxy-Connection: keep-alive\r\n\r\n", _url.host, port, _url.host];
     
     NSData *message =  [connectRequestStr dataUsingEncoding:NSUTF8StringEncoding];
-    ProxyFastLog(@"Proxy sending %@", connectRequestStr);
+    SRProxyFastLog(@"Proxy sending %@", connectRequestStr);
     
     [self _writeData:message];
 }
 
-#define BUFFER_MAX  4096
+static size_t const SRProxyConnectBufferMaxSize = 4096;
 
 ///handles the incoming bytes and sending them to the proper processing method
 -(void) _processInputStream
 {
-    NSMutableData *buf = [NSMutableData dataWithCapacity:BUFFER_MAX];
+    NSMutableData *buf = [NSMutableData dataWithCapacity:SRProxyConnectBufferMaxSize];
     uint8_t *buffer = buf.mutableBytes;
-    NSInteger length = [_inputStream read:buffer maxLength: BUFFER_MAX];
+    NSInteger length = [_inputStream read:buffer maxLength: SRProxyConnectBufferMaxSize];
     
     if (length <= 0)
         return;
@@ -404,7 +416,7 @@ typedef void (^connectDoneBlock_t)(NSError * error, NSInputStream *readStream, N
     
     CFHTTPMessageAppendBytes(_receivedHTTPHeaders, (const UInt8 *)data.bytes, data.length);
     if (CFHTTPMessageIsHeaderComplete(_receivedHTTPHeaders)) {
-        ProxyFastLog(@"Finished reading headers %@", CFBridgingRelease(CFHTTPMessageCopyAllHeaderFields(_receivedHTTPHeaders)));
+        SRProxyFastLog(@"Finished reading headers %@", CFBridgingRelease(CFHTTPMessageCopyAllHeaderFields(_receivedHTTPHeaders)));
         [self _proxyHTTPHeadersDidFinish];
     }
 }
@@ -414,14 +426,14 @@ typedef void (^connectDoneBlock_t)(NSError * error, NSInputStream *readStream, N
     NSInteger responseCode = CFHTTPMessageGetResponseStatusCode(_receivedHTTPHeaders);
     
     if (responseCode >= 299) {
-        ProxyFastLog(@"Connect to Proxy Request failed with response code %d", responseCode);
+        SRProxyFastLog(@"Connect to Proxy Request failed with response code %d", responseCode);
         NSError *error = SRHTTPErrorWithCodeDescription(responseCode, 2132,
                                                         [NSString stringWithFormat:@"Received bad response code from proxy server: %d.",
                                                          (int)responseCode]);
         [self _failWithError:error];
         return;
     }
-    ProxyFastLog(@"proxy connect return %d, call socket connect", responseCode);
+    SRProxyFastLog(@"proxy connect return %d, call socket connect", responseCode);
     [self _didConnect];
 }
 
@@ -452,10 +464,10 @@ typedef void (^connectDoneBlock_t)(NSError * error, NSInputStream *readStream, N
 }
 @end
 
-//#define PROXY_ENABLE_LOG
+//#define SRPROXY_ENABLE_LOG
 
-static inline void ProxyFastLog(NSString *format, ...)  {
-#ifdef PROXY_ENABLE_LOG
+static inline void SRProxyFastLog(NSString *format, ...)  {
+#ifdef SRPROXY_ENABLE_LOG
     __block va_list arg_list;
     va_start (arg_list, format);
     
