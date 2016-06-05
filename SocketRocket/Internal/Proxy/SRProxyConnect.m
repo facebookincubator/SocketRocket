@@ -50,12 +50,7 @@ typedef void (^SRProxyConnectionCompletion)(NSError *error, NSInputStream *readS
     if (!self) return self;
     
     _url = url;
-        
-    NSString *scheme = url.scheme.lowercaseString;
-        
-    if ([scheme isEqualToString:@"wss"] || [scheme isEqualToString:@"https"]) {
-        _secure = YES;
-    }
+    _connectionRequiresSSL = SRURLRequiresSSL(url);
     
     _writeQueue =  [[NSOperationQueue alloc] init];
     _inputQueue = [NSMutableArray arrayWithCapacity:2];

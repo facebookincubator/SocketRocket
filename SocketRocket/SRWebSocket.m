@@ -163,12 +163,7 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
 
     _requestedProtocols = [protocols copy];
 
-    NSString *scheme = _url.scheme.lowercaseString;
-    assert([scheme isEqualToString:@"ws"] || [scheme isEqualToString:@"http"] || [scheme isEqualToString:@"wss"] || [scheme isEqualToString:@"https"]);
-
-    if ([scheme isEqualToString:@"wss"] || [scheme isEqualToString:@"https"]) {
-        _secure = YES;
-    }
+    _secure = SRURLRequiresSSL(_url);
 
     _readyState = SR_CONNECTING;
 
