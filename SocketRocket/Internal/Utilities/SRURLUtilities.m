@@ -33,6 +33,12 @@ NSString *SRURLOrigin(NSURL *url)
     return origin;
 }
 
+extern BOOL SRURLRequiresSSL(NSURL *url)
+{
+    NSString *scheme = url.scheme.lowercaseString;
+    return ([scheme isEqualToString:@"wss"] || [scheme isEqualToString:@"https"]);
+}
+
 extern NSString *_Nullable SRBasicAuthorizationHeaderFromURL(NSURL *url)
 {
     NSData *data = [[NSString stringWithFormat:@"%@:%@", url.user, url.password] dataUsingEncoding:NSUTF8StringEncoding];
