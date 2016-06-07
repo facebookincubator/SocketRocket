@@ -964,6 +964,7 @@ static const uint8_t SRPayloadLenMask   = 0x7F;
         
         if (header.masked) {
             [self _closeWithProtocolError:@"Client must receive unmasked data"];
+            return;
         }
         
         size_t extra_bytes_needed = header.masked ? sizeof(_currentReadMaskKey) : 0;
