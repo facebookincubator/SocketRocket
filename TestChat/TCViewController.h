@@ -11,7 +11,7 @@
 
 @interface TCViewController : UITableViewController
 
-@property (nonatomic, retain) IBOutlet UITextView *inputView;
+@property (nonatomic, strong) IBOutlet UITextView *inputView;
 
 - (IBAction)reconnect:(id)sender;
 - (IBAction)sendPing:(id)sender;
