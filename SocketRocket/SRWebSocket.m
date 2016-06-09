@@ -36,6 +36,7 @@
 #import "NSURLRequest+SRWebSocket.h"
 #import "NSRunLoop+SRWebSocket.h"
 #import "SRProxyConnect.h"
+#import "SRSecurityOptions.h"
 
 #if !__has_feature(objc_arc)
 #error SocketRocket must be compiled with ARC enabled
@@ -121,7 +122,8 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
 
     NSString *_secKey;
 
-    BOOL _pinnedCertFound;
+    SRSecurityOptions *_securityOptions;
+    BOOL _streamSecurityValidated;
 
     uint8_t _currentReadMaskKey[4];
     size_t _currentReadMaskOffset;
@@ -129,7 +131,6 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
     BOOL _closeWhenFinishedWriting;
     BOOL _failed;
 
-    BOOL _secure;
     NSURLRequest *_urlRequest;
 
     BOOL _sentClose;
@@ -163,7 +164,9 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
 
     _requestedProtocols = [protocols copy];
 
-    _secure = SRURLRequiresSSL(_url);
+    _securityOptions = [[SRSecurityOptions alloc] initWithRequest:request
+                                               pinnedCertificates:request.SR_SSLPinnedCertificates
+                                           chainValidationEnabled:allowsUntrustedSSLCertificates];
 
     _readyState = SR_CONNECTING;
 
@@ -399,30 +402,14 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
     [self _readHTTPHeader];
 }
 
-- (void)_updateSecureStreamOptions;
+- (void)_updateSecureStreamOptions
 {
-    if (_secure) {
-        [_outputStream setProperty:(__bridge NSString *)kCFStreamSocketSecurityLevelNegotiatedSSL
-                            forKey:(__bridge NSString *)kCFStreamPropertySocketSecurityLevel];
+    SRFastLog(@"Setting up security for streams.");
+    [_securityOptions updateSecurityOptionsInStream:_inputStream];
+    [_securityOptions updateSecurityOptionsInStream:_outputStream];
 
-        NSMutableDictionary<NSString *, NSNumber *> *sslOptions = [NSMutableDictionary dictionary];
-
-        // If we're using pinned certs, don't validate the certificate chain
-        if ([_urlRequest SR_SSLPinnedCertificates].count) {
-            sslOptions[(__bridge NSString *)kCFStreamSSLValidatesCertificateChain] = @NO;
-        }
-
-#if DEBUG
-        self.allowsUntrustedSSLCertificates = YES;
-#endif
-
-        if (self.allowsUntrustedSSLCertificates) {
-            sslOptions[(__bridge NSString *)kCFStreamSSLValidatesCertificateChain] = @NO;
-            SRFastLog(@"Allowing connection to any root cert");
-        }
-
-        [_outputStream setProperty:sslOptions forKey:(__bridge NSString *)kCFStreamPropertySSLSettings];
-    }
+    SRFastLog(@"Allows connection any root cert: %d", _securityOptions.validatesCertificateChain);
+    SRFastLog(@"Pinned cert count: %d", _securityOptions.pinnedCertificates.count);
 
     _inputStream.delegate = self;
     _outputStream.delegate = self;
@@ -475,9 +462,10 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
     }];
 }
 
-- (void) _connectionDoneWithError:(NSError *)error readStream:(NSInputStream *)readStream writeStream:(NSOutputStream *)writeStream
+- (void)_connectionDoneWithError:(NSError *)error readStream:(NSInputStream *)readStream writeStream:(NSOutputStream *)writeStream
 {
-    _proxyConnect = nil;        // don't need it anymore
+    _proxyConnect = nil; // Job's done! This is not longer required.
+
     if (error != nil) {
         [self _failWithError:error];
     } else {
@@ -492,9 +480,13 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
             [self scheduleInRunLoop:[NSRunLoop SR_networkRunLoop] forMode:NSDefaultRunLoopMode];
         }
 
-        dispatch_async(_workQueue, ^{
-            [self didConnect];
-        });
+        // If we don't require SSL validation - consider that we connected.
+        // Otherwise `didConnect` is called when SSL validation finishes.
+        if (!_securityOptions.requestRequiresSSL) {
+            dispatch_async(_workQueue, ^{
+                [self didConnect];
+            });
+        }
     }
 }
 
@@ -1385,50 +1377,31 @@ static const size_t SRFrameHeaderOverhead = 32;
     [self _writeData:frame];
 }
 
-- (void)stream:(NSStream *)aStream handleEvent:(NSStreamEvent)eventCode;
+- (void)stream:(NSStream *)aStream handleEvent:(NSStreamEvent)eventCode
 {
-    __weak typeof(self) weakSelf = self;
+    __weak typeof(self) wself = self;
 
-    if (_secure && !_pinnedCertFound && (eventCode == NSStreamEventHasBytesAvailable || eventCode == NSStreamEventHasSpaceAvailable)) {
-
-        NSArray *sslCerts = [_urlRequest SR_SSLPinnedCertificates];
-        if (sslCerts) {
-            SecTrustRef secTrust = (__bridge SecTrustRef)[aStream propertyForKey:(__bridge id)kCFStreamPropertySSLPeerTrust];
-            if (secTrust) {
-                NSInteger numCerts = SecTrustGetCertificateCount(secTrust);
-                for (NSInteger i = 0; i < numCerts && !_pinnedCertFound; i++) {
-                    SecCertificateRef cert = SecTrustGetCertificateAtIndex(secTrust, i);
-                    NSData *certData = CFBridgingRelease(SecCertificateCopyData(cert));
-
-                    for (id ref in sslCerts) {
-                        SecCertificateRef trustedCert = (__bridge SecCertificateRef)ref;
-                        NSData *trustedCertData = CFBridgingRelease(SecCertificateCopyData(trustedCert));
-
-                        if ([trustedCertData isEqualToData:certData]) {
-                            _pinnedCertFound = YES;
-                            break;
-                        }
-                    }
-                }
-            }
-
-            if (!_pinnedCertFound) {
-                dispatch_async(_workQueue, ^{
-                    NSError *error = SRErrorWithDomainCodeDescription(NSURLErrorDomain, NSURLErrorClientCertificateRejected,
-                                                                      @"Invalid server certificate.");
-                    [weakSelf _failWithError:error];
-                });
-                return;
-            } else if (aStream == _outputStream) {
-                dispatch_async(_workQueue, ^{
-                    [self didConnect];
-                });
-            }
+    if (_securityOptions.requestRequiresSSL && !_streamSecurityValidated &&
+        (eventCode == NSStreamEventHasBytesAvailable || eventCode == NSStreamEventHasSpaceAvailable)) {
+        SecTrustRef trust = (__bridge SecTrustRef)[aStream propertyForKey:(__bridge id)kCFStreamPropertySSLPeerTrust];
+        if (trust) {
+            _streamSecurityValidated = [_securityOptions securityTrustContainsPinnedCertificates:trust];
         }
+        if (!_streamSecurityValidated) {
+            dispatch_async(_workQueue, ^{
+                NSError *error = SRErrorWithDomainCodeDescription(NSURLErrorDomain,
+                                                                  NSURLErrorClientCertificateRejected,
+                                                                  @"Invalid server certificate.");
+                [wself _failWithError:error];
+            });
+            return;
+        }
+        dispatch_async(_workQueue, ^{
+            [self didConnect];
+        });
     }
-
     dispatch_async(_workQueue, ^{
-        [weakSelf safeHandleEvent:eventCode stream:aStream];
+        [wself safeHandleEvent:eventCode stream:aStream];
     });
 }
 
@@ -1442,13 +1415,13 @@ static const size_t SRFrameHeaderOverhead = 32;
             }
             assert(_readBuffer);
 
-            // didConnect fires after certificate verification if we're using pinned certificates.
-            BOOL usingPinnedCerts = [[_urlRequest SR_SSLPinnedCertificates] count] > 0;
-            if ((!_secure || !usingPinnedCerts) && self.readyState == SR_CONNECTING && aStream == _inputStream) {
+            if (!_securityOptions.requestRequiresSSL && self.readyState == SR_CONNECTING && aStream == _inputStream) {
                 [self didConnect];
             }
+
             [self _pumpWriting];
             [self _pumpScanner];
+
             break;
         }
 
@@ -1599,7 +1572,7 @@ static inline int32_t validate_dispatch_data_partial_string(NSData *data) {
         lastOffset = offset;
         U8_NEXT(str, offset, size, codepoint);
     }
-    
+
     if (codepoint == -1) {
         // Check to see if the last byte is valid or whether it was just continuing
         if (!U8_IS_LEAD(str[lastOffset]) || U8_COUNT_TRAIL_BYTES(str[lastOffset]) + lastOffset < (int32_t)size) {
