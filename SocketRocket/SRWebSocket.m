@@ -98,7 +98,6 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
 
 @end
 
-
 @implementation SRWebSocket {
     dispatch_queue_t _workQueue;
     NSMutableArray<SRIOConsumer *> *_consumers;

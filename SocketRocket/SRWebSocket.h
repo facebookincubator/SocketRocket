@@ -10,7 +10,6 @@
 //
 
 #import <Foundation/Foundation.h>
-#import <Security/SecCertificate.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
