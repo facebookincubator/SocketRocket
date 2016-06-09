@@ -36,7 +36,6 @@
 		8179958C1CE139700084DA37 /* SRDelegateController.m in Sources */ = {isa = PBXBuildFile; fileRef = 817995851CE139700084DA37 /* SRDelegateController.m */; };
 		8179958D1CE139700084DA37 /* SRDelegateController.m in Sources */ = {isa = PBXBuildFile; fileRef = 817995851CE139700084DA37 /* SRDelegateController.m */; };
 		817996801CE184F40084DA37 /* SRAutobahnUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 8179967F1CE184F40084DA37 /* SRAutobahnUtilities.m */; };
-		8186890E1D08D20D004F94C8 /* valid.cer in Resources */ = {isa = PBXBuildFile; fileRef = 8186890D1D08D20D004F94C8 /* valid.cer */; };
 		8186892F1D08EF3C004F94C8 /* SRSecurityOptions.h in Headers */ = {isa = PBXBuildFile; fileRef = 8186892D1D08EF3C004F94C8 /* SRSecurityOptions.h */; };
 		818689301D08EF3C004F94C8 /* SRSecurityOptions.h in Headers */ = {isa = PBXBuildFile; fileRef = 8186892D1D08EF3C004F94C8 /* SRSecurityOptions.h */; };
 		818689311D08EF3C004F94C8 /* SRSecurityOptions.h in Headers */ = {isa = PBXBuildFile; fileRef = 8186892D1D08EF3C004F94C8 /* SRSecurityOptions.h */; };
@@ -168,7 +167,6 @@
 		817995851CE139700084DA37 /* SRDelegateController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SRDelegateController.m; sourceTree = "<group>"; };
 		8179967E1CE184F40084DA37 /* SRAutobahnUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SRAutobahnUtilities.h; sourceTree = "<group>"; };
 		8179967F1CE184F40084DA37 /* SRAutobahnUtilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SRAutobahnUtilities.m; sourceTree = "<group>"; };
-		8186890D1D08D20D004F94C8 /* valid.cer */ = {isa = PBXFileReference; lastKnownFileType = file; name = valid.cer; path = ../../../../Desktop/valid.cer; sourceTree = "<group>"; };
 		8186892D1D08EF3C004F94C8 /* SRSecurityOptions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SRSecurityOptions.h; sourceTree = "<group>"; };
 		8186892E1D08EF3C004F94C8 /* SRSecurityOptions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SRSecurityOptions.m; sourceTree = "<group>"; };
 		81B22EC31CE42D7E0073C636 /* SRError.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SRError.h; sourceTree = "<group>"; };
@@ -416,7 +414,6 @@
 				F62417EB14D52F3C003CE997 /* Supporting Files */,
 				F62417F314D52F3C003CE997 /* TCAppDelegate.h */,
 				F62417F414D52F3C003CE997 /* TCAppDelegate.m */,
-				8186890D1D08D20D004F94C8 /* valid.cer */,
 				F62417F614D52F3C003CE997 /* MainStoryboard.storyboard */,
 				F62417F914D52F3C003CE997 /* TCViewController.h */,
 				F62417FA14D52F3C003CE997 /* TCViewController.m */,
@@ -754,7 +751,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				F62417EF14D52F3C003CE997 /* InfoPlist.strings in Resources */,
-				8186890E1D08D20D004F94C8 /* valid.cer in Resources */,
 				F62417F814D52F3C003CE997 /* MainStoryboard.storyboard in Resources */,
 				F61A0DC81625F44D00365EBD /* Default-568h@2x.png in Resources */,
 			);
