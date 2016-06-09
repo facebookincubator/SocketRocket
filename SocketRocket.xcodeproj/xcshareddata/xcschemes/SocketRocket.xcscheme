@@ -46,7 +46,7 @@
             ActionType = "Xcode.IDEStandardExecutionActionsCore.ExecutionActionType.ShellScriptAction">
             <ActionContent
                title = "Run Script"
-               scriptText = "PIDFILE=$TMPDIR/sr_test_server.pid&#10;&#10;if [ -r $PIDFILE ]; then&#10;    EXISTING_PID=`cat $PIDFILE`&#10;    echo &quot;Killing Dangling SRTextharneess PID:&quot; $EXISTING_PID&#10;    kill $EXISTING_PID&#10;    rm $PIDFILE&#10;fi&#10;&#10;pushd $PROJECT_DIR&#10;&#10;export MACOSX_DEPLOYMENT_TARGET=&#10;&#10;bash TestSupport/setup_env.sh $PROJECT_DIR/.env&#10;&#10;rm -rf &quot;$PROJECT_DIR/reports/clients/&quot;&#10;&#10;nohup TestSupport/run_test_server.sh &amp;&#10;&#10;echo $! &gt; $PIDFILE&#10;&#10;popd"
+               scriptText = "PIDFILE=$TMPDIR/sr_test_server.pid&#10;&#10;if [ -r $PIDFILE ]; then&#10;    EXISTING_PID=`cat $PIDFILE`&#10;    echo &quot;Killing Dangling SRTextharneess PID:&quot; $EXISTING_PID&#10;    kill $EXISTING_PID&#10;    rm $PIDFILE&#10;fi&#10;&#10;pushd $PROJECT_DIR&#10;&#10;export MACOSX_DEPLOYMENT_TARGET=&#10;&#10;bash $PROJECT_DIR/TestSupport/setup_env.sh $PROJECT_DIR/.env&#10;&#10;nohup TestSupport/run_test_server.sh &amp;&#10;&#10;echo $! &gt; $PIDFILE&#10;&#10;popd"
                shellToInvoke = "/bin/bash">
                <EnvironmentBuildable>
                   <BuildableReference
@@ -65,7 +65,7 @@
             ActionType = "Xcode.IDEStandardExecutionActionsCore.ExecutionActionType.ShellScriptAction">
             <ActionContent
                title = "Run Script"
-               scriptText = "PIDFILE=$TMPDIR/sr_test_server.pid&#10;&#10;if [ -r $PIDFILE ]; then&#10;    EXISTING_PID=`cat $PIDFILE`&#10;    echo &quot;Killing SR TestServer PID:&quot; $EXISTING_PID&#10;    kill $EXISTING_PID&#10;    rm $PIDFILE&#10;fi&#10;&#10;&#10;open $PROJECT_DIR/pages/results/index.html&#10;"
+               scriptText = "PIDFILE=$TMPDIR/sr_test_server.pid&#10;&#10;if [ -r $PIDFILE ]; then&#10;    EXISTING_PID=`cat $PIDFILE`&#10;    echo &quot;Killing SR TestServer PID:&quot; $EXISTING_PID&#10;    kill $EXISTING_PID&#10;    rm $PIDFILE&#10;fi&#10;"
                shellToInvoke = "/bin/bash">
                <EnvironmentBuildable>
                   <BuildableReference
