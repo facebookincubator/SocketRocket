@@ -27,8 +27,7 @@ NSString *SRAutobahnTestAgentName(void)
 
 NSURL *SRAutobahnTestServerURL(void)
 {
-    NSString *serverURLString = [[NSProcessInfo processInfo].environment objectForKey:@"SR_TEST_URL"];
-    return [NSURL URLWithString:serverURLString];
+    return [NSURL URLWithString:@"ws://localhost:9001"];
 }
 
 ///--------------------------------------
