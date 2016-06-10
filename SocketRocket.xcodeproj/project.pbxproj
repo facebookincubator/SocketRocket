@@ -27,6 +27,12 @@
 		811934BC1CDAF725003AB243 /* SocketRocket.h in Headers */ = {isa = PBXBuildFile; fileRef = 555E0EB11C51E56D00E6BB92 /* SocketRocket.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		811934BE1CDAF725003AB243 /* SocketRocket.h in Headers */ = {isa = PBXBuildFile; fileRef = 555E0EB11C51E56D00E6BB92 /* SocketRocket.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		811934C01CDAF726003AB243 /* SocketRocket.h in Headers */ = {isa = PBXBuildFile; fileRef = 555E0EB11C51E56D00E6BB92 /* SocketRocket.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		813364001D091E170062E28D /* SRProxyConnect.h in Headers */ = {isa = PBXBuildFile; fileRef = 4861E7731D022211002FAB1D /* SRProxyConnect.h */; };
+		813364041D091E170062E28D /* SRProxyConnect.h in Headers */ = {isa = PBXBuildFile; fileRef = 4861E7731D022211002FAB1D /* SRProxyConnect.h */; };
+		813364081D091E180062E28D /* SRProxyConnect.h in Headers */ = {isa = PBXBuildFile; fileRef = 4861E7731D022211002FAB1D /* SRProxyConnect.h */; };
+		8133640C1D091E1B0062E28D /* SRProxyConnect.m in Sources */ = {isa = PBXBuildFile; fileRef = 4861E7741D022211002FAB1D /* SRProxyConnect.m */; };
+		8133640E1D091E1B0062E28D /* SRProxyConnect.m in Sources */ = {isa = PBXBuildFile; fileRef = 4861E7741D022211002FAB1D /* SRProxyConnect.m */; };
+		8133640F1D091E1C0062E28D /* SRProxyConnect.m in Sources */ = {isa = PBXBuildFile; fileRef = 4861E7741D022211002FAB1D /* SRProxyConnect.m */; };
 		817995861CE139700084DA37 /* SRDelegateController.h in Headers */ = {isa = PBXBuildFile; fileRef = 817995841CE139700084DA37 /* SRDelegateController.h */; };
 		817995871CE139700084DA37 /* SRDelegateController.h in Headers */ = {isa = PBXBuildFile; fileRef = 817995841CE139700084DA37 /* SRDelegateController.h */; };
 		817995881CE139700084DA37 /* SRDelegateController.h in Headers */ = {isa = PBXBuildFile; fileRef = 817995841CE139700084DA37 /* SRDelegateController.h */; };
@@ -36,7 +42,6 @@
 		8179958C1CE139700084DA37 /* SRDelegateController.m in Sources */ = {isa = PBXBuildFile; fileRef = 817995851CE139700084DA37 /* SRDelegateController.m */; };
 		8179958D1CE139700084DA37 /* SRDelegateController.m in Sources */ = {isa = PBXBuildFile; fileRef = 817995851CE139700084DA37 /* SRDelegateController.m */; };
 		817996801CE184F40084DA37 /* SRAutobahnUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 8179967F1CE184F40084DA37 /* SRAutobahnUtilities.m */; };
-		8186890E1D08D20D004F94C8 /* valid.cer in Resources */ = {isa = PBXBuildFile; fileRef = 8186890D1D08D20D004F94C8 /* valid.cer */; };
 		8186892F1D08EF3C004F94C8 /* SRSecurityOptions.h in Headers */ = {isa = PBXBuildFile; fileRef = 8186892D1D08EF3C004F94C8 /* SRSecurityOptions.h */; };
 		818689301D08EF3C004F94C8 /* SRSecurityOptions.h in Headers */ = {isa = PBXBuildFile; fileRef = 8186892D1D08EF3C004F94C8 /* SRSecurityOptions.h */; };
 		818689311D08EF3C004F94C8 /* SRSecurityOptions.h in Headers */ = {isa = PBXBuildFile; fileRef = 8186892D1D08EF3C004F94C8 /* SRSecurityOptions.h */; };
@@ -168,7 +173,6 @@
 		817995851CE139700084DA37 /* SRDelegateController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SRDelegateController.m; sourceTree = "<group>"; };
 		8179967E1CE184F40084DA37 /* SRAutobahnUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SRAutobahnUtilities.h; sourceTree = "<group>"; };
 		8179967F1CE184F40084DA37 /* SRAutobahnUtilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SRAutobahnUtilities.m; sourceTree = "<group>"; };
-		8186890D1D08D20D004F94C8 /* valid.cer */ = {isa = PBXFileReference; lastKnownFileType = file; name = valid.cer; path = ../../../../Desktop/valid.cer; sourceTree = "<group>"; };
 		8186892D1D08EF3C004F94C8 /* SRSecurityOptions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SRSecurityOptions.h; sourceTree = "<group>"; };
 		8186892E1D08EF3C004F94C8 /* SRSecurityOptions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SRSecurityOptions.m; sourceTree = "<group>"; };
 		81B22EC31CE42D7E0073C636 /* SRError.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SRError.h; sourceTree = "<group>"; };
@@ -416,7 +420,6 @@
 				F62417EB14D52F3C003CE997 /* Supporting Files */,
 				F62417F314D52F3C003CE997 /* TCAppDelegate.h */,
 				F62417F414D52F3C003CE997 /* TCAppDelegate.m */,
-				8186890D1D08D20D004F94C8 /* valid.cer */,
 				F62417F614D52F3C003CE997 /* MainStoryboard.storyboard */,
 				F62417F914D52F3C003CE997 /* TCViewController.h */,
 				F62417FA14D52F3C003CE997 /* TCViewController.m */,
@@ -526,6 +529,7 @@
 				81CD05FE1CEEC65D00497F47 /* NSRunLoop+SRWebSocket.h in Headers */,
 				81CD05D81CEEC47300497F47 /* NSURLRequest+SRWebSocket.h in Headers */,
 				81B31C1D1CDC404100D86D43 /* SRIOConsumerPool.h in Headers */,
+				813364001D091E170062E28D /* SRProxyConnect.h in Headers */,
 				818689301D08EF3C004F94C8 /* SRSecurityOptions.h in Headers */,
 				2D42277F1BB4365C000C1A6C /* SRWebSocket.h in Headers */,
 				81B31C2E1CDC406B00D86D43 /* SRHash.h in Headers */,
@@ -545,6 +549,7 @@
 				81CD06001CEEC65D00497F47 /* NSRunLoop+SRWebSocket.h in Headers */,
 				81CD05DA1CEEC47300497F47 /* NSURLRequest+SRWebSocket.h in Headers */,
 				81B31C1F1CDC404100D86D43 /* SRIOConsumerPool.h in Headers */,
+				813364081D091E180062E28D /* SRProxyConnect.h in Headers */,
 				818689321D08EF3C004F94C8 /* SRSecurityOptions.h in Headers */,
 				3345DC8A1C52ACD70083CCB8 /* SRWebSocket.h in Headers */,
 				81B31C301CDC406B00D86D43 /* SRHash.h in Headers */,
@@ -564,6 +569,7 @@
 				81CD05FF1CEEC65D00497F47 /* NSRunLoop+SRWebSocket.h in Headers */,
 				81CD05D91CEEC47300497F47 /* NSURLRequest+SRWebSocket.h in Headers */,
 				81B31C1E1CDC404100D86D43 /* SRIOConsumerPool.h in Headers */,
+				813364041D091E170062E28D /* SRProxyConnect.h in Headers */,
 				818689311D08EF3C004F94C8 /* SRSecurityOptions.h in Headers */,
 				F668C8AA153E92F90044DBAC /* SRWebSocket.h in Headers */,
 				81B31C2F1CDC406B00D86D43 /* SRHash.h in Headers */,
@@ -754,7 +760,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				F62417EF14D52F3C003CE997 /* InfoPlist.strings in Resources */,
-				8186890E1D08D20D004F94C8 /* valid.cer in Resources */,
 				F62417F814D52F3C003CE997 /* MainStoryboard.storyboard in Resources */,
 				F61A0DC81625F44D00365EBD /* Default-568h@2x.png in Resources */,
 			);
@@ -790,6 +795,7 @@
 				2D4227851BB43734000C1A6C /* SRWebSocket.m in Sources */,
 				81B31C211CDC404100D86D43 /* SRIOConsumerPool.m in Sources */,
 				81B22EE91CE43ECC0073C636 /* SRURLUtilities.m in Sources */,
+				8133640C1D091E1B0062E28D /* SRProxyConnect.m in Sources */,
 				81B31C641CDC444900D86D43 /* SRRunLoopThread.m in Sources */,
 				81B31C321CDC406B00D86D43 /* SRHash.m in Sources */,
 				8179958B1CE139700084DA37 /* SRDelegateController.m in Sources */,
@@ -808,6 +814,7 @@
 				3345DC841C52ACD70083CCB8 /* SRWebSocket.m in Sources */,
 				81B31C231CDC404100D86D43 /* SRIOConsumerPool.m in Sources */,
 				81B22EEB1CE43ECC0073C636 /* SRURLUtilities.m in Sources */,
+				8133640F1D091E1C0062E28D /* SRProxyConnect.m in Sources */,
 				81B31C661CDC444900D86D43 /* SRRunLoopThread.m in Sources */,
 				81B31C341CDC406B00D86D43 /* SRHash.m in Sources */,
 				8179958D1CE139700084DA37 /* SRDelegateController.m in Sources */,
@@ -837,6 +844,7 @@
 				F6396B86153E67EC00345B5E /* SRWebSocket.m in Sources */,
 				81B31C221CDC404100D86D43 /* SRIOConsumerPool.m in Sources */,
 				81B22EEA1CE43ECC0073C636 /* SRURLUtilities.m in Sources */,
+				8133640E1D091E1B0062E28D /* SRProxyConnect.m in Sources */,
 				81B31C651CDC444900D86D43 /* SRRunLoopThread.m in Sources */,
 				81B31C331CDC406B00D86D43 /* SRHash.m in Sources */,
 				8179958C1CE139700084DA37 /* SRDelegateController.m in Sources */,

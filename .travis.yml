@@ -2,29 +2,42 @@ branches:
   only:
     - master
 language: objective-c
+os: osx
 osx_image: xcode7.3
-sudo: false
-xcode_project: SocketRocket.xcodeproj
 env:
-  global:
-    - IOS_SDK=iphonesimulator9.3
-    - IOS_SCHEME="SocketRocket-iOS"
-    - MACOS_SDK=macosx10.11
-    - MACOS_SCHEME="SocketRocketOSX"
-    - TVOS_SDK=appletvsimulator9.2
-    - TVOS_SCHEME="SocketRocket-tvOS"
   matrix:
-    - DESTINATION="OS=9.3,name=iPad 2"         SDK="$IOS_SDK"   SCHEME="$IOS_SCHEME"
-    - DESTINATION="OS=9.3,name=iPad Air"       SDK="$IOS_SDK"   SCHEME="$IOS_SCHEME"
-    - DESTINATION="OS=9.3,name=iPhone 5"       SDK="$IOS_SDK"   SCHEME="$IOS_SCHEME"
-    - DESTINATION="OS=9.3,name=iPhone 6s"      SDK="$IOS_SDK"   SCHEME="$IOS_SCHEME"
-    - DESTINATION="OS=8.4,name=iPhone 6"       SDK="$IOS_SDK"   SCHEME="$IOS_SCHEME"
-    - DESTINATION="OS=8.4,name=iPad Air"       SDK="$IOS_SDK"   SCHEME="$IOS_SCHEME"
-    - DESTINATION="OS=9.2,name=Apple TV 1080p" SDK="$TVOS_SDK"  SCHEME="$TVOS_SCHEME"
-    - DESTINATION="platform=OS X"              SDK="$MACOS_SDK" SCHEME="$MACOS_SCHEME"
-before_script:
-    - bundle install
+    - TEST_TYPE=iOS
+    - TEST_TYPE=OSX
+    - TEST_TYPE=tvOS
+    - TEST_TYPE=CocoaPods
+    - TEST_TYPE=Carthage
+before_install:
+- |
+  if [ "$TEST_TYPE" = iOS ] || [ "$TEST_TYPE" = OSX ] || [ "$TEST_TYPE" = tvOS ]; then
+    bundle install
+  elif [ "$TEST_TYPE" = Carthage ]; then    
+    brew update
+    brew install carthage || brew upgrade carthage
+  fi
+install:
+- |
+  if [ "$TEST_TYPE" = iOS ]; then
+    ./TestSupport/setup_env.sh .env
+  fi
 script:
-    - xcodebuild -version
-    - xcodebuild -scheme "$SCHEME" -sdk "$SDK" -destination "$DESTINATION" -configuration Debug -PBXBuildsContinueAfterErrors=0 ACTIVE_ARCH_ONLY=0 build test | xcpretty -tc
-    - pod lib lint --verbose --fail-fast
+- |
+  if [ "$TEST_TYPE" = iOS ]; then
+    set -o pipefail
+    xcodebuild -project SocketRocket.xcodeproj -scheme "SocketRocket" -sdk iphonesimulator build test
+  elif [ "$TEST_TYPE" = OSX ]; then
+    set -o pipefail
+    xcodebuild -project SocketRocket.xcodeproj -scheme "SocketRocket-OSX" -sdk macosx build | xcpretty -c
+  elif [ "$TEST_TYPE" = tvOS ]; then
+    set -o pipefail
+    xcodebuild -project SocketRocket.xcodeproj -scheme "SocketRocket-tvOS" -sdk appletvsimulator build | xcpretty -c
+  elif [ "$TEST_TYPE" = CocoaPods ]; then
+    pod lib lint SocketRocket.podspec
+    pod lib lint --use-libraries SocketRocket.podspec
+  elif [ "$TEST_TYPE" = Carthage ]; then
+    carthage build --no-skip-current
+  fi

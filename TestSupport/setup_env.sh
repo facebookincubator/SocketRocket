@@ -11,6 +11,8 @@ VIRTUALENV_VERSION=15.0.1
 
 if [ -d "$VIRTUALENV_PATH" ]; then 
 	echo "Virtual Env already installed"
+elif [ -z "$VIRTUALENV_PATH" ]; then
+  echo "Usage: ./setup_env.sh <folder path>"
 else
   mkdir $VIRTUALENV_PATH
 
@@ -20,16 +22,15 @@ else
   tar xvfz virtualenv.tar.gz
   
   pushd virtualenv-$VIRTUALENV_VERSION
-  python setup.py develop
+  python setup.py install --user
   popd
   
   popd
-  
+
   python $VIRTUALENV_PATH/virtualenv-$VIRTUALENV_VERSION/virtualenv.py $VIRTUALENV_PATH
-  
+
   source $VIRTUALENV_PATH/bin/activate
-  env LDFLAGS="-L$(brew --prefix openssl)/lib" CFLAGS="-I$(brew --prefix openssl)/include" pip install cryptography
-  
-  pip install unittest2
 	pip install autobahntestsuite
+  
+  echo "Environment succesfully set up in $VIRTUALENV_PATH."
 fi
