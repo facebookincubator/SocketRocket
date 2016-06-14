@@ -3,9 +3,9 @@ SocketRocket Objective-C WebSocket Client (beta)
 A conforming WebSocket (`RFC 6455 <https://tools.ietf.org/html/rfc6455>`_)
 client library.
 
-`Test results for SocketRocket here <http://square.github.io/SocketRocket/results/>`_.
+`Test results for SocketRocket here <http://facebook.github.io/SocketRocket/results/>`_.
 You can compare to what `modern browsers look like here
-<http://tavendo.com/autobahn/testsuite/report/clients/index.html>`_.
+<http://autobahn.ws/testsuite/reports/clients/index.html>`_.
 
 SocketRocket currently conforms to all ~300 of `Autobahn
 <http://autobahn.ws/testsuite/>`_'s fuzzing tests (aside from
@@ -223,7 +223,7 @@ SocketRocket has been used with the following libraries:
 
 - `Tornado <https://github.com/tornadoweb/tornado>`_
 - Go's `WebSocket package <https://godoc.org/golang.org/x/net/websocket>`_ or Gorilla's `version <http://www.gorillatoolkit.org/pkg/websocket>`_
-- `Autobahn <http://tavendo.com/autobahn/testsuite.html>`_ (using its fuzzing
+- `Autobahn <http://autobahn.ws/testsuite/>`_ (using its fuzzing
   client)
 
 The Tornado one is dirt simple and works like a charm.  (`IPython notebook
