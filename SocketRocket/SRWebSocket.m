@@ -25,8 +25,6 @@
 #import <CoreServices/CoreServices.h>
 #endif
 
-#import <Security/SecRandom.h>
-
 #import "SRDelegateController.h"
 #import "SRIOConsumer.h"
 #import "SRIOConsumerPool.h"
@@ -38,6 +36,7 @@
 #import "SRProxyConnect.h"
 #import "SRSecurityOptions.h"
 #import "SRHTTPConnectMessage.h"
+#import "SRRandom.h"
 
 #if !__has_feature(objc_arc)
 #error SocketRocket must be compiled with ARC enabled
@@ -395,21 +394,8 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
 - (void)didConnect;
 {
     SRFastLog(@"Connected");
-    NSMutableData *keyBytes = [[NSMutableData alloc] initWithLength:16];
-    int result = SecRandomCopyBytes(kSecRandomDefault, keyBytes.length, keyBytes.mutableBytes);
-    if (result != 0) {
-        //TODO: (nlutsenko) Check if there was an error.
-    }
 
-    if ([keyBytes respondsToSelector:@selector(base64EncodedStringWithOptions:)]) {
-        _secKey = [keyBytes base64EncodedStringWithOptions:0];
-    } else {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-        _secKey = [keyBytes base64Encoding];
-#pragma clang diagnostic pop
-    }
-
+    _secKey = SRBase64EncodedStringFromData(SRRandomData(16));
     assert([_secKey length] == 24);
 
     CFHTTPMessageRef message = SRHTTPConnectMessageCreate(_urlRequest,
