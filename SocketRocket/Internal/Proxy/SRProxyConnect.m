@@ -60,6 +60,20 @@ static inline void SRProxyFastLog(NSString *format, ...);
     return self;
 }
 
+- (void)dealloc
+{
+    // If we get deallocated before the socket open finishes - we need to cleanup everything.
+
+    [self.inputStream removeFromRunLoop:[NSRunLoop SR_networkRunLoop] forMode:NSDefaultRunLoopMode];
+    self.inputStream.delegate = nil;
+    [self.inputStream close];
+    self.inputStream = nil;
+
+    self.outputStream.delegate = nil;
+    [self.outputStream close];
+    self.outputStream = nil;
+}
+
 ///--------------------------------------
 #pragma mark - Open
 ///--------------------------------------
