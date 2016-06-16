@@ -98,6 +98,14 @@
 		81B31C641CDC444900D86D43 /* SRRunLoopThread.m in Sources */ = {isa = PBXBuildFile; fileRef = 81B31C5E1CDC444900D86D43 /* SRRunLoopThread.m */; };
 		81B31C651CDC444900D86D43 /* SRRunLoopThread.m in Sources */ = {isa = PBXBuildFile; fileRef = 81B31C5E1CDC444900D86D43 /* SRRunLoopThread.m */; };
 		81B31C661CDC444900D86D43 /* SRRunLoopThread.m in Sources */ = {isa = PBXBuildFile; fileRef = 81B31C5E1CDC444900D86D43 /* SRRunLoopThread.m */; };
+		81C22BC21D124168007BFDDF /* SRHTTPConnectMessage.h in Headers */ = {isa = PBXBuildFile; fileRef = 81C22BC01D124168007BFDDF /* SRHTTPConnectMessage.h */; };
+		81C22BC31D124168007BFDDF /* SRHTTPConnectMessage.h in Headers */ = {isa = PBXBuildFile; fileRef = 81C22BC01D124168007BFDDF /* SRHTTPConnectMessage.h */; };
+		81C22BC41D124168007BFDDF /* SRHTTPConnectMessage.h in Headers */ = {isa = PBXBuildFile; fileRef = 81C22BC01D124168007BFDDF /* SRHTTPConnectMessage.h */; };
+		81C22BC51D124168007BFDDF /* SRHTTPConnectMessage.h in Headers */ = {isa = PBXBuildFile; fileRef = 81C22BC01D124168007BFDDF /* SRHTTPConnectMessage.h */; };
+		81C22BC61D124168007BFDDF /* SRHTTPConnectMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 81C22BC11D124168007BFDDF /* SRHTTPConnectMessage.m */; };
+		81C22BC71D124168007BFDDF /* SRHTTPConnectMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 81C22BC11D124168007BFDDF /* SRHTTPConnectMessage.m */; };
+		81C22BC81D124168007BFDDF /* SRHTTPConnectMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 81C22BC11D124168007BFDDF /* SRHTTPConnectMessage.m */; };
+		81C22BC91D124168007BFDDF /* SRHTTPConnectMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 81C22BC11D124168007BFDDF /* SRHTTPConnectMessage.m */; };
 		81CD05D71CEEC47300497F47 /* NSURLRequest+SRWebSocket.h in Headers */ = {isa = PBXBuildFile; fileRef = 81CD05D51CEEC47300497F47 /* NSURLRequest+SRWebSocket.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		81CD05D81CEEC47300497F47 /* NSURLRequest+SRWebSocket.h in Headers */ = {isa = PBXBuildFile; fileRef = 81CD05D51CEEC47300497F47 /* NSURLRequest+SRWebSocket.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		81CD05D91CEEC47300497F47 /* NSURLRequest+SRWebSocket.h in Headers */ = {isa = PBXBuildFile; fileRef = 81CD05D51CEEC47300497F47 /* NSURLRequest+SRWebSocket.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -187,6 +195,8 @@
 		81B31C2C1CDC406B00D86D43 /* SRHash.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SRHash.m; sourceTree = "<group>"; };
 		81B31C5D1CDC444900D86D43 /* SRRunLoopThread.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SRRunLoopThread.h; sourceTree = "<group>"; };
 		81B31C5E1CDC444900D86D43 /* SRRunLoopThread.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SRRunLoopThread.m; sourceTree = "<group>"; };
+		81C22BC01D124168007BFDDF /* SRHTTPConnectMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SRHTTPConnectMessage.h; sourceTree = "<group>"; };
+		81C22BC11D124168007BFDDF /* SRHTTPConnectMessage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SRHTTPConnectMessage.m; sourceTree = "<group>"; };
 		81CD05D51CEEC47300497F47 /* NSURLRequest+SRWebSocket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSURLRequest+SRWebSocket.h"; sourceTree = "<group>"; };
 		81CD05D61CEEC47300497F47 /* NSURLRequest+SRWebSocket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSURLRequest+SRWebSocket.m"; sourceTree = "<group>"; };
 		81CD05FB1CEEC65D00497F47 /* NSRunLoop+SRWebSocket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSRunLoop+SRWebSocket.h"; sourceTree = "<group>"; };
@@ -398,6 +408,8 @@
 				81B31C2C1CDC406B00D86D43 /* SRHash.m */,
 				81B22EE21CE43ECC0073C636 /* SRURLUtilities.h */,
 				81B22EE31CE43ECC0073C636 /* SRURLUtilities.m */,
+				81C22BC01D124168007BFDDF /* SRHTTPConnectMessage.h */,
+				81C22BC11D124168007BFDDF /* SRHTTPConnectMessage.m */,
 				81B22EC31CE42D7E0073C636 /* SRError.h */,
 				81B22EC41CE42D7E0073C636 /* SRError.m */,
 			);
@@ -534,6 +546,7 @@
 				2D42277F1BB4365C000C1A6C /* SRWebSocket.h in Headers */,
 				81B31C2E1CDC406B00D86D43 /* SRHash.h in Headers */,
 				811934BE1CDAF725003AB243 /* SocketRocket.h in Headers */,
+				81C22BC31D124168007BFDDF /* SRHTTPConnectMessage.h in Headers */,
 				817995871CE139700084DA37 /* SRDelegateController.h in Headers */,
 				81B22EC61CE42D7E0073C636 /* SRError.h in Headers */,
 				81B31C601CDC444900D86D43 /* SRRunLoopThread.h in Headers */,
@@ -554,6 +567,7 @@
 				3345DC8A1C52ACD70083CCB8 /* SRWebSocket.h in Headers */,
 				81B31C301CDC406B00D86D43 /* SRHash.h in Headers */,
 				811934C01CDAF726003AB243 /* SocketRocket.h in Headers */,
+				81C22BC51D124168007BFDDF /* SRHTTPConnectMessage.h in Headers */,
 				817995891CE139700084DA37 /* SRDelegateController.h in Headers */,
 				81B22EC81CE42D7E0073C636 /* SRError.h in Headers */,
 				81B31C621CDC444900D86D43 /* SRRunLoopThread.h in Headers */,
@@ -574,6 +588,7 @@
 				F668C8AA153E92F90044DBAC /* SRWebSocket.h in Headers */,
 				81B31C2F1CDC406B00D86D43 /* SRHash.h in Headers */,
 				811934BC1CDAF725003AB243 /* SocketRocket.h in Headers */,
+				81C22BC41D124168007BFDDF /* SRHTTPConnectMessage.h in Headers */,
 				817995881CE139700084DA37 /* SRDelegateController.h in Headers */,
 				81B22EC71CE42D7E0073C636 /* SRError.h in Headers */,
 				81B31C611CDC444900D86D43 /* SRRunLoopThread.h in Headers */,
@@ -594,6 +609,7 @@
 				81B31C2D1CDC406B00D86D43 /* SRHash.h in Headers */,
 				4861E7751D022211002FAB1D /* SRProxyConnect.h in Headers */,
 				555E0EB41C51E57A00E6BB92 /* SocketRocket.h in Headers */,
+				81C22BC21D124168007BFDDF /* SRHTTPConnectMessage.h in Headers */,
 				817995861CE139700084DA37 /* SRDelegateController.h in Headers */,
 				81B22EC51CE42D7E0073C636 /* SRError.h in Headers */,
 				81B31C5F1CDC444900D86D43 /* SRRunLoopThread.h in Headers */,
@@ -791,6 +807,7 @@
 				81B22ECA1CE42D7E0073C636 /* SRError.m in Sources */,
 				81B31C191CDC404100D86D43 /* SRIOConsumer.m in Sources */,
 				818689341D08EF3C004F94C8 /* SRSecurityOptions.m in Sources */,
+				81C22BC71D124168007BFDDF /* SRHTTPConnectMessage.m in Sources */,
 				81CD06021CEEC65D00497F47 /* NSRunLoop+SRWebSocket.m in Sources */,
 				2D4227851BB43734000C1A6C /* SRWebSocket.m in Sources */,
 				81B31C211CDC404100D86D43 /* SRIOConsumerPool.m in Sources */,
@@ -810,6 +827,7 @@
 				81B22ECC1CE42D7E0073C636 /* SRError.m in Sources */,
 				81B31C1B1CDC404100D86D43 /* SRIOConsumer.m in Sources */,
 				818689361D08EF3C004F94C8 /* SRSecurityOptions.m in Sources */,
+				81C22BC91D124168007BFDDF /* SRHTTPConnectMessage.m in Sources */,
 				81CD06041CEEC65D00497F47 /* NSRunLoop+SRWebSocket.m in Sources */,
 				3345DC841C52ACD70083CCB8 /* SRWebSocket.m in Sources */,
 				81B31C231CDC404100D86D43 /* SRIOConsumerPool.m in Sources */,
@@ -840,6 +858,7 @@
 				81B22ECB1CE42D7E0073C636 /* SRError.m in Sources */,
 				81B31C1A1CDC404100D86D43 /* SRIOConsumer.m in Sources */,
 				818689351D08EF3C004F94C8 /* SRSecurityOptions.m in Sources */,
+				81C22BC81D124168007BFDDF /* SRHTTPConnectMessage.m in Sources */,
 				81CD06031CEEC65D00497F47 /* NSRunLoop+SRWebSocket.m in Sources */,
 				F6396B86153E67EC00345B5E /* SRWebSocket.m in Sources */,
 				81B31C221CDC404100D86D43 /* SRIOConsumerPool.m in Sources */,
@@ -859,6 +878,7 @@
 				818689331D08EF3C004F94C8 /* SRSecurityOptions.m in Sources */,
 				81CD05DB1CEEC47300497F47 /* NSURLRequest+SRWebSocket.m in Sources */,
 				81B22EC91CE42D7E0073C636 /* SRError.m in Sources */,
+				81C22BC61D124168007BFDDF /* SRHTTPConnectMessage.m in Sources */,
 				81B31C181CDC404100D86D43 /* SRIOConsumer.m in Sources */,
 				81CD06011CEEC65D00497F47 /* NSRunLoop+SRWebSocket.m in Sources */,
 				F6A12CD2145119B700C1D980 /* SRWebSocket.m in Sources */,

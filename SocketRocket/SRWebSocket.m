@@ -37,6 +37,7 @@
 #import "NSRunLoop+SRWebSocket.h"
 #import "SRProxyConnect.h"
 #import "SRSecurityOptions.h"
+#import "SRHTTPConnectMessage.h"
 
 #if !__has_feature(objc_arc)
 #error SocketRocket must be compiled with ARC enabled
@@ -394,11 +395,6 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
 - (void)didConnect;
 {
     SRFastLog(@"Connected");
-    CFHTTPMessageRef request = CFHTTPMessageCreateRequest(NULL, CFSTR("GET"), (__bridge CFURLRef)_url, kCFHTTPVersion1_1);
-
-    // Set host first so it defaults
-    CFHTTPMessageSetHeaderFieldValue(request, CFSTR("Host"), (__bridge CFStringRef)(_url.port ? [NSString stringWithFormat:@"%@:%@", _url.host, _url.port] : _url.host));
-
     NSMutableData *keyBytes = [[NSMutableData alloc] initWithLength:16];
     int result = SecRandomCopyBytes(kSecRandomDefault, keyBytes.length, keyBytes.mutableBytes);
     if (result != 0) {
@@ -416,40 +412,17 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
 
     assert([_secKey length] == 24);
 
-    // Apply cookies if any have been provided
-    NSDictionary<NSString *, NSString *> *cookies = [NSHTTPCookie requestHeaderFieldsWithCookies:self.requestCookies];
-    [cookies enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, NSString * _Nonnull obj, BOOL * _Nonnull stop) {
-        if (key.length && obj.length) {
-            CFHTTPMessageSetHeaderFieldValue(request, (__bridge CFStringRef)key, (__bridge CFStringRef)obj);
-        }
-    }];
+    CFHTTPMessageRef message = SRHTTPConnectMessageCreate(_urlRequest,
+                                                          _secKey,
+                                                          SRWebSocketProtocolVersion,
+                                                          self.requestCookies,
+                                                          _requestedProtocols);
 
-    // set header for http basic auth
-    NSString *basicAuthorizationString = SRBasicAuthorizationHeaderFromURL(_url);
-    if (basicAuthorizationString) {
-        CFHTTPMessageSetHeaderFieldValue(request, CFSTR("Authorization"), (__bridge CFStringRef)basicAuthorizationString);
-    }
+    NSData *messageData = CFBridgingRelease(CFHTTPMessageCopySerializedMessage(message));
 
-    CFHTTPMessageSetHeaderFieldValue(request, CFSTR("Upgrade"), CFSTR("websocket"));
-    CFHTTPMessageSetHeaderFieldValue(request, CFSTR("Connection"), CFSTR("Upgrade"));
-    CFHTTPMessageSetHeaderFieldValue(request, CFSTR("Sec-WebSocket-Key"), (__bridge CFStringRef)_secKey);
-    CFHTTPMessageSetHeaderFieldValue(request, CFSTR("Sec-WebSocket-Version"), (__bridge CFStringRef)@(SRWebSocketProtocolVersion).stringValue);
+    CFRelease(message);
 
-    CFHTTPMessageSetHeaderFieldValue(request, CFSTR("Origin"), (__bridge CFStringRef)SRURLOrigin(_url));
-
-    if (_requestedProtocols) {
-        CFHTTPMessageSetHeaderFieldValue(request, CFSTR("Sec-WebSocket-Protocol"), (__bridge CFStringRef)[_requestedProtocols componentsJoinedByString:@", "]);
-    }
-
-    [_urlRequest.allHTTPHeaderFields enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
-        CFHTTPMessageSetHeaderFieldValue(request, (__bridge CFStringRef)key, (__bridge CFStringRef)obj);
-    }];
-
-    NSData *message = CFBridgingRelease(CFHTTPMessageCopySerializedMessage(request));
-
-    CFRelease(request);
-
-    [self _writeData:message];
+    [self _writeData:messageData];
     [self _readHTTPHeader];
 }
 
