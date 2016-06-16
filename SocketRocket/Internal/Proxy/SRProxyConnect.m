@@ -113,6 +113,10 @@ static inline void SRProxyFastLog(NSString *format, ...);
         CFRelease(_receivedHTTPHeaders);
         _receivedHTTPHeaders = NULL;
     }
+
+    self.inputStream.delegate = nil;
+    self.outputStream.delegate = nil;
+
     [self.inputStream removeFromRunLoop:[NSRunLoop SR_networkRunLoop]
                                 forMode:NSDefaultRunLoopMode];
     [self.inputStream close];
