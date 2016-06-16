@@ -151,6 +151,10 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
     SRProxyConnect *_proxyConnect;
 }
 
+///--------------------------------------
+#pragma mark - Init
+///--------------------------------------
+
 - (instancetype)initWithURLRequest:(NSURLRequest *)request protocols:(NSArray<NSString *> *)protocols allowsUntrustedSSLCertificates:(BOOL)allowsUntrustedSSLCertificates
 {
     self = [super init];
@@ -221,6 +225,10 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
     assert(dispatch_get_specific((__bridge void *)self) == (__bridge void *)_workQueue);
 }
 
+///--------------------------------------
+#pragma mark - Dealloc
+///--------------------------------------
+
 - (void)dealloc
 {
     _inputStream.delegate = nil;
@@ -235,6 +243,10 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
     }
 }
 
+///--------------------------------------
+#pragma mark - Accessors
+///--------------------------------------
+
 #ifndef NDEBUG
 
 - (void)setReadyState:(SRReadyState)aReadyState;
@@ -245,10 +257,14 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
 
 #endif
 
-- (void)open;
+///--------------------------------------
+#pragma mark - Open / Close
+///--------------------------------------
+
+- (void)open
 {
     assert(_url);
-    NSAssert(_readyState == SR_CONNECTING, @"Cannot call -(void)open on SRWebSocket more than once");
+    NSAssert(_readyState == SR_CONNECTING, @"Cannot call -(void)open on SRWebSocket more than once.");
 
     _selfRetain = self;
 
@@ -263,7 +279,40 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
         });
     }
 
-    [self openConnection];
+    _proxyConnect = [[SRProxyConnect alloc] initWithURL:_url];
+
+    __weak typeof(self) wself = self;
+    [_proxyConnect openNetworkStreamWithCompletion:^(NSError *error, NSInputStream *readStream, NSOutputStream *writeStream) {
+        [wself _connectionDoneWithError:error readStream:readStream writeStream:writeStream];
+    }];
+}
+
+- (void)_connectionDoneWithError:(NSError *)error readStream:(NSInputStream *)readStream writeStream:(NSOutputStream *)writeStream
+{
+    _proxyConnect = nil; // Job's done! This is not longer required.
+
+    if (error != nil) {
+        [self _failWithError:error];
+    } else {
+        _outputStream = writeStream;
+        _inputStream = readStream;
+
+        _inputStream.delegate = self;
+        _outputStream.delegate = self;
+        [self _updateSecureStreamOptions];
+
+        if (!_scheduledRunloops.count) {
+            [self scheduleInRunLoop:[NSRunLoop SR_networkRunLoop] forMode:NSDefaultRunLoopMode];
+        }
+
+        // If we don't require SSL validation - consider that we connected.
+        // Otherwise `didConnect` is called when SSL validation finishes.
+        if (!_securityOptions.requestRequiresSSL) {
+            dispatch_async(_workQueue, ^{
+                [self didConnect];
+            });
+        }
+    }
 }
 
 - (BOOL)_checkHandshake:(CFHTTPMessageRef)httpMessage;
@@ -451,44 +500,6 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
     if (networkServiceType != nil) {
         [_inputStream setProperty:networkServiceType forKey:NSStreamNetworkServiceType];
         [_outputStream setProperty:networkServiceType forKey:NSStreamNetworkServiceType];
-    }
-}
-
-- (void)openConnection;
-{
-    _proxyConnect = [[SRProxyConnect alloc] initWithURL:_url];
-
-    __weak typeof(self) wself = self;
-    [_proxyConnect openNetworkStreamWithCompletion:^(NSError *error, NSInputStream *readStream, NSOutputStream *writeStream) {
-        [wself _connectionDoneWithError:error readStream:readStream writeStream:writeStream];
-    }];
-}
-
-- (void)_connectionDoneWithError:(NSError *)error readStream:(NSInputStream *)readStream writeStream:(NSOutputStream *)writeStream
-{
-    _proxyConnect = nil; // Job's done! This is not longer required.
-
-    if (error != nil) {
-        [self _failWithError:error];
-    } else {
-        _outputStream = writeStream;
-        _inputStream = readStream;
-
-        _inputStream.delegate = self;
-        _outputStream.delegate = self;
-        [self _updateSecureStreamOptions];
-
-        if (!_scheduledRunloops.count) {
-            [self scheduleInRunLoop:[NSRunLoop SR_networkRunLoop] forMode:NSDefaultRunLoopMode];
-        }
-
-        // If we don't require SSL validation - consider that we connected.
-        // Otherwise `didConnect` is called when SSL validation finishes.
-        if (!_securityOptions.requestRequiresSSL) {
-            dispatch_async(_workQueue, ^{
-                [self didConnect];
-            });
-        }
     }
 }
 
