@@ -39,7 +39,7 @@ static inline void SRProxyFastLog(NSString *format, ...);
     BOOL _connectionRequiresSSL;
 
     NSMutableArray<NSData *> *_inputQueue;
-    NSOperationQueue * _writeQueue;
+    dispatch_queue_t _writeQueue;
 }
 
 ///--------------------------------------
@@ -54,7 +54,7 @@ static inline void SRProxyFastLog(NSString *format, ...);
     _url = url;
     _connectionRequiresSSL = SRURLRequiresSSL(url);
 
-    _writeQueue =  [[NSOperationQueue alloc] init];
+    _writeQueue = dispatch_queue_create("com.facebook.socketrocket.proxyconnect.write", DISPATCH_QUEUE_SERIAL);
     _inputQueue = [NSMutableArray arrayWithCapacity:2];
 
     return self;
@@ -437,7 +437,7 @@ static NSTimeInterval const SRProxyConnectWriteTimeout = 5.0;
     const uint8_t * bytes = data.bytes;
     __block NSInteger timeout = SRProxyConnectWriteTimeout * 1000000; // wait timeout before giving up
     __weak typeof(self) wself = self;
-    [_writeQueue addOperationWithBlock:^() {
+    dispatch_async(_writeQueue, ^{
         if (!wself) {
             return;
         }
@@ -456,7 +456,7 @@ static NSTimeInterval const SRProxyConnectWriteTimeout = 5.0;
             }
         }
         [outStream write:bytes maxLength:data.length];
-    }];
+    });
 }
 @end
 
