@@ -580,28 +580,45 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
 - (void)send:(nullable id)message
 {
     if (!message) {
-        [self sendData:nil]; // Send Data, but it doesn't matter since we are going to send the same text frame with 0 length.
+        [self sendData:nil error:nil]; // Send Data, but it doesn't matter since we are going to send the same text frame with 0 length.
     } else if ([message isKindOfClass:[NSString class]]) {
-        [self sendString:message];
+        [self sendString:message error:nil];
     } else if ([message isKindOfClass:[NSData class]]) {
-        [self sendData:message];
+        [self sendData:message error:nil];
     } else {
         NSAssert(NO, @"Unrecognized message. Not able to send anything other than a String or NSData.");
     }
 }
 
-- (void)sendString:(NSString *)string
+- (BOOL)sendString:(NSString *)string error:(NSError **)error
 {
-    NSAssert(self.readyState != SR_CONNECTING, @"Invalid State: Cannot call send: until connection is open");
+    if (self.readyState != SR_OPEN) {
+        NSString *message = @"Invalid State: Cannot call `sendString:error:` until connection is open.";
+        if (error) {
+            *error = SRErrorWithCodeDescription(2134, message);
+        }
+        SRDebugLog(message);
+        return NO;
+    }
+
     string = [string copy];
     dispatch_async(_workQueue, ^{
         [self _sendFrameWithOpcode:SROpCodeTextFrame data:[string dataUsingEncoding:NSUTF8StringEncoding]];
     });
+    return YES;
 }
 
-- (void)sendData:(NSData *)data
+- (BOOL)sendData:(nullable NSData *)data error:(NSError **)error
 {
-    NSAssert(self.readyState != SR_CONNECTING, @"Invalid State: Cannot call send: until connection is open");
+    if (self.readyState != SR_OPEN) {
+        NSString *message = @"Invalid State: Cannot call `sendData:error:` until connection is open.";
+        if (error) {
+            *error = SRErrorWithCodeDescription(2134, message);
+        }
+        SRDebugLog(message);
+        return NO;
+    }
+
     data = [data copy];
     dispatch_async(_workQueue, ^{
         if (data) {
@@ -610,15 +627,25 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
             [self _sendFrameWithOpcode:SROpCodeTextFrame data:nil];
         }
     });
+    return YES;
 }
 
-- (void)sendPing:(NSData *)data;
+- (BOOL)sendPing:(nullable NSData *)data error:(NSError **)error
 {
-    NSAssert(self.readyState == SR_OPEN, @"Invalid State: Cannot call send: until connection is open");
+    if (self.readyState != SR_OPEN) {
+        NSString *message = @"Invalid State: Cannot call `sendPing:error:` until connection is open.";
+        if (error) {
+            *error = SRErrorWithCodeDescription(2134, message);
+        }
+        SRDebugLog(message);
+        return NO;
+    }
+
     data = [data copy] ?: [NSData data]; // It's okay for a ping to be empty
     dispatch_async(_workQueue, ^{
         [self _sendFrameWithOpcode:SROpCodePing data:data];
     });
+    return YES;
 }
 
 - (void)handlePing:(NSData *)pingData;

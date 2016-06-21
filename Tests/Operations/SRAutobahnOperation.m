@@ -70,10 +70,10 @@ SRAutobahnOperation *SRAutobahnTestOperation(NSURL *serverURL, NSInteger caseNum
                                                caseNumber:@(caseNumber)
                                                     agent:agent
                                        textMessageHandler:^(SRWebSocket * _Nonnull socket, NSString  * _Nullable message) {
-                                           [socket sendString:message];
+                                           [socket sendString:message error:nil];
                                        }
                                        dataMessageHandler:^(SRWebSocket * _Nonnull socket, NSData * _Nullable message) {
-                                           [socket sendData:message];
+                                           [socket sendData:message error:nil];
                                        }];
 }
 

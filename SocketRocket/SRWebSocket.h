@@ -237,28 +237,43 @@ NS_DESIGNATED_INITIALIZER;
 
  @deprecated Please use `sendString:` or `sendData` instead.
  */
-- (void)send:(nullable id)message __attribute__((deprecated("Please use `sendString:` or `sendData` instead.")));
+- (void)send:(nullable id)message __attribute__((deprecated("Please use `sendString:error:` or `sendData:error:` instead.")));
 
 /**
  Send a UTF-8 String to the server.
 
  @param string String to send.
+ @param error  On input, a pointer to variable for an `NSError` object.
+ If an error occurs, this pointer is set to an `NSError` object containing information about the error.
+ You may specify `nil` to ignore the error information.
+
+ @return `YES` if the string was scheduled to send, otherwise - `NO`.
  */
-- (void)sendString:(NSString *)string;
+- (BOOL)sendString:(NSString *)string error:(NSError **)error NS_SWIFT_NAME(send(string:));
 
 /**
  Send binary data to the server.
 
- @param data Data to send.
+ @param data  Data to send.
+ @param error On input, a pointer to variable for an `NSError` object.
+ If an error occurs, this pointer is set to an `NSError` object containing information about the error.
+ You may specify `nil` to ignore the error information.
+
+ @return `YES` if the string was scheduled to send, otherwise - `NO`.
  */
-- (void)sendData:(nullable NSData *)data;
+- (BOOL)sendData:(nullable NSData *)data error:(NSError **)error NS_SWIFT_NAME(send(data:));
 
 /**
  Send Ping message to the server with optional data.
 
- @param data Instance of `NSData` or `nil`.
+ @param data  Instance of `NSData` or `nil`.
+ @param error On input, a pointer to variable for an `NSError` object.
+ If an error occurs, this pointer is set to an `NSError` object containing information about the error.
+ You may specify `nil` to ignore the error information.
+
+ @return `YES` if the string was scheduled to send, otherwise - `NO`.
  */
-- (void)sendPing:(nullable NSData *)data;
+- (BOOL)sendPing:(nullable NSData *)data error:(NSError **)error NS_SWIFT_NAME(sendPing(_:));
 
 @end
 
