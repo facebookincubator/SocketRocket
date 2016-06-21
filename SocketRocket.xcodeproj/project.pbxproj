@@ -50,6 +50,14 @@
 		818689341D08EF3C004F94C8 /* SRSecurityOptions.m in Sources */ = {isa = PBXBuildFile; fileRef = 8186892E1D08EF3C004F94C8 /* SRSecurityOptions.m */; };
 		818689351D08EF3C004F94C8 /* SRSecurityOptions.m in Sources */ = {isa = PBXBuildFile; fileRef = 8186892E1D08EF3C004F94C8 /* SRSecurityOptions.m */; };
 		818689361D08EF3C004F94C8 /* SRSecurityOptions.m in Sources */ = {isa = PBXBuildFile; fileRef = 8186892E1D08EF3C004F94C8 /* SRSecurityOptions.m */; };
+		81900A4C1D18C9CC0015A290 /* SRLog.h in Headers */ = {isa = PBXBuildFile; fileRef = 81900A4A1D18C9CC0015A290 /* SRLog.h */; };
+		81900A4D1D18C9CC0015A290 /* SRLog.h in Headers */ = {isa = PBXBuildFile; fileRef = 81900A4A1D18C9CC0015A290 /* SRLog.h */; };
+		81900A4E1D18C9CC0015A290 /* SRLog.h in Headers */ = {isa = PBXBuildFile; fileRef = 81900A4A1D18C9CC0015A290 /* SRLog.h */; };
+		81900A4F1D18C9CC0015A290 /* SRLog.h in Headers */ = {isa = PBXBuildFile; fileRef = 81900A4A1D18C9CC0015A290 /* SRLog.h */; };
+		81900A501D18C9CC0015A290 /* SRLog.m in Sources */ = {isa = PBXBuildFile; fileRef = 81900A4B1D18C9CC0015A290 /* SRLog.m */; };
+		81900A511D18C9CC0015A290 /* SRLog.m in Sources */ = {isa = PBXBuildFile; fileRef = 81900A4B1D18C9CC0015A290 /* SRLog.m */; };
+		81900A521D18C9CC0015A290 /* SRLog.m in Sources */ = {isa = PBXBuildFile; fileRef = 81900A4B1D18C9CC0015A290 /* SRLog.m */; };
+		81900A531D18C9CC0015A290 /* SRLog.m in Sources */ = {isa = PBXBuildFile; fileRef = 81900A4B1D18C9CC0015A290 /* SRLog.m */; };
 		81B22EC51CE42D7E0073C636 /* SRError.h in Headers */ = {isa = PBXBuildFile; fileRef = 81B22EC31CE42D7E0073C636 /* SRError.h */; };
 		81B22EC61CE42D7E0073C636 /* SRError.h in Headers */ = {isa = PBXBuildFile; fileRef = 81B22EC31CE42D7E0073C636 /* SRError.h */; };
 		81B22EC71CE42D7E0073C636 /* SRError.h in Headers */ = {isa = PBXBuildFile; fileRef = 81B22EC31CE42D7E0073C636 /* SRError.h */; };
@@ -191,6 +199,8 @@
 		8179967F1CE184F40084DA37 /* SRAutobahnUtilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SRAutobahnUtilities.m; sourceTree = "<group>"; };
 		8186892D1D08EF3C004F94C8 /* SRSecurityOptions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SRSecurityOptions.h; sourceTree = "<group>"; };
 		8186892E1D08EF3C004F94C8 /* SRSecurityOptions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SRSecurityOptions.m; sourceTree = "<group>"; };
+		81900A4A1D18C9CC0015A290 /* SRLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SRLog.h; sourceTree = "<group>"; };
+		81900A4B1D18C9CC0015A290 /* SRLog.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SRLog.m; sourceTree = "<group>"; };
 		81B22EC31CE42D7E0073C636 /* SRError.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SRError.h; sourceTree = "<group>"; };
 		81B22EC41CE42D7E0073C636 /* SRError.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SRError.m; sourceTree = "<group>"; };
 		81B22EE21CE43ECC0073C636 /* SRURLUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SRURLUtilities.h; sourceTree = "<group>"; };
@@ -414,16 +424,18 @@
 		81B31C131CDC404100D86D43 /* Utilities */ = {
 			isa = PBXGroup;
 			children = (
+				81B22EC31CE42D7E0073C636 /* SRError.h */,
+				81B22EC41CE42D7E0073C636 /* SRError.m */,
 				81B31C2B1CDC406B00D86D43 /* SRHash.h */,
 				81B31C2C1CDC406B00D86D43 /* SRHash.m */,
+				81C22BC01D124168007BFDDF /* SRHTTPConnectMessage.h */,
+				81C22BC11D124168007BFDDF /* SRHTTPConnectMessage.m */,
+				81900A4A1D18C9CC0015A290 /* SRLog.h */,
+				81900A4B1D18C9CC0015A290 /* SRLog.m */,
 				81C22BF61D1256E1007BFDDF /* SRRandom.h */,
 				81C22BF71D1256E1007BFDDF /* SRRandom.m */,
 				81B22EE21CE43ECC0073C636 /* SRURLUtilities.h */,
 				81B22EE31CE43ECC0073C636 /* SRURLUtilities.m */,
-				81C22BC01D124168007BFDDF /* SRHTTPConnectMessage.h */,
-				81C22BC11D124168007BFDDF /* SRHTTPConnectMessage.m */,
-				81B22EC31CE42D7E0073C636 /* SRError.h */,
-				81B22EC41CE42D7E0073C636 /* SRError.m */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -552,6 +564,7 @@
 				81B31C151CDC404100D86D43 /* SRIOConsumer.h in Headers */,
 				81CD05FE1CEEC65D00497F47 /* NSRunLoop+SRWebSocket.h in Headers */,
 				81CD05D81CEEC47300497F47 /* NSURLRequest+SRWebSocket.h in Headers */,
+				81900A4D1D18C9CC0015A290 /* SRLog.h in Headers */,
 				81B31C1D1CDC404100D86D43 /* SRIOConsumerPool.h in Headers */,
 				813364001D091E170062E28D /* SRProxyConnect.h in Headers */,
 				818689301D08EF3C004F94C8 /* SRSecurityOptions.h in Headers */,
@@ -574,6 +587,7 @@
 				81B31C171CDC404100D86D43 /* SRIOConsumer.h in Headers */,
 				81CD06001CEEC65D00497F47 /* NSRunLoop+SRWebSocket.h in Headers */,
 				81CD05DA1CEEC47300497F47 /* NSURLRequest+SRWebSocket.h in Headers */,
+				81900A4F1D18C9CC0015A290 /* SRLog.h in Headers */,
 				81B31C1F1CDC404100D86D43 /* SRIOConsumerPool.h in Headers */,
 				813364081D091E180062E28D /* SRProxyConnect.h in Headers */,
 				818689321D08EF3C004F94C8 /* SRSecurityOptions.h in Headers */,
@@ -596,6 +610,7 @@
 				81B31C161CDC404100D86D43 /* SRIOConsumer.h in Headers */,
 				81CD05FF1CEEC65D00497F47 /* NSRunLoop+SRWebSocket.h in Headers */,
 				81CD05D91CEEC47300497F47 /* NSURLRequest+SRWebSocket.h in Headers */,
+				81900A4E1D18C9CC0015A290 /* SRLog.h in Headers */,
 				81B31C1E1CDC404100D86D43 /* SRIOConsumerPool.h in Headers */,
 				813364041D091E170062E28D /* SRProxyConnect.h in Headers */,
 				818689311D08EF3C004F94C8 /* SRSecurityOptions.h in Headers */,
@@ -618,6 +633,7 @@
 				81B31C141CDC404100D86D43 /* SRIOConsumer.h in Headers */,
 				81CD05FD1CEEC65D00497F47 /* NSRunLoop+SRWebSocket.h in Headers */,
 				81CD05D71CEEC47300497F47 /* NSURLRequest+SRWebSocket.h in Headers */,
+				81900A4C1D18C9CC0015A290 /* SRLog.h in Headers */,
 				8186892F1D08EF3C004F94C8 /* SRSecurityOptions.h in Headers */,
 				81B31C1C1CDC404100D86D43 /* SRIOConsumerPool.h in Headers */,
 				F6A12CD1145119B700C1D980 /* SRWebSocket.h in Headers */,
@@ -748,7 +764,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastTestingUpgradeCheck = 0640;
-				LastUpgradeCheck = 0720;
+				LastUpgradeCheck = 0800;
 			};
 			buildConfigurationList = F6B208271450F597009315AF /* Build configuration list for PBXProject "SocketRocket" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -831,6 +847,7 @@
 				81B22EE91CE43ECC0073C636 /* SRURLUtilities.m in Sources */,
 				8133640C1D091E1B0062E28D /* SRProxyConnect.m in Sources */,
 				81B31C641CDC444900D86D43 /* SRRunLoopThread.m in Sources */,
+				81900A511D18C9CC0015A290 /* SRLog.m in Sources */,
 				81B31C321CDC406B00D86D43 /* SRHash.m in Sources */,
 				8179958B1CE139700084DA37 /* SRDelegateController.m in Sources */,
 			);
@@ -852,6 +869,7 @@
 				81B22EEB1CE43ECC0073C636 /* SRURLUtilities.m in Sources */,
 				8133640F1D091E1C0062E28D /* SRProxyConnect.m in Sources */,
 				81B31C661CDC444900D86D43 /* SRRunLoopThread.m in Sources */,
+				81900A531D18C9CC0015A290 /* SRLog.m in Sources */,
 				81B31C341CDC406B00D86D43 /* SRHash.m in Sources */,
 				8179958D1CE139700084DA37 /* SRDelegateController.m in Sources */,
 			);
@@ -884,6 +902,7 @@
 				81B22EEA1CE43ECC0073C636 /* SRURLUtilities.m in Sources */,
 				8133640E1D091E1B0062E28D /* SRProxyConnect.m in Sources */,
 				81B31C651CDC444900D86D43 /* SRRunLoopThread.m in Sources */,
+				81900A521D18C9CC0015A290 /* SRLog.m in Sources */,
 				81B31C331CDC406B00D86D43 /* SRHash.m in Sources */,
 				8179958C1CE139700084DA37 /* SRDelegateController.m in Sources */,
 			);
@@ -905,6 +924,7 @@
 				81B31C201CDC404100D86D43 /* SRIOConsumerPool.m in Sources */,
 				81B22EE81CE43ECC0073C636 /* SRURLUtilities.m in Sources */,
 				81B31C631CDC444900D86D43 /* SRRunLoopThread.m in Sources */,
+				81900A501D18C9CC0015A290 /* SRLog.m in Sources */,
 				81B31C311CDC406B00D86D43 /* SRHash.m in Sources */,
 				8179958A1CE139700084DA37 /* SRDelegateController.m in Sources */,
 			);
