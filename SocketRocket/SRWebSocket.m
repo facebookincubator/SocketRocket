@@ -25,6 +25,8 @@
 #import <CoreServices/CoreServices.h>
 #endif
 
+#import <libkern/OSAtomic.h>
+
 #import "SRDelegateController.h"
 #import "SRIOConsumer.h"
 #import "SRIOConsumerPool.h"
@@ -38,6 +40,7 @@
 #import "SRHTTPConnectMessage.h"
 #import "SRRandom.h"
 #import "SRLog.h"
+#import "SRMutex.h"
 
 #if !__has_feature(objc_arc)
 #error SocketRocket must be compiled with ARC enabled
@@ -86,7 +89,7 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
 
 @interface SRWebSocket ()  <NSStreamDelegate>
 
-@property (nonatomic, assign, readwrite) SRReadyState readyState;
+@property (atomic, assign, readwrite) SRReadyState readyState;
 
 // Specifies whether SSL trust chain should NOT be evaluated.
 // By default this flag is set to NO, meaning only secure SSL connections are allowed.
@@ -99,6 +102,9 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
 @end
 
 @implementation SRWebSocket {
+    SRMutex _kvoLock;
+    OSSpinLock _propertyLock;
+
     dispatch_queue_t _workQueue;
     NSMutableArray<SRIOConsumer *> *_consumers;
 
@@ -151,6 +157,8 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
     SRProxyConnect *_proxyConnect;
 }
 
+@synthesize readyState = _readyState;
+
 ///--------------------------------------
 #pragma mark - Init
 ///--------------------------------------
@@ -173,6 +181,8 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
 
     _readyState = SR_CONNECTING;
 
+    _propertyLock = OS_SPINLOCK_INIT;
+    _kvoLock = SRMutexInitRecursive();
     _workQueue = dispatch_queue_create(NULL, DISPATCH_QUEUE_SERIAL);
 
     // Going to set a specific on the queue so we can validate we're on the work queue
@@ -241,21 +251,45 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
         CFRelease(_receivedHTTPHeaders);
         _receivedHTTPHeaders = NULL;
     }
+
+    SRMutexDestroy(_kvoLock);
 }
 
 ///--------------------------------------
 #pragma mark - Accessors
 ///--------------------------------------
 
-#ifndef NDEBUG
+#pragma mark readyState
 
-- (void)setReadyState:(SRReadyState)aReadyState;
+- (void)setReadyState:(SRReadyState)readyState
 {
-    assert(aReadyState > _readyState);
-    _readyState = aReadyState;
+    @try {
+        SRMutexLock(_kvoLock);
+        if (_readyState != readyState) {
+            [self willChangeValueForKey:@"readyState"];
+            OSSpinLockLock(&_propertyLock);
+            _readyState = readyState;
+            OSSpinLockUnlock(&_propertyLock);
+            [self didChangeValueForKey:@"readyState"];
+        }
+    }
+    @finally {
+        SRMutexUnlock(_kvoLock);
+    }
 }
 
-#endif
+- (SRReadyState)readyState
+{
+    SRReadyState state = 0;
+    OSSpinLockLock(&_propertyLock);
+    state = _readyState;
+    OSSpinLockUnlock(&_propertyLock);
+    return state;
+}
+
++ (BOOL)automaticallyNotifiesObserversOfReadyState {
+    return NO;
+}
 
 ///--------------------------------------
 #pragma mark - Open / Close
@@ -264,7 +298,7 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
 - (void)open
 {
     assert(_url);
-    NSAssert(_readyState == SR_CONNECTING, @"Cannot call -(void)open on SRWebSocket more than once.");
+    NSAssert(self.readyState == SR_CONNECTING, @"Cannot call -(void)open on SRWebSocket more than once.");
 
     _selfRetain = self;
 
