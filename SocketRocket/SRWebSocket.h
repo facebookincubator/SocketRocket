@@ -330,9 +330,6 @@ NS_DESIGNATED_INITIALIZER;
  */
 - (void)webSocket:(SRWebSocket *)webSocket didReceiveMessageWithData:(NSData *)data;
 
-// Whether to copy outbound data before sending. Default (if not implemented) is to copy.
-- (BOOL)webSocket:(SRWebSocket *)webSocket shouldCopyDataToSend:(id)data;
-
 // Whether to copy inbound data before sending to -webSocket:didReceiveMessage:. Default (if not implemented) is to copy.
 - (BOOL)webSocket:(SRWebSocket *)webSocket shouldCopyReceivedData:(NSData *)data;
 
