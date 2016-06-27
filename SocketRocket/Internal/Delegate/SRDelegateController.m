@@ -57,7 +57,8 @@ NS_ASSUME_NONNULL_BEGIN
             .didFailWithError = [delegate respondsToSelector:@selector(webSocket:didFailWithError:)],
             .didCloseWithCode = [delegate respondsToSelector:@selector(webSocket:didCloseWithCode:reason:wasClean:)],
             .didReceivePong = [delegate respondsToSelector:@selector(webSocket:didReceivePong:)],
-            .shouldConvertTextFrameToString = [delegate respondsToSelector:@selector(webSocketShouldConvertTextFrameToString:)]
+            .shouldConvertTextFrameToString = [delegate respondsToSelector:@selector(webSocketShouldConvertTextFrameToString:)],
+            .shouldCopyReceivedData = [delegate respondsToSelector:@selector(webSocket:shouldCopyReceivedData:)]
         };
     });
 }

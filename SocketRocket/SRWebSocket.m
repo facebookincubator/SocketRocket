@@ -758,11 +758,20 @@ static inline BOOL closeCodeIsValid(int closeCode) {
 
 - (void)_handleFrameWithData:(NSData *)frameData opCode:(NSInteger)opcode;
 {
-    BOOL shouldCopyNotImplemented = ![self.delegate respondsToSelector:@selector(webSocket:shouldCopyReceivedData:)];
-    if (shouldCopyNotImplemented || [self.delegate webSocket:self shouldCopyReceivedData:frameData]) {
-        frameData = [frameData copy];
-    }
+    [self.delegateController performDelegateBlock:^(id<SRWebSocketDelegate>  _Nullable delegate, SRDelegateAvailableMethods availableMethods) {
+        NSData *data = frameData;
+        if (!availableMethods.shouldCopyReceivedData || [self.delegate webSocket:self shouldCopyReceivedData:frameData]) {
+            //frameData will be copied before passing to handlers
+            //otherwise there can be misbehaviours when value at the pointer is changed
+            data = [frameData copy];
+        }
 
+        [self _handleDelegatedFrameWithData:data opCode:opcode];
+    }];
+}
+
+- (void)_handleDelegatedFrameWithData:(NSData *)frameData opCode:(NSInteger)opcode;
+{
     // Check that the current data is valid UTF8
 
     BOOL isControlFrame = (opcode == SROpCodePing || opcode == SROpCodePong || opcode == SROpCodeConnectionClose);
@@ -774,8 +783,6 @@ static inline BOOL closeCodeIsValid(int closeCode) {
         });
     }
 
-    //frameData will be copied before passing to handlers
-    //otherwise there can be misbehaviours when value at the pointer is changed
     switch (opcode) {
         case SROpCodeTextFrame: {
             NSString *string = [[NSString alloc] initWithData:frameData encoding:NSUTF8StringEncoding];
