@@ -37,6 +37,7 @@
 #import "SRSecurityOptions.h"
 #import "SRHTTPConnectMessage.h"
 #import "SRRandom.h"
+#import "SRLog.h"
 
 #if !__has_feature(objc_arc)
 #error SocketRocket must be compiled with ARC enabled
@@ -77,7 +78,6 @@ typedef struct {
 static NSString *const SRWebSocketAppendToSecKeyString = @"258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
 
 static inline int32_t validate_dispatch_data_partial_string(NSData *data);
-static inline void SRFastLog(NSString *format, ...);
 
 static uint8_t const SRWebSocketProtocolVersion = 13;
 
@@ -333,7 +333,7 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
 {
     NSInteger responseCode = CFHTTPMessageGetResponseStatusCode(_receivedHTTPHeaders);
     if (responseCode >= 400) {
-        SRFastLog(@"Request failed with response code %d", responseCode);
+        SRDebugLog(@"Request failed with response code %d", responseCode);
         NSError *error = SRHTTPErrorWithCodeDescription(responseCode, 2132,
                                                         [NSString stringWithFormat:@"Received bad response code from server: %d.",
                                                          (int)responseCode]);
@@ -383,7 +383,7 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
         CFHTTPMessageAppendBytes(_receivedHTTPHeaders, (const UInt8 *)data.bytes, data.length);
 
         if (CFHTTPMessageIsHeaderComplete(_receivedHTTPHeaders)) {
-            SRFastLog(@"Finished reading headers %@", CFBridgingRelease(CFHTTPMessageCopyAllHeaderFields(_receivedHTTPHeaders)));
+            SRDebugLog(@"Finished reading headers %@", CFBridgingRelease(CFHTTPMessageCopyAllHeaderFields(_receivedHTTPHeaders)));
             [self _HTTPHeadersDidFinish];
         } else {
             [self _readHTTPHeader];
@@ -393,7 +393,7 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
 
 - (void)didConnect;
 {
-    SRFastLog(@"Connected");
+    SRDebugLog(@"Connected");
 
     _secKey = SRBase64EncodedStringFromData(SRRandomData(16));
     assert([_secKey length] == 24);
@@ -414,12 +414,12 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
 
 - (void)_updateSecureStreamOptions
 {
-    SRFastLog(@"Setting up security for streams.");
+    SRDebugLog(@"Setting up security for streams.");
     [_securityOptions updateSecurityOptionsInStream:_inputStream];
     [_securityOptions updateSecurityOptionsInStream:_outputStream];
 
-    SRFastLog(@"Allows connection any root cert: %d", _securityOptions.validatesCertificateChain);
-    SRFastLog(@"Pinned cert count: %d", _securityOptions.pinnedCertificates.count);
+    SRDebugLog(@"Allows connection any root cert: %d", _securityOptions.validatesCertificateChain);
+    SRDebugLog(@"Pinned cert count: %d", _securityOptions.pinnedCertificates.count);
 
     _inputStream.delegate = self;
     _outputStream.delegate = self;
@@ -495,7 +495,7 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
 
         self.readyState = SR_CLOSING;
 
-        SRFastLog(@"Closing with code %d reason %@", code, reason);
+        SRDebugLog(@"Closing with code %d reason %@", code, reason);
 
         if (wasConnecting) {
             [self closeConnection];
@@ -553,7 +553,7 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
 
             self.readyState = SR_CLOSED;
 
-            SRFastLog(@"Failing with error %@", error.localizedDescription);
+            SRDebugLog(@"Failing with error %@", error.localizedDescription);
 
             [self closeConnection];
             [self _scheduleCleanup];
@@ -633,7 +633,7 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
 
 - (void)handlePong:(NSData *)pongData;
 {
-    SRFastLog(@"Received pong");
+    SRDebugLog(@"Received pong");
     [self.delegateController performDelegateBlock:^(id<SRWebSocketDelegate>  _Nullable delegate, SRDelegateAvailableMethods availableMethods) {
         if (availableMethods.didReceivePong) {
             [delegate webSocket:self didReceivePong:pongData];
@@ -681,7 +681,7 @@ static inline BOOL closeCodeIsValid(int closeCode) {
     size_t dataSize = data.length;
     __block uint16_t closeCode = 0;
 
-    SRFastLog(@"Received close frame");
+    SRDebugLog(@"Received close frame");
 
     if (dataSize == 1) {
         // TODO handle error
@@ -718,7 +718,7 @@ static inline BOOL closeCodeIsValid(int closeCode) {
 - (void)closeConnection;
 {
     [self assertOnWorkQueue];
-    SRFastLog(@"Trying to disconnect");
+    SRDebugLog(@"Trying to disconnect");
     _closeWhenFinishedWriting = YES;
     [self _pumpWriting];
 }
@@ -749,7 +749,7 @@ static inline BOOL closeCodeIsValid(int closeCode) {
                 });
                 return;
             }
-            SRFastLog(@"Received text message.");
+            SRDebugLog(@"Received text message.");
             [self.delegateController performDelegateBlock:^(id<SRWebSocketDelegate>  _Nullable delegate, SRDelegateAvailableMethods availableMethods) {
                 // Don't convert into string - iff `delegate` tells us not to. Otherwise - create UTF8 string and handle that.
                 if (availableMethods.shouldConvertTextFrameToString && ![delegate webSocketShouldConvertTextFrameToString:self]) {
@@ -771,7 +771,7 @@ static inline BOOL closeCodeIsValid(int closeCode) {
             break;
         }
         case SROpCodeBinaryFrame: {
-            SRFastLog(@"Received data message.");
+            SRDebugLog(@"Received data message.");
             [self.delegateController performDelegateBlock:^(id<SRWebSocketDelegate>  _Nullable delegate, SRDelegateAvailableMethods availableMethods) {
                 if (availableMethods.didReceiveMessage) {
                     [delegate webSocket:self didReceiveMessage:frameData];
@@ -1385,7 +1385,7 @@ static const size_t SRFrameHeaderOverhead = 32;
 {
     switch (eventCode) {
         case NSStreamEventOpenCompleted: {
-            SRFastLog(@"NSStreamEventOpenCompleted %@", aStream);
+            SRDebugLog(@"NSStreamEventOpenCompleted %@", aStream);
             if (self.readyState >= SR_CLOSING) {
                 return;
             }
@@ -1402,7 +1402,7 @@ static const size_t SRFrameHeaderOverhead = 32;
         }
 
         case NSStreamEventErrorOccurred: {
-            SRFastLog(@"NSStreamEventErrorOccurred %@ %@", aStream, [[aStream streamError] copy]);
+            SRDebugLog(@"NSStreamEventErrorOccurred %@ %@", aStream, [[aStream streamError] copy]);
             /// TODO specify error better!
             [self _failWithError:aStream.streamError];
             _readBufferOffset = 0;
@@ -1413,7 +1413,7 @@ static const size_t SRFrameHeaderOverhead = 32;
 
         case NSStreamEventEndEncountered: {
             [self _pumpScanner];
-            SRFastLog(@"NSStreamEventEndEncountered %@", aStream);
+            SRDebugLog(@"NSStreamEventEndEncountered %@", aStream);
             if (aStream.streamError) {
                 [self _failWithError:aStream.streamError];
             } else {
@@ -1442,7 +1442,7 @@ static const size_t SRFrameHeaderOverhead = 32;
         }
 
         case NSStreamEventHasBytesAvailable: {
-            SRFastLog(@"NSStreamEventHasBytesAvailable %@", aStream);
+            SRDebugLog(@"NSStreamEventHasBytesAvailable %@", aStream);
             uint8_t buffer[SRDefaultBufferSize()];
 
             while (_inputStream.hasBytesAvailable) {
@@ -1465,13 +1465,13 @@ static const size_t SRFrameHeaderOverhead = 32;
         }
 
         case NSStreamEventHasSpaceAvailable: {
-            SRFastLog(@"NSStreamEventHasSpaceAvailable %@", aStream);
+            SRDebugLog(@"NSStreamEventHasSpaceAvailable %@", aStream);
             [self _pumpWriting];
             break;
         }
 
         default:
-            SRFastLog(@"(default)  %@", aStream);
+            SRDebugLog(@"(default)  %@", aStream);
             break;
     }
 }
@@ -1511,22 +1511,6 @@ static const size_t SRFrameHeaderOverhead = 32;
 }
 
 @end
-
-//#define SR_ENABLE_LOG
-
-static inline void SRFastLog(NSString *format, ...)  {
-#ifdef SR_ENABLE_LOG
-    __block va_list arg_list;
-    va_start (arg_list, format);
-
-    NSString *formattedString = [[NSString alloc] initWithFormat:format arguments:arg_list];
-
-    va_end(arg_list);
-
-    NSLog(@"[SR] %@", formattedString);
-#endif
-}
-
 
 #ifdef HAS_ICU
 

@@ -11,8 +11,7 @@
 #import "SRError.h"
 #import "NSRunLoop+SRWebSocket.h"
 #import "SRURLUtilities.h"
-
-static inline void SRProxyFastLog(NSString *format, ...);
+#import "SRLog.h"
 
 @interface SRProxyConnect() <NSStreamDelegate>
 
@@ -90,11 +89,11 @@ static inline void SRProxyFastLog(NSString *format, ...);
 
 - (void)_didConnect
 {
-    SRProxyFastLog(@"_didConnect, return streams");
+    SRDebugLog(@"_didConnect, return streams");
     if (_connectionRequiresSSL) {
         if (_httpProxyHost) {
             // Must set the real peer name before turning on SSL
-            SRProxyFastLog(@"proxy set peer name to real host %@", self.url.host);
+            SRDebugLog(@"proxy set peer name to real host %@", self.url.host);
             [self.outputStream setProperty:self.url.host forKey:@"_kCFStreamPropertySocketPeerName"];
         }
     }
@@ -118,7 +117,7 @@ static inline void SRProxyFastLog(NSString *format, ...);
 
 - (void)_failWithError:(NSError *)error
 {
-    SRProxyFastLog(@"_failWithError, return error");
+    SRDebugLog(@"_failWithError, return error");
     if (!error) {
         error = SRHTTPErrorWithCodeDescription(500, 2132,@"Proxy Error");
     }
@@ -143,7 +142,7 @@ static inline void SRProxyFastLog(NSString *format, ...);
 // get proxy setting from device setting
 - (void)_configureProxy
 {
-    SRProxyFastLog(@"configureProxy");
+    SRDebugLog(@"configureProxy");
     NSDictionary *proxySettings = CFBridgingRelease(CFNetworkCopySystemProxySettings());
 
     // CFNetworkCopyProxiesForURL doesn't understand ws:// or wss://
@@ -156,7 +155,7 @@ static inline void SRProxyFastLog(NSString *format, ...);
 
     NSArray *proxies = CFBridgingRelease(CFNetworkCopyProxiesForURL((__bridge CFURLRef)httpURL, (__bridge CFDictionaryRef)proxySettings));
     if (proxies.count == 0) {
-        SRProxyFastLog(@"configureProxy no proxies");
+        SRDebugLog(@"configureProxy no proxies");
         [self _openConnection];
         return;                 // no proxy
     }
@@ -199,17 +198,17 @@ static inline void SRProxyFastLog(NSString *format, ...);
         _socksProxyPassword = settings[(NSString *)kCFProxyPasswordKey];
     }
     if (_httpProxyHost) {
-        SRProxyFastLog(@"Using http proxy %@:%u", _httpProxyHost, _httpProxyPort);
+        SRDebugLog(@"Using http proxy %@:%u", _httpProxyHost, _httpProxyPort);
     } else if (_socksProxyHost) {
-        SRProxyFastLog(@"Using socks proxy %@:%u", _socksProxyHost, _socksProxyPort);
+        SRDebugLog(@"Using socks proxy %@:%u", _socksProxyHost, _socksProxyPort);
     } else {
-        SRProxyFastLog(@"configureProxy no proxies");
+        SRDebugLog(@"configureProxy no proxies");
     }
 }
 
 - (void)_fetchPAC:(NSURL *)PACurl
 {
-    SRProxyFastLog(@"SRWebSocket fetchPAC:%@", PACurl);
+    SRDebugLog(@"SRWebSocket fetchPAC:%@", PACurl);
 
     if ([PACurl isFileURL]) {
         NSError *error = nil;
@@ -255,7 +254,7 @@ static inline void SRProxyFastLog(NSString *format, ...);
         [self _openConnection];
         return;
     }
-    SRProxyFastLog(@"runPACScript");
+    SRDebugLog(@"runPACScript");
     // From: http://developer.apple.com/samplecode/CFProxySupportTool/listing1.html
     // Work around <rdar://problem/5530166>.  This dummy call to
     // CFNetworkCopyProxiesForURL initialise some state within CFNetwork
@@ -311,14 +310,14 @@ static inline void SRProxyFastLog(NSString *format, ...);
     CFReadStreamRef readStream = NULL;
     CFWriteStreamRef writeStream = NULL;
 
-    SRProxyFastLog(@"ProxyConnect connect stream to %@:%u", host, port);
+    SRDebugLog(@"ProxyConnect connect stream to %@:%u", host, port);
     CFStreamCreatePairWithSocketToHost(NULL, (__bridge CFStringRef)host, port, &readStream, &writeStream);
 
     self.outputStream = CFBridgingRelease(writeStream);
     self.inputStream = CFBridgingRelease(readStream);
 
     if (_socksProxyHost) {
-        SRProxyFastLog(@"ProxyConnect set sock property stream to %@:%u user %@ password %@", _socksProxyHost, _socksProxyPort, _socksProxyUsername, _socksProxyPassword);
+        SRDebugLog(@"ProxyConnect set sock property stream to %@:%u user %@ password %@", _socksProxyHost, _socksProxyPort, _socksProxyUsername, _socksProxyPassword);
         NSMutableDictionary *settings = [NSMutableDictionary dictionaryWithCapacity:4];
         settings[NSStreamSOCKSProxyHostKey] = _socksProxyHost;
         if (_socksProxyPort) {
@@ -339,7 +338,7 @@ static inline void SRProxyFastLog(NSString *format, ...);
 
 - (void)stream:(NSStream *)aStream handleEvent:(NSStreamEvent)eventCode;
 {
-    SRProxyFastLog(@"stream handleEvent %u", eventCode);
+    SRDebugLog(@"stream handleEvent %u", eventCode);
     switch (eventCode) {
         case NSStreamEventOpenCompleted: {
             if (aStream == self.inputStream) {
@@ -362,14 +361,14 @@ static inline void SRProxyFastLog(NSString *format, ...);
             }
         } break;
         default:
-            SRProxyFastLog(@"(default)  %@", aStream);
+            SRDebugLog(@"(default)  %@", aStream);
             break;
     }
 }
 
 - (void)_proxyDidConnect
 {
-    SRProxyFastLog(@"Proxy Connected");
+    SRDebugLog(@"Proxy Connected");
     uint32_t port = _url.port.unsignedIntValue;
     if (port == 0) {
         port = (_connectionRequiresSSL ? 443 : 80);
@@ -378,7 +377,7 @@ static inline void SRProxyFastLog(NSString *format, ...);
     NSString *connectRequestStr = [NSString stringWithFormat:@"CONNECT %@:%u HTTP/1.1\r\nHost: %@\r\nConnection: keep-alive\r\nProxy-Connection: keep-alive\r\n\r\n", _url.host, port, _url.host];
 
     NSData *message = [connectRequestStr dataUsingEncoding:NSUTF8StringEncoding];
-    SRProxyFastLog(@"Proxy sending %@", connectRequestStr);
+    SRDebugLog(@"Proxy sending %@", connectRequestStr);
 
     [self _writeData:message];
 }
@@ -423,7 +422,7 @@ static size_t const SRProxyConnectBufferMaxSize = 4096;
 
     CFHTTPMessageAppendBytes(_receivedHTTPHeaders, (const UInt8 *)data.bytes, data.length);
     if (CFHTTPMessageIsHeaderComplete(_receivedHTTPHeaders)) {
-        SRProxyFastLog(@"Finished reading headers %@", CFBridgingRelease(CFHTTPMessageCopyAllHeaderFields(_receivedHTTPHeaders)));
+        SRDebugLog(@"Finished reading headers %@", CFBridgingRelease(CFHTTPMessageCopyAllHeaderFields(_receivedHTTPHeaders)));
         [self _proxyHTTPHeadersDidFinish];
     }
 }
@@ -433,14 +432,14 @@ static size_t const SRProxyConnectBufferMaxSize = 4096;
     NSInteger responseCode = CFHTTPMessageGetResponseStatusCode(_receivedHTTPHeaders);
 
     if (responseCode >= 299) {
-        SRProxyFastLog(@"Connect to Proxy Request failed with response code %d", responseCode);
+        SRDebugLog(@"Connect to Proxy Request failed with response code %d", responseCode);
         NSError *error = SRHTTPErrorWithCodeDescription(responseCode, 2132,
                                                         [NSString stringWithFormat:@"Received bad response code from proxy server: %d.",
                                                          (int)responseCode]);
         [self _failWithError:error];
         return;
     }
-    SRProxyFastLog(@"proxy connect return %d, call socket connect", responseCode);
+    SRDebugLog(@"proxy connect return %d, call socket connect", responseCode);
     [self _didConnect];
 }
 
@@ -473,18 +472,3 @@ static NSTimeInterval const SRProxyConnectWriteTimeout = 5.0;
     });
 }
 @end
-
-//#define SRPROXY_ENABLE_LOG
-
-static inline void SRProxyFastLog(NSString *format, ...)  {
-#ifdef SRPROXY_ENABLE_LOG
-    __block va_list arg_list;
-    va_start (arg_list, format);
-
-    NSString *formattedString = [[NSString alloc] initWithFormat:format arguments:arg_list];
-
-    va_end(arg_list);
-
-    NSLog(@"[Proxy] %@", formattedString);
-#endif
-}
