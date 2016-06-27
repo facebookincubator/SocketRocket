@@ -266,6 +266,18 @@ NS_DESIGNATED_INITIALIZER;
 - (BOOL)sendData:(nullable NSData *)data error:(NSError **)error NS_SWIFT_NAME(send(data:));
 
 /**
+ Send binary data to the server, without making a defensive copy of it first.
+
+ @param data  Data to send.
+ @param error On input, a pointer to variable for an `NSError` object.
+ If an error occurs, this pointer is set to an `NSError` object containing information about the error.
+ You may specify `nil` to ignore the error information.
+
+ @return `YES` if the string was scheduled to send, otherwise - `NO`.
+ */
+- (BOOL)sendWithoutCopyingData:(nullable NSData *)data error:(NSError **)error NS_SWIFT_NAME(sendWithoutCopying(data:));
+
+/**
  Send Ping message to the server with optional data.
 
  @param data  Instance of `NSData` or `nil`.
@@ -317,9 +329,6 @@ NS_DESIGNATED_INITIALIZER;
  @param data      Received data in a form of `NSData`.
  */
 - (void)webSocket:(SRWebSocket *)webSocket didReceiveMessageWithData:(NSData *)data;
-
-// Whether to copy outbound data before sending. Default (if not implemented) is to copy.
-- (BOOL)webSocket:(SRWebSocket *)webSocket shouldCopyDataToSend:(id)data;
 
 // Whether to copy inbound data before sending to -webSocket:didReceiveMessage:. Default (if not implemented) is to copy.
 - (BOOL)webSocket:(SRWebSocket *)webSocket shouldCopyReceivedData:(NSData *)data;

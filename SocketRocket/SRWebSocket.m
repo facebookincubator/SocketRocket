@@ -644,6 +644,12 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
 
 - (BOOL)sendData:(nullable NSData *)data error:(NSError **)error
 {
+    data = [data copy];
+    return [self sendWithoutCopyingData:data error:error];
+}
+
+- (BOOL)sendWithoutCopyingData:(nullable NSData *)data error:(NSError **)error
+{
     if (self.readyState != SR_OPEN) {
         NSString *message = @"Invalid State: Cannot call `sendData:error:` until connection is open.";
         if (error) {
@@ -654,10 +660,6 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
     }
 
     NSAssert(self.readyState != SR_CONNECTING, @"Invalid State: Cannot call send: until connection is open");
-    BOOL shouldCopyNotImplemented = ![self.delegate respondsToSelector:@selector(webSocket:shouldCopyDataToSend:)];
-    if (shouldCopyNotImplemented || [self.delegate webSocket:self shouldCopyDataToSend:data]) {
-        data = [data copy];
-    }
     dispatch_async(_workQueue, ^{
         if (data) {
             [self _sendFrameWithOpcode:SROpCodeBinaryFrame data:data];
