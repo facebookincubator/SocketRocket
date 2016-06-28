@@ -20,7 +20,7 @@ typedef NS_ENUM(NSInteger, SRReadyState) {
     SR_CLOSED       = 3,
 };
 
-typedef enum SRStatusCode : NSInteger {
+typedef NS_ENUM(NSInteger, SRStatusCode) {
     // 0–999: Reserved and not used.
     SRStatusCodeNormal = 1000,
     SRStatusCodeGoingAway = 1001,
@@ -42,7 +42,7 @@ typedef enum SRStatusCode : NSInteger {
     // 2000–2999: Reserved for use by WebSocket extensions.
     // 3000–3999: Available for use by libraries and frameworks. May not be used by applications. Available for registration at the IANA via first-come, first-serve.
     // 4000–4999: Available for use by applications.
-} SRStatusCode;
+};
 
 @class SRWebSocket;
 
