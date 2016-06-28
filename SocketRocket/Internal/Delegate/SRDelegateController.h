@@ -22,7 +22,6 @@ struct SRDelegateAvailableMethods {
     BOOL didCloseWithCode : 1;
     BOOL didReceivePong : 1;
     BOOL shouldConvertTextFrameToString : 1;
-    BOOL shouldCopyReceivedData : 1;
 };
 typedef struct SRDelegateAvailableMethods SRDelegateAvailableMethods;
 
