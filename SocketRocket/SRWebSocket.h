@@ -275,7 +275,7 @@ NS_DESIGNATED_INITIALIZER;
 
  @return `YES` if the string was scheduled to send, otherwise - `NO`.
  */
-- (BOOL)sendWithoutCopyingData:(nullable NSData *)data error:(NSError **)error NS_SWIFT_NAME(sendWithoutCopying(data:));
+- (BOOL)sendDataNoCopy:(nullable NSData *)data error:(NSError **)error NS_SWIFT_NAME(send(dataNoCopy:));
 
 /**
  Send Ping message to the server with optional data.

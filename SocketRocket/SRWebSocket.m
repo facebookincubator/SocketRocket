@@ -645,10 +645,10 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
 - (BOOL)sendData:(nullable NSData *)data error:(NSError **)error
 {
     data = [data copy];
-    return [self sendWithoutCopyingData:data error:error];
+    return [self sendDataNoCopy:data error:error];
 }
 
-- (BOOL)sendWithoutCopyingData:(nullable NSData *)data error:(NSError **)error
+- (BOOL)sendDataNoCopy:(nullable NSData *)data error:(NSError **)error
 {
     if (self.readyState != SR_OPEN) {
         NSString *message = @"Invalid State: Cannot call `sendData:error:` until connection is open.";
