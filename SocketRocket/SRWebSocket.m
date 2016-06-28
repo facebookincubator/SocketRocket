@@ -793,7 +793,7 @@ static inline BOOL closeCodeIsValid(int closeCode) {
 {
     //frameData will be copied before passing to handlers
     //otherwise there can be misbehaviours when value at the pointer is changed
-    data = [frameData copy];
+    frameData = [frameData copy];
 
     // Check that the current data is valid UTF8
 
