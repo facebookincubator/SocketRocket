@@ -659,10 +659,6 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
         return NO;
     }
 
-    BOOL shouldCopyNotImplemented = ![self.delegate respondsToSelector:@selector(webSocket:shouldCopyDataToSend:)];
-    if (shouldCopyNotImplemented || [self.delegate webSocket:self shouldCopyDataToSend:data]) {
-        data = [data copy];
-    }
     dispatch_async(_workQueue, ^{
         if (data) {
             [self _sendFrameWithOpcode:SROpCodeBinaryFrame data:data];
