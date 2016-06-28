@@ -10,17 +10,17 @@ clean:
 test:
 
 	mkdir -p pages/results
-	bash ./TestSupport/run_test.sh $(TEST_SCENARIOS) $(TEST_URL) Debug || open pages/results/index.html && false
+	bash ./TestSupport/run_test_server.sh $(TEST_SCENARIOS) $(TEST_URL) Debug || open pages/results/index.html && false
 	open pages/results/index.html
 
 test_all:
 
 	mkdir -p pages/results
-	bash ./TestSupport/run_test.sh '*' $(TEST_URL) Debug || open pages/results/index.html && false
+	bash ./TestSupport/run_test_server.sh '*' $(TEST_URL) Debug || open pages/results/index.html && false
 	open pages/results/index.html
 
 test_perf:
 
 	mkdir -p pages/results
-	bash ./TestSupport/run_test.sh '9.*' $(TEST_URL) Release || open pages/results/index.html && false
+	bash ./TestSupport/run_test_server.sh '9.*' $(TEST_URL) Release || open pages/results/index.html && false
 	open pages/results/index.html

@@ -644,8 +644,14 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
 
 - (BOOL)sendData:(nullable NSData *)data error:(NSError **)error
 {
+    data = [data copy];
+    return [self sendDataNoCopy:data error:error];
+}
+
+- (BOOL)sendDataNoCopy:(nullable NSData *)data error:(NSError **)error
+{
     if (self.readyState != SR_OPEN) {
-        NSString *message = @"Invalid State: Cannot call `sendData:error:` until connection is open.";
+        NSString *message = @"Invalid State: Cannot call `sendDataNoCopy:error:` until connection is open.";
         if (error) {
             *error = SRErrorWithCodeDescription(2134, message);
         }
@@ -653,7 +659,6 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
         return NO;
     }
 
-    data = [data copy];
     dispatch_async(_workQueue, ^{
         if (data) {
             [self _sendFrameWithOpcode:SROpCodeBinaryFrame data:data];
@@ -786,7 +791,10 @@ static inline BOOL closeCodeIsValid(int closeCode) {
 
 - (void)_handleFrameWithData:(NSData *)frameData opCode:(NSInteger)opcode;
 {
+    //frameData will be copied before passing to handlers
+    //otherwise there can be misbehaviours when value at the pointer is changed
     frameData = [frameData copy];
+
     // Check that the current data is valid UTF8
 
     BOOL isControlFrame = (opcode == SROpCodePing || opcode == SROpCodePong || opcode == SROpCodeConnectionClose);
@@ -798,8 +806,6 @@ static inline BOOL closeCodeIsValid(int closeCode) {
         });
     }
 
-    //frameData will be copied before passing to handlers
-    //otherwise there can be misbehaviours when value at the pointer is changed
     switch (opcode) {
         case SROpCodeTextFrame: {
             NSString *string = [[NSString alloc] initWithData:frameData encoding:NSUTF8StringEncoding];
@@ -1031,7 +1037,9 @@ static const uint8_t SRPayloadLenMask   = 0x7F;
 - (void)_readFrameNew;
 {
     dispatch_async(_workQueue, ^{
-        [_currentFrameData setLength:0];
+        // Don't reset the length, since Apple doesn't guarantee that this will free the memory (and in tests on
+        // some platforms, it doesn't seem to, effectively causing a leak the size of the biggest frame so far).
+        _currentFrameData = [[NSMutableData alloc] init];
 
         _currentFrameOpcode = 0;
         _currentFrameCount = 0;

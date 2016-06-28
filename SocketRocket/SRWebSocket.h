@@ -266,6 +266,18 @@ NS_DESIGNATED_INITIALIZER;
 - (BOOL)sendData:(nullable NSData *)data error:(NSError **)error NS_SWIFT_NAME(send(data:));
 
 /**
+ Send binary data to the server, without making a defensive copy of it first.
+
+ @param data  Data to send.
+ @param error On input, a pointer to variable for an `NSError` object.
+ If an error occurs, this pointer is set to an `NSError` object containing information about the error.
+ You may specify `nil` to ignore the error information.
+
+ @return `YES` if the string was scheduled to send, otherwise - `NO`.
+ */
+- (BOOL)sendDataNoCopy:(nullable NSData *)data error:(NSError **)error NS_SWIFT_NAME(send(dataNoCopy:));
+
+/**
  Send Ping message to the server with optional data.
 
  @param data  Instance of `NSData` or `nil`.
