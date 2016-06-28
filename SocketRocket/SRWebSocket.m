@@ -659,7 +659,6 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
         return NO;
     }
 
-    NSAssert(self.readyState != SR_CONNECTING, @"Invalid State: Cannot call `sendDataNoCopy:error:` until connection is open");
     dispatch_async(_workQueue, ^{
         if (data) {
             [self _sendFrameWithOpcode:SROpCodeBinaryFrame data:data];
