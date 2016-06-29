@@ -36,7 +36,7 @@
 #import "NSURLRequest+SRWebSocket.h"
 #import "NSRunLoop+SRWebSocket.h"
 #import "SRProxyConnect.h"
-#import "SRSecurityOptions.h"
+#import "SRSecurityPolicy.h"
 #import "SRHTTPConnectMessage.h"
 #import "SRRandom.h"
 #import "SRLog.h"
@@ -127,7 +127,8 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
 
     NSString *_secKey;
 
-    SRSecurityOptions *_securityOptions;
+    SRSecurityPolicy *_securityPolicy;
+    BOOL _requestRequiresSSL;
     BOOL _streamSecurityValidated;
 
     uint8_t _currentReadMaskKey[4];
@@ -163,7 +164,7 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
 #pragma mark - Init
 ///--------------------------------------
 
-- (instancetype)initWithURLRequest:(NSURLRequest *)request protocols:(NSArray<NSString *> *)protocols allowsUntrustedSSLCertificates:(BOOL)allowsUntrustedSSLCertificates
+- (instancetype)initWithURLRequest:(NSURLRequest *)request protocols:(NSArray<NSString *> *)protocols securityPolicy:(SRSecurityPolicy *)securityPolicy
 {
     self = [super init];
     if (!self) return self;
@@ -171,13 +172,9 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
     assert(request.URL);
     _url = request.URL;
     _urlRequest = request;
-    _allowsUntrustedSSLCertificates = allowsUntrustedSSLCertificates;
-
     _requestedProtocols = [protocols copy];
-
-    _securityOptions = [[SRSecurityOptions alloc] initWithRequest:request
-                                               pinnedCertificates:request.SR_SSLPinnedCertificates
-                                           chainValidationEnabled:allowsUntrustedSSLCertificates];
+    _securityPolicy = securityPolicy;
+    _requestRequiresSSL = SRURLRequiresSSL(_url);
 
     _readyState = SR_CONNECTING;
 
@@ -204,6 +201,25 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
     return self;
 }
 
+- (instancetype)initWithURLRequest:(NSURLRequest *)request protocols:(NSArray<NSString *> *)protocols allowsUntrustedSSLCertificates:(BOOL)allowsUntrustedSSLCertificates
+{
+    SRSecurityPolicy *securityPolicy;
+    NSArray *pinnedCertificates = request.SR_SSLPinnedCertificates;
+    if (pinnedCertificates) {
+        securityPolicy = [SRSecurityPolicy pinnningPolicyWithCertificates:pinnedCertificates];
+    } else {
+        BOOL certificateChainValidationEnabled = !allowsUntrustedSSLCertificates;
+        securityPolicy = [[SRSecurityPolicy alloc] initWithCertificateChainValidationEnabled:certificateChainValidationEnabled];
+    }
+
+    return [self initWithURLRequest:request protocols:protocols securityPolicy:securityPolicy];
+}
+
+- (instancetype)initWithURLRequest:(NSURLRequest *)request securityPolicy:(SRSecurityPolicy *)securityPolicy
+{
+    return [self initWithURLRequest:request protocols:nil securityPolicy:securityPolicy];
+}
+
 - (instancetype)initWithURLRequest:(NSURLRequest *)request protocols:(NSArray<NSString *> *)protocols
 {
     return [self initWithURLRequest:request protocols:protocols allowsUntrustedSSLCertificates:NO];
@@ -222,6 +238,12 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
 - (instancetype)initWithURL:(NSURL *)url protocols:(NSArray<NSString *> *)protocols;
 {
     return [self initWithURL:url protocols:protocols allowsUntrustedSSLCertificates:NO];
+}
+
+- (instancetype)initWithURL:(NSURL *)url securityPolicy:(SRSecurityPolicy *)securityPolicy
+{
+    NSURLRequest *request = [NSURLRequest requestWithURL:url];
+    return [self initWithURLRequest:request protocols:nil securityPolicy:securityPolicy];
 }
 
 - (instancetype)initWithURL:(NSURL *)url protocols:(NSArray<NSString *> *)protocols allowsUntrustedSSLCertificates:(BOOL)allowsUntrustedSSLCertificates
@@ -341,7 +363,7 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
 
         // If we don't require SSL validation - consider that we connected.
         // Otherwise `didConnect` is called when SSL validation finishes.
-        if (!_securityOptions.requestRequiresSSL) {
+        if (!_requestRequiresSSL) {
             dispatch_async(_workQueue, ^{
                 [self didConnect];
             });
@@ -448,12 +470,11 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
 
 - (void)_updateSecureStreamOptions
 {
-    SRDebugLog(@"Setting up security for streams.");
-    [_securityOptions updateSecurityOptionsInStream:_inputStream];
-    [_securityOptions updateSecurityOptionsInStream:_outputStream];
-
-    SRDebugLog(@"Allows connection any root cert: %d", _securityOptions.validatesCertificateChain);
-    SRDebugLog(@"Pinned cert count: %d", _securityOptions.pinnedCertificates.count);
+    if (_requestRequiresSSL) {
+        SRDebugLog(@"Setting up security for streams.");
+        [_securityPolicy updateSecurityOptionsInStream:_inputStream];
+        [_securityPolicy updateSecurityOptionsInStream:_outputStream];
+    }
 
     _inputStream.delegate = self;
     _outputStream.delegate = self;
@@ -1426,11 +1447,11 @@ static const size_t SRFrameHeaderOverhead = 32;
 {
     __weak typeof(self) wself = self;
 
-    if (_securityOptions.requestRequiresSSL && !_streamSecurityValidated &&
+    if (_requestRequiresSSL && !_streamSecurityValidated &&
         (eventCode == NSStreamEventHasBytesAvailable || eventCode == NSStreamEventHasSpaceAvailable)) {
         SecTrustRef trust = (__bridge SecTrustRef)[aStream propertyForKey:(__bridge id)kCFStreamPropertySSLPeerTrust];
         if (trust) {
-            _streamSecurityValidated = [_securityOptions securityTrustContainsPinnedCertificates:trust];
+            _streamSecurityValidated = [_securityPolicy evaluateServerTrust:trust forDomain:_urlRequest.URL.host];
         }
         if (!_streamSecurityValidated) {
             dispatch_async(_workQueue, ^{
@@ -1460,7 +1481,7 @@ static const size_t SRFrameHeaderOverhead = 32;
             }
             assert(_readBuffer);
 
-            if (!_securityOptions.requestRequiresSSL && self.readyState == SR_CONNECTING && aStream == _inputStream) {
+            if (!_requestRequiresSSL && self.readyState == SR_CONNECTING && aStream == _inputStream) {
                 [self didConnect];
             }
 

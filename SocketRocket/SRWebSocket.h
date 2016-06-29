@@ -45,6 +45,7 @@ typedef NS_ENUM(NSInteger, SRStatusCode) {
 };
 
 @class SRWebSocket;
+@class SRSecurityPolicy;
 
 /**
  Error domain used for errors reported by SRWebSocket.
@@ -133,6 +134,14 @@ extern NSString *const SRHTTPResponseErrorKey;
 - (instancetype)initWithURLRequest:(NSURLRequest *)request;
 
 /**
+ Initializes a web socket with a given `NSURLRequest`, specifying a transport security policy (e.g. SSL configuration).
+
+ @param request        Request to initialize with.
+ @param securityPolicy Policy object describing transport security behavior.
+ */
+- (instancetype)initWithURLRequest:(NSURLRequest *)request securityPolicy:(SRSecurityPolicy *)securityPolicy;
+
+/**
  Initializes a web socket with a given `NSURLRequest` and list of sub-protocols.
 
  @param request   Request to initialize with.
@@ -147,8 +156,16 @@ extern NSString *const SRHTTPResponseErrorKey;
  @param protocols                      An array of strings that turn into `Sec-WebSocket-Protocol`. Default: `nil`.
  @param allowsUntrustedSSLCertificates Boolean value indicating whether untrusted SSL certificates are allowed. Default: `false`.
  */
-- (instancetype)initWithURLRequest:(NSURLRequest *)request protocols:(nullable NSArray<NSString *> *)protocols allowsUntrustedSSLCertificates:(BOOL)allowsUntrustedSSLCertificates
-NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithURLRequest:(NSURLRequest *)request protocols:(nullable NSArray<NSString *> *)protocols allowsUntrustedSSLCertificates:(BOOL)allowsUntrustedSSLCertificates;
+
+/**
+ Initializes a web socket with a given `NSURLRequest`, list of sub-protocols and whether untrusted SSL certificates are allowed.
+
+ @param request        Request to initialize with.
+ @param protocols      An array of strings that turn into `Sec-WebSocket-Protocol`. Default: `nil`.
+ @param securityPolicy Policy object describing transport security behavior.
+ */
+- (instancetype)initWithURLRequest:(NSURLRequest *)request protocols:(nullable NSArray<NSString *> *)protocols securityPolicy:(SRSecurityPolicy *)securityPolicy NS_DESIGNATED_INITIALIZER;
 
 /**
  Initializes a web socket with a given `NSURL`.
@@ -164,6 +181,14 @@ NS_DESIGNATED_INITIALIZER;
  @param protocols An array of strings that turn into `Sec-WebSocket-Protocol`. Default: `nil`.
  */
 - (instancetype)initWithURL:(NSURL *)url protocols:(nullable NSArray<NSString *> *)protocols;
+
+/**
+ Initializes a web socket with a given `NSURL`, specifying a transport security policy (e.g. SSL configuration).
+
+ @param url            URL to initialize with.
+ @param securityPolicy Policy object describing transport security behavior.
+ */
+- (instancetype)initWithURL:(NSURL *)url securityPolicy:(SRSecurityPolicy *)securityPolicy;
 
 /**
  Initializes a web socket with a given `NSURL`, list of sub-protocols and whether untrusted SSL certificates are allowed.
