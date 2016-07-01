@@ -1,9 +1,5 @@
 # Contributing to SocketRocket
-We want to make contributing to this project as easy and transparent as
-possible.
-
-## Our Development Process
-... (in particular how this is synced with internal changes to the project)
+We want to make contributing to this project as easy and transparent as possible.
 
 ## Pull Requests
 We actively welcome your pull requests.
@@ -16,8 +12,8 @@ We actively welcome your pull requests.
 6. If you haven't already, complete the Contributor License Agreement ("CLA").
 
 ## Contributor License Agreement ("CLA")
-In order to accept your pull request, we need you to submit a CLA. You only need
-to do this once to work on any of Facebook's open source projects.
+In order to accept your pull request, we need you to submit a CLA. 
+You only need to do this once to work on any of Facebook's open source projects.
 
 Complete your CLA here: <https://code.facebook.com/cla>
 
@@ -34,5 +30,4 @@ outlined on that page and do not file a public issue.
 * Try to keep lines under 140 characters, if possible.
 
 ## License
-By contributing to SocketRocket, you agree that your contributions will be licensed
-under its BSD license.
+By contributing to SocketRocket, you agree that your contributions will be licensed under its BSD license.
