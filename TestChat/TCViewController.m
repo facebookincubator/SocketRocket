@@ -99,7 +99,7 @@
 
 - (void)sendPing:(id)sender;
 {
-    [_webSocket sendPing:nil];
+    [_webSocket sendPing:nil error:NULL];
 }
 
 ///--------------------------------------
@@ -182,7 +182,7 @@
         NSString *message = [textView.text stringByReplacingCharactersInRange:range withString:text];
         message = [message stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
 
-        [_webSocket sendString:message];
+        [_webSocket sendString:message error:NULL];
 
         [self _addMessage:[[TCMessage alloc] initWithMessage:message incoming:NO]];
 
