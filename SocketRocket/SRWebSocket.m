@@ -1025,12 +1025,19 @@ static const uint8_t SRPayloadLenMask   = 0x7F;
 
                 if (header.payload_length == 126) {
                     assert(mapped_size >= sizeof(uint16_t));
-                    uint16_t newLen = CFSwapInt16BigToHost(*(uint16_t *)(mapped_buffer));
-                    header.payload_length = newLen;
+                    uint16_t payloadLength = 0;
+                    memcpy(&payloadLength, mapped_buffer, sizeof(uint16_t));
+                    payloadLength = CFSwapInt16BigToHost(payloadLength);
+
+                    header.payload_length = payloadLength;
                     offset += sizeof(uint16_t);
                 } else if (header.payload_length == 127) {
                     assert(mapped_size >= sizeof(uint64_t));
-                    header.payload_length = CFSwapInt64BigToHost(*(uint64_t *)(mapped_buffer));
+                    uint64_t payloadLength = 0;
+                    memcpy(&payloadLength, mapped_buffer, sizeof(uint64_t));
+                    payloadLength = CFSwapInt64BigToHost(payloadLength);
+
+                    header.payload_length = payloadLength;
                     offset += sizeof(uint64_t);
                 } else {
                     assert(header.payload_length < 126 && header.payload_length >= 0);
@@ -1398,14 +1405,24 @@ static const size_t SRFrameHeaderOverhead = 32;
 
     if (payloadLength < 126) {
         frame_buffer[1] |= payloadLength;
-    } else if (payloadLength <= UINT16_MAX) {
-        frame_buffer[1] |= 126;
-        *((uint16_t *)(frame_buffer + frame_buffer_size)) = CFSwapInt16BigToHost((uint16_t)payloadLength);
-        frame_buffer_size += sizeof(uint16_t);
     } else {
-        frame_buffer[1] |= 127;
-        *((uint64_t *)(frame_buffer + frame_buffer_size)) = CFSwapInt64BigToHost((uint64_t)payloadLength);
-        frame_buffer_size += sizeof(uint64_t);
+        uint64_t declaredPayloadLength = 0;
+        size_t declaredPayloadLengthSize = 0;
+
+        if (payloadLength <= UINT16_MAX) {
+            frame_buffer[1] |= 126;
+
+            declaredPayloadLength = CFSwapInt16BigToHost((uint16_t)payloadLength);
+            declaredPayloadLengthSize = sizeof(uint16_t);
+        } else {
+            frame_buffer[1] |= 127;
+
+            declaredPayloadLength = CFSwapInt64BigToHost((uint64_t)payloadLength);
+            declaredPayloadLengthSize = sizeof(uint64_t);
+        }
+
+        memcpy((frame_buffer + frame_buffer_size), &declaredPayloadLength, declaredPayloadLengthSize);
+        frame_buffer_size += declaredPayloadLengthSize;
     }
 
     if (!useMask) {
