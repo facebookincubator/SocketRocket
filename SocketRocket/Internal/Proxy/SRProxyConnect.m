@@ -231,21 +231,18 @@
         [self _openConnection];
         return;
     }
-    __weak typeof(self) weakSelf = self;
+    __weak typeof(self) wself = self;
     NSURLRequest *request = [NSURLRequest requestWithURL:PACurl];
     NSURLSession *session = [NSURLSession sharedSession];
-    NSURLSessionDataTask *task = [session dataTaskWithRequest:request
-                                            completionHandler:
-                                  ^(NSData *data, NSURLResponse *response, NSError *error) {
-                                      if (!error) {
-                                          NSString* script = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-                                          [weakSelf _runPACScript:script];
-                                      } else {
-                                          [weakSelf _openConnection];
-                                      }
-
-                                  }];
-    [task resume];
+    [[session dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+        __strong typeof(wself) sself = wself;
+        if (!error) {
+            NSString *script = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+            [sself _runPACScript:script];
+        } else {
+            [sself _openConnection];
+        }
+    }] resume];
 }
 
 - (void)_runPACScript:(NSString *)script
@@ -360,6 +357,8 @@
                 [self _processInputStream];
             }
         } break;
+        case NSStreamEventHasSpaceAvailable:
+        case NSStreamEventNone:
         default:
             SRDebugLog(@"(default)  %@", aStream);
             break;
@@ -448,13 +447,14 @@ static NSTimeInterval const SRProxyConnectWriteTimeout = 5.0;
 - (void)_writeData:(NSData *)data
 {
     const uint8_t * bytes = data.bytes;
-    __block NSInteger timeout = SRProxyConnectWriteTimeout * 1000000; // wait timeout before giving up
+    __block NSInteger timeout = (NSInteger)(SRProxyConnectWriteTimeout * 1000000); // wait timeout before giving up
     __weak typeof(self) wself = self;
     dispatch_async(_writeQueue, ^{
-        if (!wself) {
+        __strong typeof(wself) sself = self;
+        if (!sself) {
             return;
         }
-        NSOutputStream *outStream = wself.outputStream;
+        NSOutputStream *outStream = sself.outputStream;
         if (!outStream) {
             return;
         }
@@ -463,9 +463,9 @@ static NSTimeInterval const SRProxyConnectWriteTimeout = 5.0;
             timeout -= 100;
             if (timeout < 0) {
                 NSError *error = SRHTTPErrorWithCodeDescription(408, 2132, @"Proxy timeout");
-                [self _failWithError:error];
+                [sself _failWithError:error];
             } else if (outStream.streamError != nil) {
-                [self _failWithError:outStream.streamError];
+                [sself _failWithError:outStream.streamError];
             }
         }
         [outStream write:bytes maxLength:data.length];
