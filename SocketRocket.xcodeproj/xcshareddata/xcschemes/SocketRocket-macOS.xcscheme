@@ -16,7 +16,7 @@
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "F668C87F153E91210044DBAC"
                BuildableName = "SocketRocket.framework"
-               BlueprintName = "SocketRocket-OSX"
+               BlueprintName = "SocketRocket-macOS"
                ReferencedContainer = "container:SocketRocket.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -47,7 +47,7 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "F668C87F153E91210044DBAC"
             BuildableName = "SocketRocket.framework"
-            BlueprintName = "SocketRocket-OSX"
+            BlueprintName = "SocketRocket-macOS"
             ReferencedContainer = "container:SocketRocket.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -65,7 +65,7 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "F668C87F153E91210044DBAC"
             BuildableName = "SocketRocket.framework"
-            BlueprintName = "SocketRocket-OSX"
+            BlueprintName = "SocketRocket-macOS"
             ReferencedContainer = "container:SocketRocket.xcodeproj">
          </BuildableReference>
       </MacroExpansion>

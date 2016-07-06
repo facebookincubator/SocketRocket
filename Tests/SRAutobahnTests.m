@@ -85,8 +85,8 @@
     NSString *selectorName = [NSString stringWithFormat:@"Case #%@", identifier];
     SEL selector = NSSelectorFromString(selectorName);
 
-    IMP implementation = imp_implementationWithBlock(^(SRAutobahnTests *self) {
-        [self performTestWithCaseNumber:caseNumber identifier:identifier];
+    IMP implementation = imp_implementationWithBlock(^(SRAutobahnTests *sself) {
+        [sself performTestWithCaseNumber:caseNumber identifier:identifier];
     });
     NSString *typeString = [NSString stringWithFormat:@"%s%s%s",  @encode(id), @encode(id), @encode(SEL)];
     class_addMethod(self, selector, implementation, typeString.UTF8String);

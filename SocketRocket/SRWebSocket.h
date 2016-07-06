@@ -385,8 +385,8 @@ extern NSString *const SRHTTPResponseErrorKey;
 /**
  Called when a pong data was received in response to ping.
 
- @param webSocket   An instance of `SRWebSocket` that received a pong frame.
- @param pongPayload Payload that was received or `nil` if there was no payload.
+ @param webSocket An instance of `SRWebSocket` that received a pong frame.
+ @param pongData  Payload that was received or `nil` if there was no payload.
  */
 - (void)webSocket:(SRWebSocket *)webSocket didReceivePong:(nullable NSData *)pongData;
 

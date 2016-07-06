@@ -19,12 +19,6 @@
 #import <unicode/utf8.h>
 #endif
 
-#if TARGET_OS_IPHONE
-#import <Endian.h>
-#else
-#import <CoreServices/CoreServices.h>
-#endif
-
 #import <libkern/OSAtomic.h>
 
 #import "SRDelegateController.h"
@@ -324,10 +318,9 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
 
     _selfRetain = self;
 
-    if (_urlRequest.timeoutInterval > 0)
-    {
-        dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, _urlRequest.timeoutInterval * NSEC_PER_SEC);
-        dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
+    if (_urlRequest.timeoutInterval > 0) {
+        dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(_urlRequest.timeoutInterval * NSEC_PER_SEC));
+        dispatch_after(popTime, dispatch_get_main_queue(), ^{
             if (self.readyState == SR_CONNECTING) {
                 NSError *error = SRErrorWithDomainCodeDescription(NSURLErrorDomain, NSURLErrorTimedOut, @"Timed out connecting to server.");
                 [self _failWithError:error];
@@ -435,7 +428,7 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
         _receivedHTTPHeaders = CFHTTPMessageCreateEmpty(NULL, NO);
     }
 
-    [self _readUntilHeaderCompleteWithCallback:^(SRWebSocket *self,  NSData *data) {
+    [self _readUntilHeaderCompleteWithCallback:^(SRWebSocket *socket,  NSData *data) {
         CFHTTPMessageAppendBytes(_receivedHTTPHeaders, (const UInt8 *)data.bytes, data.length);
 
         if (CFHTTPMessageIsHeaderComplete(_receivedHTTPHeaders)) {
@@ -561,7 +554,7 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
         NSMutableData *mutablePayload = [[NSMutableData alloc] initWithLength:sizeof(uint16_t) + maxMsgSize];
         NSData *payload = mutablePayload;
 
-        ((uint16_t *)mutablePayload.mutableBytes)[0] = EndianU16_BtoN(code);
+        ((uint16_t *)mutablePayload.mutableBytes)[0] = CFSwapInt16BigToHost((uint16_t)code);
 
         if (reason) {
             NSRange remainingRange = {0};
@@ -776,7 +769,7 @@ static inline BOOL closeCodeIsValid(int closeCode) {
         return;
     } else if (dataSize >= 2) {
         [data getBytes:&closeCode length:sizeof(closeCode)];
-        _closeCode = EndianU16_BtoN(closeCode);
+        _closeCode = CFSwapInt16BigToHost(closeCode);
         if (!closeCodeIsValid(_closeCode)) {
             [self _closeWithProtocolError:[NSString stringWithFormat:@"Cannot have close code of %d", _closeCode]];
             return;
@@ -925,17 +918,16 @@ static inline BOOL closeCodeIsValid(int closeCode) {
         }
     } else {
         assert(frame_header.payload_length <= SIZE_T_MAX);
-        [self _addConsumerWithDataLength:(size_t)frame_header.payload_length callback:^(SRWebSocket *self, NSData *newData) {
+        [self _addConsumerWithDataLength:(size_t)frame_header.payload_length callback:^(SRWebSocket *sself, NSData *newData) {
             if (isControlFrame) {
-                [self _handleFrameWithData:newData opCode:frame_header.opcode];
+                [sself _handleFrameWithData:newData opCode:frame_header.opcode];
             } else {
                 if (frame_header.fin) {
-                    [self _handleFrameWithData:self->_currentFrameData opCode:frame_header.opcode];
+                    [sself _handleFrameWithData:sself->_currentFrameData opCode:frame_header.opcode];
                 } else {
                     // TODO add assert that opcode is not a control;
-                    [self _readFrameContinue];
+                    [sself _readFrameContinue];
                 }
-
             }
         } readToCurrentFrame:!isControlFrame unmaskBytes:frame_header.masked];
     }
@@ -974,14 +966,14 @@ static const uint8_t SRPayloadLenMask   = 0x7F;
 {
     assert((_currentFrameCount == 0 && _currentFrameOpcode == 0) || (_currentFrameCount > 0 && _currentFrameOpcode > 0));
 
-    [self _addConsumerWithDataLength:2 callback:^(SRWebSocket *self, NSData *data) {
+    [self _addConsumerWithDataLength:2 callback:^(SRWebSocket *sself, NSData *data) {
         __block frame_header header = {0};
 
         const uint8_t *headerBuffer = data.bytes;
         assert(data.length >= 2);
 
         if (headerBuffer[0] & SRRsvMask) {
-            [self _closeWithProtocolError:@"Server used RSV bits"];
+            [sself _closeWithProtocolError:@"Server used RSV bits"];
             return;
         }
 
@@ -989,17 +981,17 @@ static const uint8_t SRPayloadLenMask   = 0x7F;
 
         BOOL isControlFrame = (receivedOpcode == SROpCodePing || receivedOpcode == SROpCodePong || receivedOpcode == SROpCodeConnectionClose);
 
-        if (!isControlFrame && receivedOpcode != 0 && self->_currentFrameCount > 0) {
-            [self _closeWithProtocolError:@"all data frames after the initial data frame must have opcode 0"];
+        if (!isControlFrame && receivedOpcode != 0 && sself->_currentFrameCount > 0) {
+            [sself _closeWithProtocolError:@"all data frames after the initial data frame must have opcode 0"];
             return;
         }
 
-        if (receivedOpcode == 0 && self->_currentFrameCount == 0) {
-            [self _closeWithProtocolError:@"cannot continue a message"];
+        if (receivedOpcode == 0 && sself->_currentFrameCount == 0) {
+            [sself _closeWithProtocolError:@"cannot continue a message"];
             return;
         }
 
-        header.opcode = receivedOpcode == 0 ? self->_currentFrameOpcode : receivedOpcode;
+        header.opcode = receivedOpcode == 0 ? sself->_currentFrameOpcode : receivedOpcode;
 
         header.fin = !!(SRFinMask & headerBuffer[0]);
 
@@ -1010,7 +1002,7 @@ static const uint8_t SRPayloadLenMask   = 0x7F;
         headerBuffer = NULL;
 
         if (header.masked) {
-            [self _closeWithProtocolError:@"Client must receive unmasked data"];
+            [sself _closeWithProtocolError:@"Client must receive unmasked data"];
             return;
         }
 
@@ -1023,22 +1015,29 @@ static const uint8_t SRPayloadLenMask   = 0x7F;
         }
 
         if (extra_bytes_needed == 0) {
-            [self _handleFrameHeader:header curData:self->_currentFrameData];
+            [sself _handleFrameHeader:header curData:sself->_currentFrameData];
         } else {
-            [self _addConsumerWithDataLength:extra_bytes_needed callback:^(SRWebSocket *self, NSData *data) {
-                size_t mapped_size = data.length;
+            [sself _addConsumerWithDataLength:extra_bytes_needed callback:^(SRWebSocket *eself, NSData *edata) {
+                size_t mapped_size = edata.length;
 #pragma unused (mapped_size)
-                const void *mapped_buffer = data.bytes;
+                const void *mapped_buffer = edata.bytes;
                 size_t offset = 0;
 
                 if (header.payload_length == 126) {
                     assert(mapped_size >= sizeof(uint16_t));
-                    uint16_t newLen = EndianU16_BtoN(*(uint16_t *)(mapped_buffer));
-                    header.payload_length = newLen;
+                    uint16_t payloadLength = 0;
+                    memcpy(&payloadLength, mapped_buffer, sizeof(uint16_t));
+                    payloadLength = CFSwapInt16BigToHost(payloadLength);
+
+                    header.payload_length = payloadLength;
                     offset += sizeof(uint16_t);
                 } else if (header.payload_length == 127) {
                     assert(mapped_size >= sizeof(uint64_t));
-                    header.payload_length = EndianU64_BtoN(*(uint64_t *)(mapped_buffer));
+                    uint64_t payloadLength = 0;
+                    memcpy(&payloadLength, mapped_buffer, sizeof(uint64_t));
+                    payloadLength = CFSwapInt64BigToHost(payloadLength);
+
+                    header.payload_length = payloadLength;
                     offset += sizeof(uint64_t);
                 } else {
                     assert(header.payload_length < 126 && header.payload_length >= 0);
@@ -1046,10 +1045,10 @@ static const uint8_t SRPayloadLenMask   = 0x7F;
 
                 if (header.masked) {
                     assert(mapped_size >= sizeof(_currentReadMaskOffset) + offset);
-                    memcpy(self->_currentReadMaskKey, ((uint8_t *)mapped_buffer) + offset, sizeof(self->_currentReadMaskKey));
+                    memcpy(eself->_currentReadMaskKey, ((uint8_t *)mapped_buffer) + offset, sizeof(eself->_currentReadMaskKey));
                 }
 
-                [self _handleFrameHeader:header curData:self->_currentFrameData];
+                [eself _handleFrameHeader:header curData:eself->_currentFrameData];
             } readToCurrentFrame:NO unmaskBytes:NO];
         }
     } readToCurrentFrame:NO unmaskBytes:NO];
@@ -1406,14 +1405,24 @@ static const size_t SRFrameHeaderOverhead = 32;
 
     if (payloadLength < 126) {
         frame_buffer[1] |= payloadLength;
-    } else if (payloadLength <= UINT16_MAX) {
-        frame_buffer[1] |= 126;
-        *((uint16_t *)(frame_buffer + frame_buffer_size)) = EndianU16_BtoN((uint16_t)payloadLength);
-        frame_buffer_size += sizeof(uint16_t);
     } else {
-        frame_buffer[1] |= 127;
-        *((uint64_t *)(frame_buffer + frame_buffer_size)) = EndianU64_BtoN((uint64_t)payloadLength);
-        frame_buffer_size += sizeof(uint64_t);
+        uint64_t declaredPayloadLength = 0;
+        size_t declaredPayloadLengthSize = 0;
+
+        if (payloadLength <= UINT16_MAX) {
+            frame_buffer[1] |= 126;
+
+            declaredPayloadLength = CFSwapInt16BigToHost((uint16_t)payloadLength);
+            declaredPayloadLengthSize = sizeof(uint16_t);
+        } else {
+            frame_buffer[1] |= 127;
+
+            declaredPayloadLength = CFSwapInt64BigToHost((uint64_t)payloadLength);
+            declaredPayloadLengthSize = sizeof(uint64_t);
+        }
+
+        memcpy((frame_buffer + frame_buffer_size), &declaredPayloadLength, declaredPayloadLengthSize);
+        frame_buffer_size += declaredPayloadLengthSize;
     }
 
     if (!useMask) {
@@ -1560,6 +1569,7 @@ static const size_t SRFrameHeaderOverhead = 32;
             break;
         }
 
+        case NSStreamEventNone:
         default:
             SRDebugLog(@"(default)  %@", aStream);
             break;

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "0720"
+   LastUpgradeVersion = "0730"
    version = "1.3">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -34,7 +34,7 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "2D4227611BB4358C000C1A6C"
             BuildableName = "SocketRocket.framework"
-            BlueprintName = "SocketRocket-iOS"
+            BlueprintName = "SocketRocket-iOS-Dynamic"
             ReferencedContainer = "container:SocketRocket.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
