@@ -19,12 +19,6 @@
 #import <unicode/utf8.h>
 #endif
 
-#if TARGET_OS_IPHONE
-#import <Endian.h>
-#else
-#import <CoreServices/CoreServices.h>
-#endif
-
 #import <libkern/OSAtomic.h>
 
 #import "SRDelegateController.h"
@@ -560,7 +554,7 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
         NSMutableData *mutablePayload = [[NSMutableData alloc] initWithLength:sizeof(uint16_t) + maxMsgSize];
         NSData *payload = mutablePayload;
 
-        ((uint16_t *)mutablePayload.mutableBytes)[0] = EndianU16_BtoN(code);
+        ((uint16_t *)mutablePayload.mutableBytes)[0] = CFSwapInt16BigToHost((uint16_t)code);
 
         if (reason) {
             NSRange remainingRange = {0};
@@ -775,7 +769,7 @@ static inline BOOL closeCodeIsValid(int closeCode) {
         return;
     } else if (dataSize >= 2) {
         [data getBytes:&closeCode length:sizeof(closeCode)];
-        _closeCode = EndianU16_BtoN(closeCode);
+        _closeCode = CFSwapInt16BigToHost(closeCode);
         if (!closeCodeIsValid(_closeCode)) {
             [self _closeWithProtocolError:[NSString stringWithFormat:@"Cannot have close code of %d", _closeCode]];
             return;
@@ -1031,12 +1025,12 @@ static const uint8_t SRPayloadLenMask   = 0x7F;
 
                 if (header.payload_length == 126) {
                     assert(mapped_size >= sizeof(uint16_t));
-                    uint16_t newLen = EndianU16_BtoN(*(uint16_t *)(mapped_buffer));
+                    uint16_t newLen = CFSwapInt16BigToHost(*(uint16_t *)(mapped_buffer));
                     header.payload_length = newLen;
                     offset += sizeof(uint16_t);
                 } else if (header.payload_length == 127) {
                     assert(mapped_size >= sizeof(uint64_t));
-                    header.payload_length = EndianU64_BtoN(*(uint64_t *)(mapped_buffer));
+                    header.payload_length = CFSwapInt64BigToHost(*(uint64_t *)(mapped_buffer));
                     offset += sizeof(uint64_t);
                 } else {
                     assert(header.payload_length < 126 && header.payload_length >= 0);
@@ -1406,11 +1400,11 @@ static const size_t SRFrameHeaderOverhead = 32;
         frame_buffer[1] |= payloadLength;
     } else if (payloadLength <= UINT16_MAX) {
         frame_buffer[1] |= 126;
-        *((uint16_t *)(frame_buffer + frame_buffer_size)) = EndianU16_BtoN((uint16_t)payloadLength);
+        *((uint16_t *)(frame_buffer + frame_buffer_size)) = CFSwapInt16BigToHost((uint16_t)payloadLength);
         frame_buffer_size += sizeof(uint16_t);
     } else {
         frame_buffer[1] |= 127;
-        *((uint64_t *)(frame_buffer + frame_buffer_size)) = EndianU64_BtoN((uint64_t)payloadLength);
+        *((uint64_t *)(frame_buffer + frame_buffer_size)) = CFSwapInt64BigToHost((uint64_t)payloadLength);
         frame_buffer_size += sizeof(uint64_t);
     }
 
