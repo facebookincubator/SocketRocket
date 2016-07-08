@@ -202,7 +202,7 @@ Please read our [contributing guidelines](https://github.com/facebook/SocketRock
  [build-status-link]: https://travis-ci.org/facebook/SocketRocket/branches
 
  [license-svg]: https://img.shields.io/badge/license-BSD-lightgrey.svg
- [license-link]: https://github.com/BoltsFramework/SocketRocket/blob/master/LICENSE
+ [license-link]: https://github.com/facebook/SocketRocket/blob/master/LICENSE
 
  [podspec-svg]: https://img.shields.io/cocoapods/v/SocketRocket.svg
  [podspec-link]: https://cocoapods.org/pods/SocketRocket
