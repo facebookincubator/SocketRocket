@@ -35,6 +35,7 @@
 #import "SRRandom.h"
 #import "SRLog.h"
 #import "SRMutex.h"
+#import "SRSIMDHelpers.h"
 
 #if !__has_feature(objc_arc)
 #error SocketRocket must be compiled with ARC enabled
@@ -1381,15 +1382,8 @@ static const size_t SRFrameHeaderOverhead = 32;
     // set fin
     frameBuffer[0] = SRFinMask | opCode;
 
-    BOOL useMask = YES;
-#ifdef NOMASK
-    useMask = NO;
-#endif
-
-    if (useMask) {
-        // set the mask and header
-        frameBuffer[1] |= SRMaskMask;
-    }
+    // set the mask and header
+    frameBuffer[1] |= SRMaskMask;
 
     size_t frameBufferSize = 2;
 
@@ -1416,28 +1410,21 @@ static const size_t SRFrameHeaderOverhead = 32;
     }
 
     const uint8_t *unmaskedPayloadBuffer = (uint8_t *)data.bytes;
-    if (!useMask) {
-        for (size_t i = 0; i < payloadLength; i++) {
-            frameBuffer[frameBufferSize] = unmaskedPayloadBuffer[i];
-            frameBufferSize += 1;
-        }
-    } else {
-        uint8_t *maskKey = frameBuffer + frameBufferSize;
+    uint8_t *maskKey = frameBuffer + frameBufferSize;
 
-        size_t randomBytesSize = sizeof(uint32_t);
-        int result = SecRandomCopyBytes(kSecRandomDefault, randomBytesSize, (uint8_t *)maskKey);
-        if (result != 0) {
-            //TODO: (nlutsenko) Check if there was an error.
-        }
-
-        frameBufferSize += randomBytesSize;
-
-        // TODO: could probably optimize this with SIMD
-        for (size_t i = 0; i < payloadLength; i++) {
-            frameBuffer[frameBufferSize] = unmaskedPayloadBuffer[i] ^ maskKey[i % randomBytesSize];
-            frameBufferSize += 1;
-        }
+    size_t randomBytesSize = sizeof(uint32_t);
+    int result = SecRandomCopyBytes(kSecRandomDefault, randomBytesSize, maskKey);
+    if (result != 0) {
+        //TODO: (nlutsenko) Check if there was an error.
     }
+    frameBufferSize += randomBytesSize;
+
+    // Copy and unmask the buffer
+    uint8_t *frameBufferPayloadPointer = frameBuffer + frameBufferSize;
+
+    memcpy(frameBufferPayloadPointer, unmaskedPayloadBuffer, payloadLength);
+    SRMaskBytesSIMD(frameBufferPayloadPointer, payloadLength, maskKey);
+    frameBufferSize += payloadLength;
 
     assert(frameBufferSize <= frameData.length);
     frameData.length = frameBufferSize;
