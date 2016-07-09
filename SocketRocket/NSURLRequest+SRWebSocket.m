@@ -10,6 +10,10 @@
 //
 
 #import "NSURLRequest+SRWebSocket.h"
+#import "NSURLRequest+SRWebSocketPrivate.h"
+
+// Required for object file to always be linked.
+extern void import_NSURLRequest_SRWebSocket() { }
 
 NS_ASSUME_NONNULL_BEGIN
 
