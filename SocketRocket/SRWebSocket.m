@@ -36,10 +36,18 @@
 #import "SRLog.h"
 #import "SRMutex.h"
 #import "SRSIMDHelpers.h"
+#import "NSURLRequest+SRWebSocketPrivate.h"
+#import "NSRunLoop+SRWebSocketPrivate.h"
 
 #if !__has_feature(objc_arc)
 #error SocketRocket must be compiled with ARC enabled
 #endif
+
+__attribute__((used)) static void importCategories()
+{
+    import_NSURLRequest_SRWebSocket();
+    import_NSRunLoop_SRWebSocket();
+}
 
 /**
  Default buffer size that is used for reading/writing to streams.
