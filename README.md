@@ -79,11 +79,11 @@ This is similar to how `NSURLConnection` behaves (unlike `NSURLConnection`, `SRW
 // Close it with this
 - (void)close;
 
-// Send a Data
-- (void)sendData:(nullable NSData *)data error:(NSError **)error;
+// Send a UTF8 String or Data.
+- (void)send:(id)data;
 
-// Send a UTF8 String
-- (void)sendString:(NSString *)string error:(NSError **)error;
+// Send Data (can be nil) in a ping message.
+- (void)sendPing:(NSData *)data;
 
 @end
 ```
@@ -95,15 +95,19 @@ You implement this
 ```objective-c
 @protocol SRWebSocketDelegate <NSObject>
 
+// message will either be an NSString if the server is using text
+// or NSData if the server is using binary.
+- (void)webSocket:(SRWebSocket *)webSocket didReceiveMessage:(id)message;
+
 @optional
 
 - (void)webSocketDidOpen:(SRWebSocket *)webSocket;
-
-- (void)webSocket:(SRWebSocket *)webSocket didReceiveMessageWithString:(NSString *)string;
-- (void)webSocket:(SRWebSocket *)webSocket didReceiveMessageWithData:(NSData *)data;
-
 - (void)webSocket:(SRWebSocket *)webSocket didFailWithError:(NSError *)error;
-- (void)webSocket:(SRWebSocket *)webSocket didCloseWithCode:(NSInteger)code reason:(nullable NSString *)reason wasClean:(BOOL)wasClean;
+- (void)webSocket:(SRWebSocket *)webSocket didCloseWithCode:(NSInteger)code reason:(NSString *)reason wasClean:(BOOL)wasClean;
+- (void)webSocket:(SRWebSocket *)webSocket didReceivePong:(NSData *)pongPayload;
+
+// Return YES to convert messages sent as Text to an NSString. Return NO to skip NSData -> NSString conversion for Text messages. Defaults to YES.
+- (BOOL)webSocketShouldConvertTextFrameToString:(SRWebSocket *)webSocket;
 
 @end
 ```
