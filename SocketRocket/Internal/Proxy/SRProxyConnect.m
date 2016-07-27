@@ -12,6 +12,7 @@
 #import "NSRunLoop+SRWebSocket.h"
 #import "SRURLUtilities.h"
 #import "SRLog.h"
+#import "SRConstants.h"
 
 @interface SRProxyConnect() <NSStreamDelegate>
 
@@ -381,14 +382,12 @@
     [self _writeData:message];
 }
 
-static size_t const SRProxyConnectBufferMaxSize = 4096;
-
 ///handles the incoming bytes and sending them to the proper processing method
 - (void)_processInputStream
 {
-    NSMutableData *buf = [NSMutableData dataWithCapacity:SRProxyConnectBufferMaxSize];
+    NSMutableData *buf = [NSMutableData dataWithCapacity:SRDefaultBufferSize()];
     uint8_t *buffer = buf.mutableBytes;
-    NSInteger length = [_inputStream read:buffer maxLength:SRProxyConnectBufferMaxSize];
+    NSInteger length = [_inputStream read:buffer maxLength:SRDefaultBufferSize()];
 
     if (length <= 0) {
         return;
@@ -407,7 +406,7 @@ static size_t const SRProxyConnectBufferMaxSize = 4096;
 - (void)_dequeueInput
 {
     while (_inputQueue.count > 0) {
-        NSData * data = _inputQueue[0];
+        NSData *data = _inputQueue[0];
         [self _proxyProcessHTTPResponseWithData:data];
         [_inputQueue removeObjectAtIndex:0];
     }
