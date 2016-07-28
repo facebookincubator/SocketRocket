@@ -38,6 +38,7 @@
 #import "SRSIMDHelpers.h"
 #import "NSURLRequest+SRWebSocketPrivate.h"
 #import "NSRunLoop+SRWebSocketPrivate.h"
+#import "SRConstants.h"
 
 #if !__has_feature(objc_arc)
 #error SocketRocket must be compiled with ARC enabled
@@ -48,29 +49,6 @@ __attribute__((used)) static void importCategories()
     import_NSURLRequest_SRWebSocket();
     import_NSRunLoop_SRWebSocket();
 }
-
-/**
- Default buffer size that is used for reading/writing to streams.
- */
-static size_t SRDefaultBufferSize(void) {
-    static size_t size;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        size = getpagesize();
-    });
-    return size;
-}
-
-typedef NS_ENUM(NSInteger, SROpCode)
-{
-    SROpCodeTextFrame = 0x1,
-    SROpCodeBinaryFrame = 0x2,
-    // 3-7 reserved.
-    SROpCodeConnectionClose = 0x8,
-    SROpCodePing = 0x9,
-    SROpCodePong = 0xA,
-    // B-F reserved.
-};
 
 typedef struct {
     BOOL fin;
@@ -512,6 +490,7 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
         case NSURLNetworkServiceTypeVoice:
             networkServiceType = NSStreamNetworkServiceTypeVoice;
             break;
+        default: break;
     }
 
     if (networkServiceType != nil) {
