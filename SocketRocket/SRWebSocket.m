@@ -490,7 +490,11 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
         case NSURLNetworkServiceTypeVoice:
             networkServiceType = NSStreamNetworkServiceTypeVoice;
             break;
-        default: break;
+#if (__MAC_OS_X_VERSION_MAX_ALLOWED >= 101200 || __IPHONE_OS_VERSION_MAX_ALLOWED >= 100000 || __TV_OS_VERSION_MAX_ALLOWED >= 100000 || __WATCH_OS_VERSION_MAX_ALLOWED >= 30000)
+        case NSURLNetworkServiceTypeCallSignaling:
+            networkServiceType = NSStreamNetworkServiceTypeCallSignaling;
+            break;
+#endif
     }
 
     if (networkServiceType != nil) {
