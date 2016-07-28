@@ -1,6 +1,3 @@
-[submodule "pages"]
-	path = pages
-	url = git://github.com/square/SocketRocket.git
 [submodule "Vendor/xctoolchain"]
 	path = Vendor/xctoolchain
 	url = https://github.com/ParsePlatform/xctoolchain.git
