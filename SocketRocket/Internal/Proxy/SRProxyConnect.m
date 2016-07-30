@@ -187,8 +187,9 @@
         [proxyType isEqualToString:(NSString *)kCFProxyTypeHTTPS]) {
         _httpProxyHost = settings[(NSString *)kCFProxyHostNameKey];
         NSNumber *portValue = settings[(NSString *)kCFProxyPortNumberKey];
-        if (portValue)
+        if (portValue) {
             _httpProxyPort = [portValue intValue];
+        }
     }
     if ([proxyType isEqualToString:(NSString *)kCFProxyTypeSOCKS]) {
         _socksProxyHost = settings[(NSString *)kCFProxyHostNameKey];
@@ -470,4 +471,5 @@ static NSTimeInterval const SRProxyConnectWriteTimeout = 5.0;
         [outStream write:bytes maxLength:data.length];
     });
 }
+
 @end
