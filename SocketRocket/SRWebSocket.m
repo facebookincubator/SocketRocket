@@ -457,46 +457,7 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
         [_securityPolicy updateSecurityOptionsInStream:_outputStream];
     }
 
-    _inputStream.delegate = self;
-    _outputStream.delegate = self;
-
-    [self setupNetworkServiceType:_urlRequest.networkServiceType];
-}
-
-- (void)setupNetworkServiceType:(NSURLRequestNetworkServiceType)requestNetworkServiceType
-{
-    NSString *networkServiceType;
-    switch (requestNetworkServiceType) {
-        case NSURLNetworkServiceTypeDefault:
-            break;
-        case NSURLNetworkServiceTypeVoIP: {
-            networkServiceType = NSStreamNetworkServiceTypeVoIP;
-#if TARGET_OS_IPHONE && __IPHONE_9_0
-            if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_8_3) {
-                static dispatch_once_t predicate;
-                dispatch_once(&predicate, ^{
-                    NSLog(@"SocketRocket: %@ - this service type is deprecated in favor of using PushKit for VoIP control", networkServiceType);
-                });
-            }
-#endif
-            break;
-        }
-        case NSURLNetworkServiceTypeVideo:
-            networkServiceType = NSStreamNetworkServiceTypeVideo;
-            break;
-        case NSURLNetworkServiceTypeBackground:
-            networkServiceType = NSStreamNetworkServiceTypeBackground;
-            break;
-        case NSURLNetworkServiceTypeVoice:
-            networkServiceType = NSStreamNetworkServiceTypeVoice;
-            break;
-#if (__MAC_OS_X_VERSION_MAX_ALLOWED >= 101200 || __IPHONE_OS_VERSION_MAX_ALLOWED >= 100000 || __TV_OS_VERSION_MAX_ALLOWED >= 100000 || __WATCH_OS_VERSION_MAX_ALLOWED >= 30000)
-        case NSURLNetworkServiceTypeCallSignaling:
-            networkServiceType = NSStreamNetworkServiceTypeCallSignaling;
-            break;
-#endif
-    }
-
+    NSString *networkServiceType = SRStreamNetworkServiceTypeFromURLRequest(_urlRequest);
     if (networkServiceType != nil) {
         [_inputStream setProperty:networkServiceType forKey:NSStreamNetworkServiceType];
         [_outputStream setProperty:networkServiceType forKey:NSStreamNetworkServiceType];
