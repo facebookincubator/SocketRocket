@@ -69,6 +69,14 @@ static uint8_t const SRWebSocketProtocolVersion = 13;
 NSString *const SRWebSocketErrorDomain = @"SRWebSocketErrorDomain";
 NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
 
+@interface SRDataCallback : NSObject
+@property (nonatomic, assign) NSRange   range;
+@property (nonatomic, copy)   SRSendCompleteBlock completeBlock;
+@end
+
+@implementation SRDataCallback
+@end
+
 @interface SRWebSocket ()  <NSStreamDelegate>
 
 @property (atomic, assign, readwrite) SRReadyState readyState;
@@ -138,6 +146,9 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
 
     // proxy support
     SRProxyConnect *_proxyConnect;
+    
+    NSMutableDictionary<NSNumber *, SRDataCallback *> *_sendCallbacks;
+    
 }
 
 @synthesize readyState = _readyState;
@@ -179,6 +190,8 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
     _consumerPool = [[SRIOConsumerPool alloc] init];
 
     _scheduledRunloops = [[NSMutableSet alloc] init];
+    
+    _sendCallbacks = [[NSMutableDictionary alloc] init];
 
     return self;
 }
@@ -545,6 +558,13 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
 - (void)_failWithError:(NSError *)error;
 {
     dispatch_async(_workQueue, ^{
+        [_sendCallbacks enumerateKeysAndObjectsUsingBlock:^(NSNumber * _Nonnull key, SRDataCallback * _Nonnull obj, BOOL * _Nonnull stop) {
+            if (obj.completeBlock) {
+                obj.completeBlock(error);
+            }
+        }];
+        [_sendCallbacks removeAllObjects];
+        
         if (self.readyState != SR_CLOSED) {
             _failed = YES;
             [self.delegateController performDelegateBlock:^(id<SRWebSocketDelegate>  _Nullable delegate, SRDelegateAvailableMethods availableMethods) {
@@ -563,14 +583,27 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
     });
 }
 
-- (void)_writeData:(NSData *)data;
+- (void)_writeData:(NSData *)data
 {
-    [self assertOnWorkQueue];
+    [self _writeData:data complete:NULL];
+}
 
+- (void)_writeData:(NSData *)data complete:(SRSendCompleteBlock)complete {
+    [self assertOnWorkQueue];
+    
     if (_closeWhenFinishedWriting) {
+        if (complete) {
+            complete(SRErrorWithCodeDescription(2134, @"socket is closed"));
+        }
         return;
     }
-
+    
+    SRDataCallback *record = [[SRDataCallback alloc] init];
+    record.completeBlock = complete;
+    NSUInteger location = dispatch_data_get_size(_outputBuffer);
+    record.range = NSMakeRange(location, [data length]);
+    _sendCallbacks[@([data hash])] = record;
+    
     __block NSData *strongData = data;
     dispatch_data_t newData = dispatch_data_create(data.bytes, data.length, nil, ^{
         strongData = nil;
@@ -594,18 +627,32 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
 
 - (BOOL)sendString:(NSString *)string error:(NSError **)error
 {
+    return [self sendString:string error:error complete:NULL];
+}
+
+- (BOOL)sendString:(NSString *)string complete:(SRSendCompleteBlock)complete {
+    return [self sendString:string error:NULL complete:complete];
+}
+
+- (BOOL)sendString:(NSString *)string error:(NSError **)error complete:(SRSendCompleteBlock)complete {
     if (self.readyState != SR_OPEN) {
         NSString *message = @"Invalid State: Cannot call `sendString:error:` until connection is open.";
+        NSError *locialError = SRErrorWithCodeDescription(2134, message);
         if (error) {
-            *error = SRErrorWithCodeDescription(2134, message);
+            *error = locialError;
         }
+        
+        if (complete) {
+            complete(locialError);
+        }
+        
         SRDebugLog(message);
         return NO;
     }
-
+    
     string = [string copy];
     dispatch_async(_workQueue, ^{
-        [self _sendFrameWithOpcode:SROpCodeTextFrame data:[string dataUsingEncoding:NSUTF8StringEncoding]];
+        [self _sendFrameWithOpcode:SROpCodeTextFrame data:[string dataUsingEncoding:NSUTF8StringEncoding] complete:complete];
     });
     return YES;
 }
@@ -618,20 +665,33 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
 
 - (BOOL)sendDataNoCopy:(nullable NSData *)data error:(NSError **)error
 {
+    return [self sendDataNoCopy:data error:error completed:NULL];
+}
+
+- (BOOL)sendDataNoCopy:(nullable NSData *)data completed:(SRSendCompleteBlock)complete {
+    return [self sendDataNoCopy:data error:NULL completed:complete];
+}
+
+- (BOOL)sendDataNoCopy:(nullable NSData *)data error:(NSError **)error completed:(SRSendCompleteBlock)complete {
     if (self.readyState != SR_OPEN) {
         NSString *message = @"Invalid State: Cannot call `sendDataNoCopy:error:` until connection is open.";
+        NSError *locialError = SRErrorWithCodeDescription(2134, message);
         if (error) {
-            *error = SRErrorWithCodeDescription(2134, message);
+            *error = locialError;
+        }
+        
+        if (complete) {
+            complete(locialError);
         }
         SRDebugLog(message);
         return NO;
     }
-
+    
     dispatch_async(_workQueue, ^{
         if (data) {
-            [self _sendFrameWithOpcode:SROpCodeBinaryFrame data:data];
+            [self _sendFrameWithOpcode:SROpCodeBinaryFrame data:data complete:complete];
         } else {
-            [self _sendFrameWithOpcode:SROpCodeTextFrame data:nil];
+            [self _sendFrameWithOpcode:SROpCodeTextFrame data:nil complete:complete];
         }
     });
     return YES;
@@ -1051,10 +1111,29 @@ static const uint8_t SRPayloadLenMask   = 0x7F;
             [self _failWithError:error];
             return;
         }
-
+        
         _outputBufferOffset += bytesWritten;
+        
+        NSMutableArray<NSNumber *> *removeKeys = [NSMutableArray array];
+        [_sendCallbacks enumerateKeysAndObjectsUsingBlock:^(NSNumber * _Nonnull key, SRDataCallback * _Nonnull obj, BOOL * _Nonnull stop) {
+            if (NSMaxRange(obj.range) <= _outputBufferOffset) {
+                [removeKeys addObject:key];
+                if (obj.completeBlock) {
+                    obj.completeBlock(nil);
+                }
+            }
+            
+            
+        }];
+        [_sendCallbacks removeObjectsForKeys:removeKeys];
 
         if (_outputBufferOffset > SRDefaultBufferSize() && _outputBufferOffset > dataLength / 2) {
+            [_sendCallbacks enumerateKeysAndObjectsUsingBlock:^(NSNumber * _Nonnull key, SRDataCallback * _Nonnull obj, BOOL * _Nonnull stop) {
+                NSRange range = obj.range;
+                range.location -= _outputBufferOffset;
+                obj.range = range;
+            }];
+            
             _outputBuffer = dispatch_data_create_subrange(_outputBuffer, _outputBufferOffset, dataLength - _outputBufferOffset);
             _outputBufferOffset = 0;
         }
@@ -1314,74 +1393,85 @@ static const char CRLFCRLFBytes[] = {'\r', '\n', '\r', '\n'};
 
 static const size_t SRFrameHeaderOverhead = 32;
 
-- (void)_sendFrameWithOpcode:(SROpCode)opCode data:(NSData *)data
-{
+- (void)_sendFrameWithOpcode:(SROpCode)opCode data:(NSData *)data complete:(SRSendCompleteBlock)complete {
     [self assertOnWorkQueue];
-
+    
     if (!data) {
+        if (complete) {
+            complete(nil);
+        }
         return;
     }
-
+    
     size_t payloadLength = data.length;
-
+    
     NSMutableData *frameData = [[NSMutableData alloc] initWithLength:payloadLength + SRFrameHeaderOverhead];
     if (!frameData) {
-        [self closeWithCode:SRStatusCodeMessageTooBig reason:@"Message too big"];
+        NSString *reason = @"Message too big";
+        [self closeWithCode:SRStatusCodeMessageTooBig reason:reason];
+        if (complete) {
+            complete(SRErrorWithCodeDescription(SRStatusCodeMessageTooBig, reason));
+        }
         return;
     }
     uint8_t *frameBuffer = (uint8_t *)frameData.mutableBytes;
-
+    
     // set fin
     frameBuffer[0] = SRFinMask | opCode;
-
+    
     // set the mask and header
     frameBuffer[1] |= SRMaskMask;
-
+    
     size_t frameBufferSize = 2;
-
+    
     if (payloadLength < 126) {
         frameBuffer[1] |= payloadLength;
     } else {
         uint64_t declaredPayloadLength = 0;
         size_t declaredPayloadLengthSize = 0;
-
+        
         if (payloadLength <= UINT16_MAX) {
             frameBuffer[1] |= 126;
-
+            
             declaredPayloadLength = CFSwapInt16BigToHost((uint16_t)payloadLength);
             declaredPayloadLengthSize = sizeof(uint16_t);
         } else {
             frameBuffer[1] |= 127;
-
+            
             declaredPayloadLength = CFSwapInt64BigToHost((uint64_t)payloadLength);
             declaredPayloadLengthSize = sizeof(uint64_t);
         }
-
+        
         memcpy((frameBuffer + frameBufferSize), &declaredPayloadLength, declaredPayloadLengthSize);
         frameBufferSize += declaredPayloadLengthSize;
     }
-
+    
     const uint8_t *unmaskedPayloadBuffer = (uint8_t *)data.bytes;
     uint8_t *maskKey = frameBuffer + frameBufferSize;
-
+    
     size_t randomBytesSize = sizeof(uint32_t);
     int result = SecRandomCopyBytes(kSecRandomDefault, randomBytesSize, maskKey);
     if (result != 0) {
         //TODO: (nlutsenko) Check if there was an error.
     }
     frameBufferSize += randomBytesSize;
-
+    
     // Copy and unmask the buffer
     uint8_t *frameBufferPayloadPointer = frameBuffer + frameBufferSize;
-
+    
     memcpy(frameBufferPayloadPointer, unmaskedPayloadBuffer, payloadLength);
     SRMaskBytesSIMD(frameBufferPayloadPointer, payloadLength, maskKey);
     frameBufferSize += payloadLength;
-
+    
     assert(frameBufferSize <= frameData.length);
     frameData.length = frameBufferSize;
+    
+    [self _writeData:frameData complete:complete];
+}
 
-    [self _writeData:frameData];
+- (void)_sendFrameWithOpcode:(SROpCode)opCode data:(NSData *)data
+{
+    [self _sendFrameWithOpcode:opCode data:data complete:NULL];
 }
 
 - (void)stream:(NSStream *)aStream handleEvent:(NSStreamEvent)eventCode
