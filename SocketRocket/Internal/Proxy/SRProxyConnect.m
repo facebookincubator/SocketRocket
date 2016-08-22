@@ -407,13 +407,17 @@
 - (void)_dequeueInput
 {
     while (_inputQueue.count > 0) {
-        NSData *data = _inputQueue[0];
-        [self _proxyProcessHTTPResponseWithData:data];
+        NSData *data = _inputQueue.firstObject;
         [_inputQueue removeObjectAtIndex:0];
+
+        // No need to process any data further, we got the full header data.
+        if ([self _proxyProcessHTTPResponseWithData:data]) {
+            break;
+        }
     }
 }
 //handle checking the proxy  connection status
-- (void)_proxyProcessHTTPResponseWithData:(NSData *)data
+- (BOOL)_proxyProcessHTTPResponseWithData:(NSData *)data
 {
     if (_receivedHTTPHeaders == NULL) {
         _receivedHTTPHeaders = CFHTTPMessageCreateEmpty(NULL, NO);
@@ -423,7 +427,10 @@
     if (CFHTTPMessageIsHeaderComplete(_receivedHTTPHeaders)) {
         SRDebugLog(@"Finished reading headers %@", CFBridgingRelease(CFHTTPMessageCopyAllHeaderFields(_receivedHTTPHeaders)));
         [self _proxyHTTPHeadersDidFinish];
+        return YES;
     }
+
+    return NO;
 }
 
 - (void)_proxyHTTPHeadersDidFinish
