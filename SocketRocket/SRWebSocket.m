@@ -1502,7 +1502,6 @@ static const size_t SRFrameHeaderOverhead = 32;
         }
 
         case NSStreamEventNone:
-        default:
             SRDebugLog(@"(default)  %@", aStream);
             break;
     }

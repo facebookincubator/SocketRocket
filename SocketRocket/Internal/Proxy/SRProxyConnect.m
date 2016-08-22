@@ -361,7 +361,6 @@
         } break;
         case NSStreamEventHasSpaceAvailable:
         case NSStreamEventNone:
-        default:
             SRDebugLog(@"(default)  %@", aStream);
             break;
     }
