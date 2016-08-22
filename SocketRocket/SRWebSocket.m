@@ -326,8 +326,6 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
 
 - (void)_connectionDoneWithError:(NSError *)error readStream:(NSInputStream *)readStream writeStream:(NSOutputStream *)writeStream
 {
-    _proxyConnect = nil; // Job's done! This is not longer required.
-
     if (error != nil) {
         [self _failWithError:error];
     } else {
@@ -350,6 +348,11 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
             });
         }
     }
+    // Schedule to run on a work queue, to make sure we don't run this inline and deallocate `self` inside `SRProxyConnect`.
+    // TODO: (nlutsenko) Find a better structure for this, maybe Bolts Tasks?
+    dispatch_async(_workQueue, ^{
+        _proxyConnect = nil;
+    });
 }
 
 - (BOOL)_checkHandshake:(CFHTTPMessageRef)httpMessage;
