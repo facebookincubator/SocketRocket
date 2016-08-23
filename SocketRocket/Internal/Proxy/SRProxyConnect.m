@@ -8,11 +8,12 @@
 //
 
 #import "SRProxyConnect.h"
-#import "SRError.h"
+
 #import "NSRunLoop+SRWebSocket.h"
-#import "SRURLUtilities.h"
-#import "SRLog.h"
 #import "SRConstants.h"
+#import "SRError.h"
+#import "SRLog.h"
+#import "SRURLUtilities.h"
 
 @interface SRProxyConnect() <NSStreamDelegate>
 
