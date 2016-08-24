@@ -8,7 +8,8 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "SRSecurityPolicy.h"
+
+#import <SocketRocket/SRSecurityPolicy.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

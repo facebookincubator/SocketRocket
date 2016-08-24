@@ -8,6 +8,7 @@
 //
 
 #import "SRError.h"
+
 #import "SRWebSocket.h"
 
 NS_ASSUME_NONNULL_BEGIN

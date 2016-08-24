@@ -8,11 +8,12 @@
 //
 
 #import "SRProxyConnect.h"
-#import "SRError.h"
+
 #import "NSRunLoop+SRWebSocket.h"
-#import "SRURLUtilities.h"
-#import "SRLog.h"
 #import "SRConstants.h"
+#import "SRError.h"
+#import "SRLog.h"
+#import "SRURLUtilities.h"
 
 @interface SRProxyConnect() <NSStreamDelegate>
 
@@ -165,14 +166,14 @@
     if ([proxyType isEqualToString:(NSString *)kCFProxyTypeAutoConfigurationURL]) {
         NSURL *pacURL = settings[(NSString *)kCFProxyAutoConfigurationURLKey];
         if (pacURL) {
-            [self _fetchPAC:pacURL];
+            [self _fetchPAC:pacURL withProxySettings:proxySettings];
             return;
         }
     }
     if ([proxyType isEqualToString:(__bridge NSString *)kCFProxyTypeAutoConfigurationJavaScript]) {
         NSString *script = settings[(__bridge NSString *)kCFProxyAutoConfigurationJavaScriptKey];
         if (script) {
-            [self _runPACScript:script];
+            [self _runPACScript:script withProxySettings:proxySettings];
             return;
         }
     }
@@ -208,7 +209,7 @@
     }
 }
 
-- (void)_fetchPAC:(NSURL *)PACurl
+- (void)_fetchPAC:(NSURL *)PACurl withProxySettings:(NSDictionary *)proxySettings
 {
     SRDebugLog(@"SRWebSocket fetchPAC:%@", PACurl);
 
@@ -221,7 +222,7 @@
         if (error) {
             [self _openConnection];
         } else {
-            [self _runPACScript:script];
+            [self _runPACScript:script withProxySettings:proxySettings];
         }
         return;
     }
@@ -240,14 +241,14 @@
         __strong typeof(wself) sself = wself;
         if (!error) {
             NSString *script = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-            [sself _runPACScript:script];
+            [sself _runPACScript:script withProxySettings:proxySettings];
         } else {
             [sself _openConnection];
         }
     }] resume];
 }
 
-- (void)_runPACScript:(NSString *)script
+- (void)_runPACScript:(NSString *)script withProxySettings:(NSDictionary *)proxySettings
 {
     if (!script) {
         [self _openConnection];
@@ -258,8 +259,7 @@
     // Work around <rdar://problem/5530166>.  This dummy call to
     // CFNetworkCopyProxiesForURL initialise some state within CFNetwork
     // that is required by CFNetworkCopyProxiesForAutoConfigurationScript.
-    NSDictionary *empty = nil;
-    CFBridgingRelease(CFNetworkCopyProxiesForURL((__bridge CFURLRef)_url, (__bridge CFDictionaryRef)empty));
+    CFBridgingRelease(CFNetworkCopyProxiesForURL((__bridge CFURLRef)_url, (__bridge CFDictionaryRef)proxySettings));
 
     // Obtain the list of proxies by running the autoconfiguration script
     CFErrorRef err = NULL;

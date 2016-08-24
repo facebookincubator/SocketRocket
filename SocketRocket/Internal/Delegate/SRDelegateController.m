@@ -15,7 +15,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, strong, readonly) dispatch_queue_t accessQueue;
 
-@property (atomic, readwrite) SRDelegateAvailableMethods availableDelegateMethods;
+@property (atomic, assign, readwrite) SRDelegateAvailableMethods availableDelegateMethods;
 
 @end
 

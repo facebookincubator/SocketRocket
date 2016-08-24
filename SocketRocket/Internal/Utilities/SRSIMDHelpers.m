@@ -11,7 +11,7 @@
 
 typedef uint8_t uint8x32_t __attribute__((vector_size(32)));
 
-void SRMaskBytesManual(uint8_t *bytes, size_t length, uint8_t *maskKey) {
+static void SRMaskBytesManual(uint8_t *bytes, size_t length, uint8_t *maskKey) {
     for (size_t i = 0; i < length; i++) {
         bytes[i] = bytes[i] ^ maskKey[i % sizeof(uint32_t)];
     }
@@ -25,7 +25,7 @@ void SRMaskBytesManual(uint8_t *bytes, size_t length, uint8_t *maskKey) {
 
  @return A shifted vector.
  */
-uint8x32_t SRShiftVector(uint8x32_t vector, size_t by) {
+static uint8x32_t SRShiftVector(uint8x32_t vector, size_t by) {
     uint8x32_t vectorCopy = vector;
     by = by % _Alignof(uint8x32_t);
 

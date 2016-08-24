@@ -12,21 +12,15 @@
 #import "SRRunLoopThread.h"
 
 @interface SRRunLoopThread ()
+{
+    dispatch_group_t _waitGroup;
+}
 
 @property (nonatomic, strong, readwrite) NSRunLoop *runLoop;
 
 @end
 
-@implementation SRRunLoopThread {
-    dispatch_group_t _waitGroup;
-}
-
-- (void)dealloc
-{
-#if !OS_OBJECT_USE_OBJC_RETAIN_RELEASE
-    dispatch_release(_waitGroup);
-#endif
-}
+@implementation SRRunLoopThread
 
 + (instancetype)sharedThread
 {
