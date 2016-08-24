@@ -658,12 +658,15 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
     return YES;
 }
 
-- (void)handlePing:(NSData *)pingData;
+- (void)_handlePingWithData:(nullable NSData *)data
 {
     // Need to pingpong this off _callbackQueue first to make sure messages happen in order
-    [self.delegateController performDelegateQueueBlock:^{
+    [self.delegateController performDelegateBlock:^(id<SRWebSocketDelegate> _Nullable delegate, SRDelegateAvailableMethods availableMethods) {
+        if (availableMethods.didReceivePing) {
+            [delegate webSocket:self didReceivePingWithData:data];
+        }
         dispatch_async(_workQueue, ^{
-            [self _sendFrameWithOpcode:SROpCodePong data:pingData];
+            [self _sendFrameWithOpcode:SROpCodePong data:data];
         });
     }];
 }
@@ -824,7 +827,7 @@ static inline BOOL closeCodeIsValid(int closeCode) {
             [self handleCloseWithData:frameData];
             break;
         case SROpCodePing:
-            [self handlePing:frameData];
+            [self _handlePingWithData:frameData];
             break;
         case SROpCodePong:
             [self handlePong:frameData];

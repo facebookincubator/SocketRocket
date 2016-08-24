@@ -56,6 +56,7 @@ NS_ASSUME_NONNULL_BEGIN
             .didOpen = [delegate respondsToSelector:@selector(webSocketDidOpen:)],
             .didFailWithError = [delegate respondsToSelector:@selector(webSocket:didFailWithError:)],
             .didCloseWithCode = [delegate respondsToSelector:@selector(webSocket:didCloseWithCode:reason:wasClean:)],
+            .didReceivePing = [delegate respondsToSelector:@selector(webSocket:didReceivePingWithData:)],
             .didReceivePong = [delegate respondsToSelector:@selector(webSocket:didReceivePong:)],
             .shouldConvertTextFrameToString = [delegate respondsToSelector:@selector(webSocketShouldConvertTextFrameToString:)]
         };
