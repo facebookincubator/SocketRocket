@@ -20,6 +20,7 @@ struct SRDelegateAvailableMethods {
     BOOL didOpen : 1;
     BOOL didFailWithError : 1;
     BOOL didCloseWithCode : 1;
+    BOOL didReceivePing : 1;
     BOOL didReceivePong : 1;
     BOOL shouldConvertTextFrameToString : 1;
 };

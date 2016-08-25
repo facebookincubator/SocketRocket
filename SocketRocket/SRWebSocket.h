@@ -383,6 +383,14 @@ extern NSString *const SRHTTPResponseErrorKey;
 - (void)webSocket:(SRWebSocket *)webSocket didCloseWithCode:(NSInteger)code reason:(nullable NSString *)reason wasClean:(BOOL)wasClean;
 
 /**
+ Called on receive of a ping message from the server.
+
+ @param webSocket An instance of `SRWebSocket` that received a ping frame.
+ @param data      Payload that was received or `nil` if there was no payload.
+ */
+- (void)webSocket:(SRWebSocket *)webSocket didReceivePingWithData:(nullable NSData *)data;
+
+/**
  Called when a pong data was received in response to ping.
 
  @param webSocket An instance of `SRWebSocket` that received a pong frame.
