@@ -7,8 +7,8 @@
 // of patent rights can be found in the PATENTS file in the same directory.
 //
 
-#import <Foundation/Foundation.h>
-#import <Security/Security.h>
+@import Foundation;
+@import Security;
 
 NS_ASSUME_NONNULL_BEGIN
 
