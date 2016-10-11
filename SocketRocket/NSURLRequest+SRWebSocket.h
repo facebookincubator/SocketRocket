@@ -20,6 +20,11 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (nullable, nonatomic, copy, readonly) NSArray *SR_SSLPinnedCertificates;
 
+/**
+ A boolean value indicating whether equivalent public keys will be sufficient for validating SSL certificates.
+ */
+@property (nonatomic, assign, readonly) BOOL SR_comparesPublicKeys;
+
 @end
 
 @interface NSMutableURLRequest (SRWebSocket)
@@ -28,6 +33,11 @@ NS_ASSUME_NONNULL_BEGIN
  An array of pinned `SecCertificateRef` SSL certificates that `SRWebSocket` will use for validation.
  */
 @property (nullable, nonatomic, copy) NSArray *SR_SSLPinnedCertificates;
+
+/**
+ A boolean value indicating whether equivalent public keys will be sufficient for validating SSL certificates.
+ */
+@property (nonatomic, assign) BOOL SR_comparesPublicKeys;
 
 @end
 

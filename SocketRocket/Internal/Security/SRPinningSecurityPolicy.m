@@ -8,6 +8,7 @@
 //
 
 #import "SRPinningSecurityPolicy.h"
+#import <openssl/x509.h>
 
 #import <Foundation/Foundation.h>
 
@@ -18,12 +19,13 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SRPinningSecurityPolicy ()
 
 @property (nonatomic, copy, readonly) NSArray *pinnedCertificates;
+@property (nonatomic, assign, readonly) BOOL comparesPublicKeys;
 
 @end
 
 @implementation SRPinningSecurityPolicy
 
-- (instancetype)initWithCertificates:(NSArray *)pinnedCertificates
+- (instancetype)initWithCertificates:(NSArray *)pinnedCertificates comparesPublicKeys:(BOOL)comparesPublicKeys
 {
     // Do not validate certificate chain since we're pinning to specific certificates.
     self = [super initWithCertificateChainValidationEnabled:NO];
@@ -35,6 +37,7 @@ NS_ASSUME_NONNULL_BEGIN
                                      userInfo:nil];
     }
     _pinnedCertificates = [pinnedCertificates copy];
+    _comparesPublicKeys = comparesPublicKeys;
 
     return self;
 }
@@ -53,13 +56,40 @@ NS_ASSUME_NONNULL_BEGIN
             SecCertificateRef trustedCert = (__bridge SecCertificateRef)ref;
             // TODO: (nlutsenko) Add caching, so we don't copy the data for every pinned cert all the time.
             NSData *trustedCertData = CFBridgingRelease(SecCertificateCopyData(trustedCert));
-            if ([trustedCertData isEqualToData:data]) {
+            if ([self isServerCertificateDataValid:data trustedCertData:trustedCertData]) {
                 validatedCertCount++;
                 break;
             }
         }
     }
     return (requiredCertCount == validatedCertCount);
+}
+
+- (BOOL)isServerCertificateDataValid:(NSData *)serverCertData trustedCertData:(NSData *)trustedCertData
+{
+    if (_comparesPublicKeys) {
+        return [[self getPublicKeyStringFromData:trustedCertData] isEqualToString:[self getPublicKeyStringFromData:serverCertData]];
+    } else {
+        return [trustedCertData isEqualToData:serverCertData];
+    }
+}
+
+- (NSString *)getPublicKeyStringFromData:(NSData *)data
+{
+    const unsigned char *certificateDataBytes = (const unsigned char *)[data bytes];
+    X509 *certificateX509 = d2i_X509(NULL, &certificateDataBytes, [data length]);
+    ASN1_BIT_STRING *pubKey2 = X509_get0_pubkey_bitstr(certificateX509);
+    
+    NSString *publicKeyString = [[NSString alloc] init];
+    
+    for (int i = 0; i < pubKey2->length; i++) {
+        NSString *aString = [NSString stringWithFormat:@"%02x", pubKey2->data[i]];
+        publicKeyString = [publicKeyString stringByAppendingString:aString];
+    }
+    
+    X509_free(certificateX509);
+    
+    return publicKeyString;
 }
 
 @end

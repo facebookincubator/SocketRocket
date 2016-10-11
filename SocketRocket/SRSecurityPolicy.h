@@ -27,8 +27,9 @@ NS_ASSUME_NONNULL_BEGIN
  chain validation.
 
  @param pinnedCertificates Array of `SecCertificateRef` SSL certificates to use for validation.
+ @param comparesPublicKeys Boolean to indicate whether equivalent public keys will be sufficient for validating SSL certificates.
  */
-+ (instancetype)pinnningPolicyWithCertificates:(NSArray *)pinnedCertificates;
++ (instancetype)pinnningPolicyWithCertificates:(NSArray *)pinnedCertificates comparesPublicKeys:(BOOL)comparesPublicKeys;
 
 /**
  Specifies socket security and optional certificate chain validation.

@@ -187,8 +187,9 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
 {
     SRSecurityPolicy *securityPolicy;
     NSArray *pinnedCertificates = request.SR_SSLPinnedCertificates;
+    BOOL comparesPublicKeys = request.SR_comparesPublicKeys;
     if (pinnedCertificates) {
-        securityPolicy = [SRSecurityPolicy pinnningPolicyWithCertificates:pinnedCertificates];
+        securityPolicy = [SRSecurityPolicy pinnningPolicyWithCertificates:pinnedCertificates comparesPublicKeys:comparesPublicKeys];
     } else {
         BOOL certificateChainValidationEnabled = !allowsUntrustedSSLCertificates;
         securityPolicy = [[SRSecurityPolicy alloc] initWithCertificateChainValidationEnabled:certificateChainValidationEnabled];

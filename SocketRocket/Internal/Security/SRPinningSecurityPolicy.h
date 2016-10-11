@@ -15,7 +15,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SRPinningSecurityPolicy : SRSecurityPolicy
 
-- (instancetype)initWithCertificates:(NSArray *)pinnedCertificates;
+- (instancetype)initWithCertificates:(NSArray *)pinnedCertificates comparesPublicKeys:(BOOL)comparesPublicKeys;
 
 @end
 
