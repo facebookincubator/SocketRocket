@@ -18,12 +18,18 @@ void import_NSURLRequest_SRWebSocket() { }
 NS_ASSUME_NONNULL_BEGIN
 
 static NSString *const SRSSLPinnnedCertificatesKey = @"SocketRocket_SSLPinnedCertificates";
+static NSString *const SRSSLComparesPublicKeysKey = @"SocketRocket_SSLComparesPublicKeys";
 
 @implementation NSURLRequest (SRWebSocket)
 
 - (nullable NSArray *)SR_SSLPinnedCertificates
 {
     return [NSURLProtocol propertyForKey:SRSSLPinnnedCertificatesKey inRequest:self];
+}
+
+- (BOOL)SR_comparesPublicKeys
+{
+    return [[NSURLProtocol propertyForKey:SRSSLComparesPublicKeysKey inRequest:self] boolValue];
 }
 
 @end
@@ -38,6 +44,16 @@ static NSString *const SRSSLPinnnedCertificatesKey = @"SocketRocket_SSLPinnedCer
 - (void)setSR_SSLPinnedCertificates:(nullable NSArray *)SR_SSLPinnedCertificates
 {
     [NSURLProtocol setProperty:[SR_SSLPinnedCertificates copy] forKey:SRSSLPinnnedCertificatesKey inRequest:self];
+}
+
+- (BOOL)SR_comparesPublicKeys
+{
+    return [[NSURLProtocol propertyForKey:SRSSLComparesPublicKeysKey inRequest:self] boolValue];
+}
+
+- (void)setSR_comparesPublicKeys:(BOOL)SR_comparesPublicKeys
+{
+    [NSURLProtocol setProperty:[NSNumber numberWithBool:SR_comparesPublicKeys] forKey:SRSSLComparesPublicKeysKey inRequest:self];
 }
 
 @end

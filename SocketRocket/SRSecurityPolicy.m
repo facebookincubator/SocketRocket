@@ -25,9 +25,9 @@ NS_ASSUME_NONNULL_BEGIN
     return [self new];
 }
 
-+ (instancetype)pinnningPolicyWithCertificates:(NSArray *)pinnedCertificates
++ (instancetype)pinnningPolicyWithCertificates:(NSArray *)pinnedCertificates comparesPublicKeys:(BOOL)comparesPublicKeys
 {
-    return [[SRPinningSecurityPolicy alloc] initWithCertificates:pinnedCertificates];
+    return [[SRPinningSecurityPolicy alloc] initWithCertificates:pinnedCertificates comparesPublicKeys:comparesPublicKeys];
 }
 
 - (instancetype)initWithCertificateChainValidationEnabled:(BOOL)enabled
