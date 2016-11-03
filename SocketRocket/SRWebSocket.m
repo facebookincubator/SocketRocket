@@ -1441,7 +1441,7 @@ static const size_t SRFrameHeaderOverhead = 32;
         return;
     }
     uint8_t *frameBuffer = (uint8_t *)frameData.mutableBytes;
-    
+
     // set fin
     frameBuffer[0] = SRFinMask | opCode;
 
