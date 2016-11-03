@@ -283,14 +283,13 @@ typedef void (^SRSendCompletionBlock)(NSError * _Nullable error);
 /**
  Send a UTF-8 String to the server.
  
- @param string String to send.
- @param complete  The call back of send result.
- If an error occurs, this block will invoked with an `NSerror` object cantaining information about the error; Otherwise
- this block will invoked with `nil`. 
+ @param string     String to send.
+ @param completion The call back of send result.
+ If an error occurs, this block will invoked with an `NSError` object containing information about the error, otherwise this block will be invoked with `nil`.
  
  @return `YES` if the string was scheduled to send, otherwise - `NO`.
  */
-- (BOOL)sendString:(NSString *)string complete:(SRSendCompletionBlock)complete;
+- (BOOL)sendString:(NSString *)string completion:(nullable SRSendCompletionBlock)completion NS_SWIFT_NAME(send(string:completion:));
 
 /**
  Send binary data to the server.
@@ -319,14 +318,13 @@ typedef void (^SRSendCompletionBlock)(NSError * _Nullable error);
 /**
  Send binary data to the server, without making a defensive copy of it first.
  
- @param data  Data to send.
- @param complete The call back of send result.
- If an error occurs, this block will invoked with an `NSerror` object cantaining information about the error; Otherwise
- this block will invoked with `nil`.
+ @param data       Data to send.
+ @param completion The call back of send result.
+ If an error occurs, this block will invoked with an `NSError` object containing information about the error, otherwise this block will be invoked with `nil`.
  
  @return `YES` if the string was scheduled to send, otherwise - `NO`.
  */
-- (BOOL)sendDataNoCopy:(nullable NSData *)data completed:(SRSendCompletionBlock)complete;
+- (BOOL)sendDataNoCopy:(nullable NSData *)data completion:(nullable SRSendCompletionBlock)completion NS_SWIFT_NAME(send(dataNoCopy:completion:));
 
 /**
  Send Ping message to the server with optional data.
