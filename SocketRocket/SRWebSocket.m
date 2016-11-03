@@ -672,7 +672,7 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
         SRDebugLog(message);
         return NO;
     }
-    
+
     string = [string copy];
     dispatch_async(_workQueue, ^{
         [self _sendFrameWithOpcode:SROpCodeTextFrame data:[string dataUsingEncoding:NSUTF8StringEncoding] completion:completion];
@@ -1430,7 +1430,7 @@ static const size_t SRFrameHeaderOverhead = 32;
     }
 
     size_t payloadLength = data.length;
-    
+
     NSMutableData *frameData = [[NSMutableData alloc] initWithLength:payloadLength + SRFrameHeaderOverhead];
     if (!frameData) {
         NSString *reason = @"Message too big";
@@ -1444,54 +1444,54 @@ static const size_t SRFrameHeaderOverhead = 32;
     
     // set fin
     frameBuffer[0] = SRFinMask | opCode;
-    
+
     // set the mask and header
     frameBuffer[1] |= SRMaskMask;
-    
+
     size_t frameBufferSize = 2;
-    
+
     if (payloadLength < 126) {
         frameBuffer[1] |= payloadLength;
     } else {
         uint64_t declaredPayloadLength = 0;
         size_t declaredPayloadLengthSize = 0;
-        
+
         if (payloadLength <= UINT16_MAX) {
             frameBuffer[1] |= 126;
-            
+
             declaredPayloadLength = CFSwapInt16BigToHost((uint16_t)payloadLength);
             declaredPayloadLengthSize = sizeof(uint16_t);
         } else {
             frameBuffer[1] |= 127;
-            
+
             declaredPayloadLength = CFSwapInt64BigToHost((uint64_t)payloadLength);
             declaredPayloadLengthSize = sizeof(uint64_t);
         }
-        
+
         memcpy((frameBuffer + frameBufferSize), &declaredPayloadLength, declaredPayloadLengthSize);
         frameBufferSize += declaredPayloadLengthSize;
     }
-    
+
     const uint8_t *unmaskedPayloadBuffer = (uint8_t *)data.bytes;
     uint8_t *maskKey = frameBuffer + frameBufferSize;
-    
+
     size_t randomBytesSize = sizeof(uint32_t);
     int result = SecRandomCopyBytes(kSecRandomDefault, randomBytesSize, maskKey);
     if (result != 0) {
         //TODO: (nlutsenko) Check if there was an error.
     }
     frameBufferSize += randomBytesSize;
-    
+
     // Copy and unmask the buffer
     uint8_t *frameBufferPayloadPointer = frameBuffer + frameBufferSize;
-    
+
     memcpy(frameBufferPayloadPointer, unmaskedPayloadBuffer, payloadLength);
     SRMaskBytesSIMD(frameBufferPayloadPointer, payloadLength, maskKey);
     frameBufferSize += payloadLength;
-    
+
     assert(frameBufferSize <= frameData.length);
     frameData.length = frameBufferSize;
-    
+
     [self _writeData:frameData completion:completion];
 }
 
