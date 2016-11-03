@@ -623,7 +623,8 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
         NSRange dataRange = NSMakeRange(location, data.length);
         SRDataCallback *record =  [[SRDataCallback alloc] initWithRange:dataRange completion:completion];
 
-        _sendCallbacks[@([data hash])] = record;
+        static NSUInteger keyCount = 0;
+        _sendCallbacks[@(keyCount++)] = record;
     }
     
     __block NSData *strongData = data;
