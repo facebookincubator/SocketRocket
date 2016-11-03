@@ -851,7 +851,6 @@
 				2D42275D1BB4358C000C1A6C /* Sources */,
 				2D42275E1BB4358C000C1A6C /* Frameworks */,
 				2D42275F1BB4358C000C1A6C /* Headers */,
-				2D4227601BB4358C000C1A6C /* Resources */,
 			);
 			buildRules = (
 			);
@@ -869,7 +868,6 @@
 				3345DC831C52ACD70083CCB8 /* Sources */,
 				3345DC851C52ACD70083CCB8 /* Frameworks */,
 				3345DC891C52ACD70083CCB8 /* Headers */,
-				3345DC8C1C52ACD70083CCB8 /* Resources */,
 			);
 			buildRules = (
 			);
@@ -887,7 +885,6 @@
 				81D647601D2CA78800690609 /* Sources */,
 				81D647721D2CA78800690609 /* Frameworks */,
 				81D647761D2CA78800690609 /* Headers */,
-				81D647891D2CA78800690609 /* Resources */,
 			);
 			buildRules = (
 			);
@@ -925,7 +922,6 @@
 				F6396B85153E67EC00345B5E /* Sources */,
 				F668C87C153E91210044DBAC /* Frameworks */,
 				F668C87D153E91210044DBAC /* Headers */,
-				F668C87E153E91210044DBAC /* Resources */,
 			);
 			buildRules = (
 			);
@@ -986,27 +982,6 @@
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		2D4227601BB4358C000C1A6C /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		3345DC8C1C52ACD70083CCB8 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		81D647891D2CA78800690609 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		F62417E114D52F3C003CE997 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1014,13 +989,6 @@
 				F62417EF14D52F3C003CE997 /* InfoPlist.strings in Resources */,
 				F62417F814D52F3C003CE997 /* MainStoryboard.storyboard in Resources */,
 				F61A0DC81625F44D00365EBD /* Default-568h@2x.png in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		F668C87E153E91210044DBAC /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

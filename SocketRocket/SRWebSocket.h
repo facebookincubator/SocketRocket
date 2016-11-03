@@ -21,7 +21,7 @@ typedef NS_ENUM(NSInteger, SRReadyState) {
 };
 
 typedef NS_ENUM(NSInteger, SRStatusCode) {
-    // 0–999: Reserved and not used.
+    // 0-999: Reserved and not used.
     SRStatusCodeNormal = 1000,
     SRStatusCodeGoingAway = 1001,
     SRStatusCodeProtocolError = 1002,
@@ -38,10 +38,10 @@ typedef NS_ENUM(NSInteger, SRStatusCode) {
     SRStatusCodeTryAgainLater = 1013,
     // 1014: Reserved for future use by the WebSocket standard.
     SRStatusCodeTLSHandshake = 1015,
-    // 1016–1999: Reserved for future use by the WebSocket standard.
-    // 2000–2999: Reserved for use by WebSocket extensions.
-    // 3000–3999: Available for use by libraries and frameworks. May not be used by applications. Available for registration at the IANA via first-come, first-serve.
-    // 4000–4999: Available for use by applications.
+    // 1016-1999: Reserved for future use by the WebSocket standard.
+    // 2000-2999: Reserved for use by WebSocket extensions.
+    // 3000-3999: Available for use by libraries and frameworks. May not be used by applications. Available for registration at the IANA via first-come, first-serve.
+    // 4000-4999: Available for use by applications.
 };
 
 @class SRWebSocket;
@@ -407,6 +407,14 @@ typedef void (^SRSendCompleteBlock)(NSError * _Nullable error);
  @param wasClean  Boolean value indicating whether a socket was closed in a clean state.
  */
 - (void)webSocket:(SRWebSocket *)webSocket didCloseWithCode:(NSInteger)code reason:(nullable NSString *)reason wasClean:(BOOL)wasClean;
+
+/**
+ Called on receive of a ping message from the server.
+
+ @param webSocket An instance of `SRWebSocket` that received a ping frame.
+ @param data      Payload that was received or `nil` if there was no payload.
+ */
+- (void)webSocket:(SRWebSocket *)webSocket didReceivePingWithData:(nullable NSData *)data;
 
 /**
  Called when a pong data was received in response to ping.

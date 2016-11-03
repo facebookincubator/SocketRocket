@@ -29,6 +29,7 @@ SRMutex SRMutexInitRecursive(void)
 void SRMutexDestroy(SRMutex mutex)
 {
     pthread_mutex_destroy(mutex);
+    free(mutex);
 }
 
 __attribute__((no_thread_safety_analysis))

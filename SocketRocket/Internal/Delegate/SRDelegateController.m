@@ -15,7 +15,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, strong, readonly) dispatch_queue_t accessQueue;
 
-@property (atomic, readwrite) SRDelegateAvailableMethods availableDelegateMethods;
+@property (atomic, assign, readwrite) SRDelegateAvailableMethods availableDelegateMethods;
 
 @end
 
@@ -56,6 +56,7 @@ NS_ASSUME_NONNULL_BEGIN
             .didOpen = [delegate respondsToSelector:@selector(webSocketDidOpen:)],
             .didFailWithError = [delegate respondsToSelector:@selector(webSocket:didFailWithError:)],
             .didCloseWithCode = [delegate respondsToSelector:@selector(webSocket:didCloseWithCode:reason:wasClean:)],
+            .didReceivePing = [delegate respondsToSelector:@selector(webSocket:didReceivePingWithData:)],
             .didReceivePong = [delegate respondsToSelector:@selector(webSocket:didReceivePong:)],
             .shouldConvertTextFrameToString = [delegate respondsToSelector:@selector(webSocketShouldConvertTextFrameToString:)]
         };
