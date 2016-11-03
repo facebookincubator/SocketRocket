@@ -59,7 +59,7 @@ extern NSString *const SRHTTPResponseErrorKey;
 
 @protocol SRWebSocketDelegate;
 
-typedef void (^SRSendCompleteBlock)(NSError * _Nullable error);
+typedef void (^SRSendCompletionBlock)(NSError * _Nullable error);
 
 ///--------------------------------------
 #pragma mark - SRWebSocket
@@ -290,7 +290,7 @@ typedef void (^SRSendCompleteBlock)(NSError * _Nullable error);
  
  @return `YES` if the string was scheduled to send, otherwise - `NO`.
  */
-- (BOOL)sendString:(NSString *)string complete:(SRSendCompleteBlock)complete;
+- (BOOL)sendString:(NSString *)string complete:(SRSendCompletionBlock)complete;
 
 /**
  Send binary data to the server.
@@ -326,7 +326,7 @@ typedef void (^SRSendCompleteBlock)(NSError * _Nullable error);
  
  @return `YES` if the string was scheduled to send, otherwise - `NO`.
  */
-- (BOOL)sendDataNoCopy:(nullable NSData *)data completed:(SRSendCompleteBlock)complete;
+- (BOOL)sendDataNoCopy:(nullable NSData *)data completed:(SRSendCompletionBlock)complete;
 
 /**
  Send Ping message to the server with optional data.
