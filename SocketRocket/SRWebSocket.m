@@ -164,7 +164,7 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
     // proxy support
     SRProxyConnect *_proxyConnect;
 
-    NSMutableDictionary<NSNumber *, SRDataCallback *> *_sendCallbacks;
+    NSMutableDictionary<NSValue *, SRDataCallback *> *_sendCallbacks;
 }
 
 @synthesize readyState = _readyState;
@@ -577,7 +577,7 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
 - (void)_failWithError:(NSError *)error;
 {
     dispatch_async(_workQueue, ^{
-        [_sendCallbacks enumerateKeysAndObjectsUsingBlock:^(NSNumber * _Nonnull key, SRDataCallback * _Nonnull obj, BOOL * _Nonnull stop) {
+        [_sendCallbacks enumerateKeysAndObjectsUsingBlock:^(NSValue * _Nonnull key, SRDataCallback * _Nonnull obj, BOOL * _Nonnull stop) {
             obj.completion(error);
         }];
         [_sendCallbacks removeAllObjects];
@@ -621,8 +621,7 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
         NSRange dataRange = NSMakeRange(location, data.length);
         SRDataCallback *record =  [[SRDataCallback alloc] initWithRange:dataRange completion:completion];
 
-        static NSUInteger keyCount = 0;
-        _sendCallbacks[@(keyCount++)] = record;
+        _sendCallbacks[[NSValue valueWithRange:dataRange]] = record;
     }
     
     __block NSData *strongData = data;
@@ -1150,23 +1149,27 @@ static const uint8_t SRPayloadLenMask   = 0x7F;
 
         _outputBufferOffset += bytesWritten;
 
-        NSMutableArray<NSNumber *> *removeKeys = [NSMutableArray array];
-        [_sendCallbacks enumerateKeysAndObjectsUsingBlock:^(NSNumber * _Nonnull key, SRDataCallback * _Nonnull obj, BOOL * _Nonnull stop) {
+        NSMutableArray<NSValue *> *removeKeys = [NSMutableArray array];
+        [_sendCallbacks enumerateKeysAndObjectsUsingBlock:^(NSValue * _Nonnull key, SRDataCallback * _Nonnull obj, BOOL * _Nonnull stop) {
             if (NSMaxRange(obj.range) <= _outputBufferOffset) {
                 [removeKeys addObject:key];
                 obj.completion(nil);
             }
         }];
-
         [_sendCallbacks removeObjectsForKeys:removeKeys];
 
         if (_outputBufferOffset > SRDefaultBufferSize() && _outputBufferOffset > dataLength / 2) {
-            [_sendCallbacks enumerateKeysAndObjectsUsingBlock:^(NSNumber * _Nonnull key, SRDataCallback * _Nonnull obj, BOOL * _Nonnull stop) {
-                NSRange range = obj.range;
-                range.location -= _outputBufferOffset;
-                obj.range = range;
+
+            NSArray<SRDataCallback *> *callbacks = _sendCallbacks.allValues;
+            [_sendCallbacks removeAllObjects];
+            [callbacks enumerateObjectsUsingBlock:^(SRDataCallback * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+                NSRange dataRange = obj.range;
+                dataRange.location -= _outputBufferOffset;
+                obj.range = dataRange;
+                _sendCallbacks[[NSValue valueWithRange:dataRange]] = obj;
             }];
-            
+
+
             _outputBuffer = dispatch_data_create_subrange(_outputBuffer, _outputBufferOffset, dataLength - _outputBufferOffset);
             _outputBufferOffset = 0;
         }
