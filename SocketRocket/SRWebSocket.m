@@ -70,7 +70,7 @@ NSString *const SRWebSocketErrorDomain = @"SRWebSocketErrorDomain";
 NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
 
 @interface SRDataCallback : NSObject
-@property (nonatomic, assign) NSRange   range;
+@property (nonatomic, assign) NSRange range;
 @property (nonatomic, copy, readonly) SRSendCompletionBlock completion;
 
 + (instancetype)new NS_UNAVAILABLE;
@@ -578,9 +578,7 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
 {
     dispatch_async(_workQueue, ^{
         [_sendCallbacks enumerateKeysAndObjectsUsingBlock:^(NSNumber * _Nonnull key, SRDataCallback * _Nonnull obj, BOOL * _Nonnull stop) {
-            if (obj.completion) {
-                obj.completion(error);
-            }
+            obj.completion(error);
         }];
         [_sendCallbacks removeAllObjects];
         
@@ -618,7 +616,7 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
         return;
     }
     
-    if (completion != nil) {
+    if (completion) {
         NSUInteger location = dispatch_data_get_size(_outputBuffer);
         NSRange dataRange = NSMakeRange(location, data.length);
         SRDataCallback *record =  [[SRDataCallback alloc] initWithRange:dataRange completion:completion];
@@ -650,25 +648,29 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
 
 - (BOOL)sendString:(NSString *)string error:(NSError **)error
 {
-    return [self sendString:string error:error completion:nil];
-}
-
-- (BOOL)sendString:(NSString *)string completion:(nullable SRSendCompletionBlock)completion {
-    return [self sendString:string error:NULL completion:completion];
-}
-
-- (BOOL)sendString:(NSString *)string error:(NSError **)error completion:(nullable SRSendCompletionBlock)completion {
     if (self.readyState != SR_OPEN) {
         NSString *message = @"Invalid State: Cannot call `sendString:error:` until connection is open.";
-        NSError *locialError = SRErrorWithCodeDescription(2134, message);
         if (error) {
-            *error = locialError;
+            *error = SRErrorWithCodeDescription(2134, message);
         }
-        
+        SRDebugLog(message);
+        return NO;
+    }
+
+    string = [string copy];
+    dispatch_async(_workQueue, ^{
+        [self _sendFrameWithOpcode:SROpCodeTextFrame data:[string dataUsingEncoding:NSUTF8StringEncoding]];
+    });
+    return YES;
+}
+
+- (BOOL)sendString:(NSString *)string completion:(nullable SRSendCompletionBlock)completion
+{
+    if (self.readyState != SR_OPEN) {
+        NSString *message = @"Invalid State: Cannot call `sendString:error:` until connection is open.";
         if (completion) {
-            completion(locialError);
+            completion(SRErrorWithCodeDescription(2134, message));
         }
-        
         SRDebugLog(message);
         return NO;
     }
@@ -688,25 +690,31 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
 
 - (BOOL)sendDataNoCopy:(nullable NSData *)data error:(NSError **)error
 {
-    return [self sendDataNoCopy:data error:error completion:nil];
+    if (self.readyState != SR_OPEN) {
+        NSString *message = @"Invalid State: Cannot call `sendDataNoCopy:error:` until connection is open.";
+        if (error) {
+            *error = SRErrorWithCodeDescription(2134, message);
+        }
+        SRDebugLog(message);
+        return NO;
+    }
+
+    dispatch_async(_workQueue, ^{
+        if (data) {
+            [self _sendFrameWithOpcode:SROpCodeBinaryFrame data:data];
+        } else {
+            [self _sendFrameWithOpcode:SROpCodeTextFrame data:nil];
+        }
+    });
+    return YES;
 }
 
 - (BOOL)sendDataNoCopy:(nullable NSData *)data completion:(nullable SRSendCompletionBlock)completion
 {
-    return [self sendDataNoCopy:data error:NULL completion:completion];
-}
-
-- (BOOL)sendDataNoCopy:(nullable NSData *)data error:(NSError **)error completion:(SRSendCompletionBlock)completion
-{
     if (self.readyState != SR_OPEN) {
         NSString *message = @"Invalid State: Cannot call `sendDataNoCopy:error:` until connection is open.";
-        NSError *localError = SRErrorWithCodeDescription(2134, message);
-        if (error) {
-            *error = localError;
-        }
-
         if (completion) {
-            completion(localError);
+            completion(SRErrorWithCodeDescription(2134, message));
         }
         SRDebugLog(message);
         return NO;
@@ -1418,7 +1426,7 @@ static const char CRLFCRLFBytes[] = {'\r', '\n', '\r', '\n'};
 
 static const size_t SRFrameHeaderOverhead = 32;
 
-- (void)_sendFrameWithOpcode:(SROpCode)opCode data:(NSData *)data completion:(SRSendCompletionBlock)completion
+- (void)_sendFrameWithOpcode:(SROpCode)opCode data:(NSData *)data completion:(nullable SRSendCompletionBlock)completion
 {
     [self assertOnWorkQueue];
 
