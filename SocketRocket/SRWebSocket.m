@@ -765,19 +765,19 @@ static inline BOOL closeCodeIsValid(int closeCode) {
 
 - (void)_handleFrameWithData:(NSData *)frameData opCode:(SROpCode)opcode
 {
-    //frameData will be copied before passing to handlers
-    //otherwise there can be misbehaviours when value at the pointer is changed
-    frameData = [frameData copy];
-
     // Check that the current data is valid UTF8
 
     BOOL isControlFrame = (opcode == SROpCodePing || opcode == SROpCodePong || opcode == SROpCodeConnectionClose);
-    if (!isControlFrame) {
-        [self _readFrameNew];
-    } else {
+    if (isControlFrame) {
+        //frameData will be copied before passing to handlers
+        //otherwise there can be misbehaviours when value at the pointer is changed
+        frameData = [frameData copy];
+
         dispatch_async(_workQueue, ^{
             [self _readFrameContinue];
         });
+    } else {
+        [self _readFrameNew];
     }
 
     switch (opcode) {
