@@ -1174,6 +1174,8 @@
 			baseConfigurationReference = 81D647591D2CA6A100690609 /* SocketRocket-iOS-Dynamic.xcconfig */;
 			buildSettings = {
 				MTL_ENABLE_DEBUG_INFO = YES;
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
 			};
 			name = Debug;
 		};
@@ -1182,6 +1184,8 @@
 			baseConfigurationReference = 81D647591D2CA6A100690609 /* SocketRocket-iOS-Dynamic.xcconfig */;
 			buildSettings = {
 				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
 			};
 			name = Release;
 		};
@@ -1190,6 +1194,7 @@
 			baseConfigurationReference = 81D6475C1D2CA6A100690609 /* SocketRocket-tvOS.xcconfig */;
 			buildSettings = {
 				MTL_ENABLE_DEBUG_INFO = YES;
+				SDKROOT = appletvos;
 				TARGETED_DEVICE_FAMILY = 3;
 			};
 			name = Debug;
@@ -1199,6 +1204,7 @@
 			baseConfigurationReference = 81D6475C1D2CA6A100690609 /* SocketRocket-tvOS.xcconfig */;
 			buildSettings = {
 				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = appletvos;
 				TARGETED_DEVICE_FAMILY = 3;
 			};
 			name = Release;
@@ -1207,6 +1213,8 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 81D6475A1D2CA6A100690609 /* SocketRocket-iOS.xcconfig */;
 			buildSettings = {
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				SDKROOT = iphoneos;
 			};
 			name = Debug;
 		};
@@ -1214,6 +1222,8 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 81D6475A1D2CA6A100690609 /* SocketRocket-iOS.xcconfig */;
 			buildSettings = {
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				SDKROOT = iphoneos;
 			};
 			name = Release;
 		};
