@@ -666,7 +666,7 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
 - (BOOL)sendString:(NSString *)string completion:(nullable SRSendCompletionBlock)completion
 {
     if (self.readyState != SR_OPEN) {
-        NSString *message = @"Invalid State: Cannot call `sendString:error:` until connection is open.";
+        NSString *message = @"Invalid State: Cannot call `sendString:completion:` until connection is open.";
         if (completion) {
             completion(SRErrorWithCodeDescription(2134, message));
         }
@@ -711,7 +711,7 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
 - (BOOL)sendDataNoCopy:(nullable NSData *)data completion:(nullable SRSendCompletionBlock)completion
 {
     if (self.readyState != SR_OPEN) {
-        NSString *message = @"Invalid State: Cannot call `sendDataNoCopy:error:` until connection is open.";
+        NSString *message = @"Invalid State: Cannot call `sendDataNoCopy:completion:` until connection is open.";
         if (completion) {
             completion(SRErrorWithCodeDescription(2134, message));
         }
