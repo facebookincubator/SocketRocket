@@ -58,6 +58,7 @@ extern NSString *const SRWebSocketErrorDomain;
 extern NSString *const SRHTTPResponseErrorKey;
 
 @protocol SRWebSocketDelegate;
+@protocol SRWebSocketAuthenticationDelegate;
 
 ///--------------------------------------
 #pragma mark - SRWebSocket
@@ -74,6 +75,13 @@ extern NSString *const SRHTTPResponseErrorKey;
  The web socket delegate is notified on all state changes that happen to the web socket.
  */
 @property (nonatomic, weak) id <SRWebSocketDelegate> delegate;
+
+/**
+ The authentication delegate of the web socket.
+ 
+ The web socket authentication delegate is notified for authentication events.
+ */
+@property (nonatomic, weak) id <SRWebSocketAuthenticationDelegate> authenticationDelegate;
 
 /**
  A dispatch queue for scheduling the delegate calls. The queue doesn't need be a serial queue.
@@ -121,6 +129,11 @@ extern NSString *const SRHTTPResponseErrorKey;
  For DEBUG builds this flag is ignored, and SSL connections are allowed regardless of the certificate trust configuration
  */
 @property (nonatomic, assign, readonly) BOOL allowsUntrustedSSLCertificates;
+
+/**
+ The bearer token that will be used on HTTP Bearer authentication request.
+ */
+@property (nonatomic, strong) NSString *authenticationBearerToken;
 
 ///--------------------------------------
 #pragma mark - Constructors
@@ -407,6 +420,27 @@ extern NSString *const SRHTTPResponseErrorKey;
  @return `YES` if text frame should be converted to UTF-8 String, otherwise - `NO`. Default: `YES`.
  */
 - (BOOL)webSocketShouldConvertTextFrameToString:(SRWebSocket *)webSocket NS_SWIFT_NAME(webSocketShouldConvertTextFrameToString(_:));
+
+@end
+
+///--------------------------------------
+#pragma mark - SRWebSocketAuthenticationDelegate
+///--------------------------------------
+
+/**
+ The `SRWebSocketAuthenticationDelegate` protocol is used as a callback mechanism for authentication.
+ */
+@protocol SRWebSocketAuthenticationDelegate <NSObject>
+
+@optional
+
+/**
+ Called when the bearer authentication during the Websocket handshake fails.
+ 
+ Providing an updated bearer token will retry the handshake. Not calling the retryHandler will result in the
+ connection failing.
+ */
+- (void)webSocket:(SRWebSocket *)webSocket bearerAuthenticationDidFailWithRetryHandler:(void (^)(NSString *newBearerToken))retryHandler;
 
 @end
 

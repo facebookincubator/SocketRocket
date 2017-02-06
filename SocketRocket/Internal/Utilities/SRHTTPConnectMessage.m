@@ -24,6 +24,7 @@ static NSString *_SRHTTPConnectMessageHost(NSURL *url)
 
 CFHTTPMessageRef SRHTTPConnectMessageCreate(NSURLRequest *request,
                                             NSString *securityKey,
+                                            NSString *bearerToken,
                                             uint8_t webSocketProtocolVersion,
                                             NSArray<NSHTTPCookie *> *_Nullable cookies,
                                             NSArray<NSString *> *_Nullable requestedProtocols)
@@ -55,6 +56,13 @@ CFHTTPMessageRef SRHTTPConnectMessageCreate(NSURLRequest *request,
     NSString *basicAuthorizationString = SRBasicAuthorizationHeaderFromURL(url);
     if (basicAuthorizationString) {
         CFHTTPMessageSetHeaderFieldValue(message, CFSTR("Authorization"), (__bridge CFStringRef)basicAuthorizationString);
+    }
+    
+    // If we have a bearerToken set, append to the headers
+    if (bearerToken)
+    {
+        NSString *authBearerString = [NSString stringWithFormat:@"Bearer %@", bearerToken];
+        CFHTTPMessageSetHeaderFieldValue(message, CFSTR("Authorization"), (__bridge CFStringRef)authBearerString);
     }
 
     CFHTTPMessageSetHeaderFieldValue(message, CFSTR("Upgrade"), CFSTR("websocket"));

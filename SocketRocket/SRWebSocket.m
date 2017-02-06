@@ -373,6 +373,25 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
 {
     NSInteger responseCode = CFHTTPMessageGetResponseStatusCode(_receivedHTTPHeaders);
     if (responseCode >= 400) {
+        
+        if (responseCode == 401)
+        {
+            // handle an aunathorised request to upgrade
+            if ([self.authenticationDelegate respondsToSelector:@selector(webSocket:bearerAuthenticationDidFailWithRetryHandler:)])
+            {
+                [self.authenticationDelegate webSocket:self bearerAuthenticationDidFailWithRetryHandler:^(NSString *newBearerToken) {
+                    if (newBearerToken)
+                    {
+                        dispatch_async(_workQueue, ^{
+                            self.authenticationBearerToken = newBearerToken;
+                            [self didConnect];
+                        });
+                    }
+                }];
+                return;
+            }
+        }
+        
         SRDebugLog(@"Request failed with response code %d", responseCode);
         NSError *error = SRHTTPErrorWithCodeDescription(responseCode, 2132,
                                                         [NSString stringWithFormat:@"Received bad response code from server: %d.",
@@ -440,6 +459,7 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
 
     CFHTTPMessageRef message = SRHTTPConnectMessageCreate(_urlRequest,
                                                           _secKey,
+                                                          self.authenticationBearerToken,
                                                           SRWebSocketProtocolVersion,
                                                           self.requestCookies,
                                                           _requestedProtocols);
