@@ -305,23 +305,33 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
     NSAssert(self.readyState == SR_CONNECTING, @"Cannot call -(void)open on SRWebSocket more than once.");
 
     _selfRetain = self;
+    __weak typeof(self) wself = self;
 
     if (_urlRequest.timeoutInterval > 0) {
         dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(_urlRequest.timeoutInterval * NSEC_PER_SEC));
         dispatch_after(popTime, dispatch_get_main_queue(), ^{
-            if (self.readyState == SR_CONNECTING) {
-                NSError *error = SRErrorWithDomainCodeDescription(NSURLErrorDomain, NSURLErrorTimedOut, @"Timed out connecting to server.");
-                [self _failWithError:error];
-            }
+            [wself _connectionTimedOut];
         });
     }
 
     _proxyConnect = [[SRProxyConnect alloc] initWithURL:_url];
-
-    __weak typeof(self) wself = self;
     [_proxyConnect openNetworkStreamWithCompletion:^(NSError *error, NSInputStream *readStream, NSOutputStream *writeStream) {
         [wself _connectionDoneWithError:error readStream:readStream writeStream:writeStream];
     }];
+}
+
+- (void)_connectionTimedOut
+{
+    if (self.readyState == SR_CONNECTING) {
+        NSError *error = SRErrorWithDomainCodeDescription(NSURLErrorDomain, NSURLErrorTimedOut, @"Timed out connecting to server.");
+        [self _failWithError:error];
+    }
+
+    // Schedule to run on a work queue, to make sure we don't run this inline and deallocate `self` inside `SRProxyConnect`.
+    // TODO: (nlutsenko) Find a better structure for this, maybe Bolts Tasks?
+    dispatch_async(_workQueue, ^{
+        _proxyConnect = nil;
+    });
 }
 
 - (void)_connectionDoneWithError:(NSError *)error readStream:(NSInputStream *)readStream writeStream:(NSOutputStream *)writeStream
