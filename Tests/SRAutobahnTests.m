@@ -137,7 +137,7 @@
 
 
     XCTAssertTrue([resultOp waitUntilFinishedWithTimeout:60 * 5], @"Test operation timed out.");
-    XCTAssertTrue(!testOp.error, @"Test operation should not have failed");
+    XCTAssertTrue(!testOp.error, @"Test operation should not have failed: %@", testOp.error);
     if (!SRAutobahnIsValidResultBehavior(identifier, resultInfo[@"behavior"])) {
         XCTFail(@"Invalid test behavior %@ for %@.", resultInfo[@"behavior"], identifier);
     }
