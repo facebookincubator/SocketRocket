@@ -23,11 +23,4 @@ extern void SRErrorLog(NSString *format, ...)
     NSLog(@"[SocketRocket] %@", formattedString);
 }
 
-extern void SRDebugLog(NSString *format, ...)
-{
-#ifdef SR_DEBUG_LOG_ENABLED
-    SRErrorLog(tag, format);
-#endif
-}
-
 NS_ASSUME_NONNULL_END

@@ -15,6 +15,11 @@ NS_ASSUME_NONNULL_BEGIN
 //#define SR_DEBUG_LOG_ENABLED
 
 extern void SRErrorLog(NSString *format, ...) NS_FORMAT_FUNCTION(1,2);
-extern void SRDebugLog(NSString *format, ...) NS_FORMAT_FUNCTION(1,2);
+
+#ifdef SR_DEBUG_LOG_ENABLED
+    #define SRDebugLog(format, ...) SRErrorLog(format, ##__VA_ARGS__)
+#else
+    #define SRDebugLog(format, ...) {}
+#endif
 
 NS_ASSUME_NONNULL_END
