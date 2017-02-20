@@ -85,7 +85,7 @@ extern NSString *const SRHTTPResponseErrorKey;
 /**
  An operation queue for scheduling the delegate calls.
 
- If `nil` and `delegateOperationQueue` is `nil`, the socket uses main queue for performing all delegate method calls.
+ If `nil` and `delegateDispatchQueue` is `nil`, the socket uses main queue for performing all delegate method calls.
  */
 @property (nullable, nonatomic, strong) NSOperationQueue *delegateOperationQueue;
 
