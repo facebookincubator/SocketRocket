@@ -165,7 +165,7 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
     _workQueue = dispatch_queue_create(NULL, DISPATCH_QUEUE_SERIAL);
 
     // Going to set a specific on the queue so we can validate we're on the work queue
-    dispatch_queue_set_specific(_workQueue, (__bridge void *)self, (__bridge void *)(_workQueue), NULL);
+    dispatch_queue_set_specific(_workQueue, (__bridge void *)(_workQueue), (__bridge void *)(_workQueue), NULL);
 
     _delegateController = [[SRDelegateController alloc] init];
 
@@ -236,7 +236,7 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
 
 - (void)assertOnWorkQueue;
 {
-    assert(dispatch_get_specific((__bridge void *)self) == (__bridge void *)_workQueue);
+    assert(dispatch_get_specific((__bridge void *)(_workQueue)) == (__bridge void *)_workQueue);
 }
 
 ///--------------------------------------
