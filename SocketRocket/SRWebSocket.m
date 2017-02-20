@@ -336,28 +336,35 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
 
 - (void)_connectionDoneWithError:(NSError *)error readStream:(NSInputStream *)readStream writeStream:(NSOutputStream *)writeStream
 {
-    if (error != nil) {
-        [self _failWithError:error];
-    } else {
-        _outputStream = writeStream;
-        _inputStream = readStream;
-
-        _inputStream.delegate = self;
-        _outputStream.delegate = self;
-        [self _updateSecureStreamOptions];
-
-        if (!_scheduledRunloops.count) {
-            [self scheduleInRunLoop:[NSRunLoop SR_networkRunLoop] forMode:NSDefaultRunLoopMode];
-        }
-
-        // If we don't require SSL validation - consider that we connected.
-        // Otherwise `didConnect` is called when SSL validation finishes.
-        if (!_requestRequiresSSL) {
-            dispatch_async(_workQueue, ^{
-                [self didConnect];
-            });
+    if (self.readyState == SR_CONNECTING) {
+        if (error != nil) {
+            [self _failWithError:error];
+        } else {
+            _outputStream = writeStream;
+            _inputStream = readStream;
+            
+            _inputStream.delegate = self;
+            _outputStream.delegate = self;
+            [self _updateSecureStreamOptions];
+            
+            if (!_scheduledRunloops.count) {
+                [self scheduleInRunLoop:[NSRunLoop SR_networkRunLoop] forMode:NSDefaultRunLoopMode];
+            }
+            
+            // If we don't require SSL validation - consider that we connected.
+            // Otherwise `didConnect` is called when SSL validation finishes.
+            if (!_requestRequiresSSL) {
+                dispatch_async(_workQueue, ^{
+                    [self didConnect];
+                });
+            }
         }
     }
+    else {
+        [readStream close];
+        [writeStream close];
+    }
+    
     // Schedule to run on a work queue, to make sure we don't run this inline and deallocate `self` inside `SRProxyConnect`.
     // TODO: (nlutsenko) Find a better structure for this, maybe Bolts Tasks?
     dispatch_async(_workQueue, ^{
@@ -1075,12 +1082,11 @@ static const uint8_t SRPayloadLenMask   = 0x7F;
             _outputBufferOffset = 0;
         }
     }
-
-    if (_closeWhenFinishedWriting &&
-        (dispatch_data_get_size(_outputBuffer) - _outputBufferOffset) == 0 &&
-        (_inputStream.streamStatus != NSStreamStatusNotOpen &&
-         _inputStream.streamStatus != NSStreamStatusClosed) &&
-        !_sentClose) {
+    
+    if (_closeWhenFinishedWriting && !_sentClose &&
+        (((dispatch_data_get_size(_outputBuffer) - _outputBufferOffset) == 0 &&
+          (_inputStream.streamStatus != NSStreamStatusNotOpen && _inputStream.streamStatus != NSStreamStatusClosed))  ||
+         (_inputStream == nil))) {
         _sentClose = YES;
 
         @synchronized(self) {
