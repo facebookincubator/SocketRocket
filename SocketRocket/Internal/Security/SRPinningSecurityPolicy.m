@@ -41,7 +41,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (BOOL)evaluateServerTrust:(SecTrustRef)serverTrust forDomain:(NSString *)domain
 {
-    SRDebugLog(@"Pinned cert count: %d", self.pinnedCertificates.count);
+    SRDebugLog(@"Pinned cert count: %lu", (unsigned long)self.pinnedCertificates.count);
     NSUInteger requiredCertCount = self.pinnedCertificates.count;
 
     NSUInteger validatedCertCount = 0;
