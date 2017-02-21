@@ -245,11 +245,11 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
 
 - (void)dealloc
 {
-    _inputStream.delegate = nil;
-    _outputStream.delegate = nil;
-
     [_inputStream close];
     [_outputStream close];
+    
+    _inputStream.delegate = nil;
+    _outputStream.delegate = nil;
 
     if (_receivedHTTPHeaders) {
         CFRelease(_receivedHTTPHeaders);
