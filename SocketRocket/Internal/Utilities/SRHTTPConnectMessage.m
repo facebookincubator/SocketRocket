@@ -16,7 +16,9 @@ NS_ASSUME_NONNULL_BEGIN
 static NSString *_SRHTTPConnectMessageHost(NSURL *url)
 {
     NSString *host = url.host;
-    if (url.port) {
+    if ([host containsString:@":"]) {
+        host = [NSString stringWithFormat:@"[%@]:%@", host, url.port];
+    } else {
         host = [host stringByAppendingFormat:@":%@", url.port];
     }
     return host;
