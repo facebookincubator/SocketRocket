@@ -66,6 +66,7 @@ extern NSString *const SRHTTPResponseErrorKey;
 @property (nonatomic, readonly) SRReadyState readyState;
 @property (nonatomic, readonly, retain) NSURL *url;
 
+@property (nonatomic, weak) id identityRef;
 
 @property (nonatomic, readonly) CFHTTPMessageRef receivedHTTPHeaders;
 

@@ -594,36 +594,62 @@ static __strong NSData *CRLFCRLF;
     _outputStream.delegate = self;
 }
 
+/*
+ !!!: SocketRocket certificate hack
+ We are overriding this method to mimic how we previously had configured our SPDY transport for SSL.
+ */
+
+//- (void)_updateSecureStreamOptions;
+//{
+//    if (_secure) {
+//        NSMutableDictionary *SSLOptions = [[NSMutableDictionary alloc] init];
+//
+//        [_outputStream setProperty:(__bridge id)kCFStreamSocketSecurityLevelNegotiatedSSL forKey:(__bridge id)kCFStreamPropertySocketSecurityLevel];
+//
+//        // If we're using pinned certs, don't validate the certificate chain
+//        if ([_urlRequest SR_SSLPinnedCertificates].count) {
+//            [SSLOptions setValue:@NO forKey:(__bridge id)kCFStreamSSLValidatesCertificateChain];
+//        }
+//
+//#if DEBUG
+//        self.allowsUntrustedSSLCertificates = YES;
+//#endif
+//
+//        if (self.allowsUntrustedSSLCertificates) {
+//            [SSLOptions setValue:@NO forKey:(__bridge id)kCFStreamSSLValidatesCertificateChain];
+//            SRFastLog(@"Allowing connection to any root cert");
+//        }
+//
+//        [_outputStream setProperty:SSLOptions
+//                            forKey:(__bridge id)kCFStreamPropertySSLSettings];
+//    }
+//
+//    _inputStream.delegate = self;
+//    _outputStream.delegate = self;
+//
+//    [self setupNetworkServiceType:_urlRequest.networkServiceType];
+//}
+
 - (void)_updateSecureStreamOptions;
 {
     if (_secure) {
-        NSMutableDictionary *SSLOptions = [[NSMutableDictionary alloc] init];
-        
-        [_outputStream setProperty:(__bridge id)kCFStreamSocketSecurityLevelNegotiatedSSL forKey:(__bridge id)kCFStreamPropertySocketSecurityLevel];
-        
-        // If we're using pinned certs, don't validate the certificate chain
-        if ([_urlRequest SR_SSLPinnedCertificates].count) {
-            [SSLOptions setValue:@NO forKey:(__bridge id)kCFStreamSSLValidatesCertificateChain];
-        }
-        
-#if DEBUG
-        self.allowsUntrustedSSLCertificates = YES;
-#endif
 
-        if (self.allowsUntrustedSSLCertificates) {
-            [SSLOptions setValue:@NO forKey:(__bridge id)kCFStreamSSLValidatesCertificateChain];
-            SRFastLog(@"Allowing connection to any root cert");
-        }
-        
-        [_outputStream setProperty:SSLOptions
+        [_outputStream setProperty:@{(NSString *)kCFStreamSSLValidatesCertificateChain:@(NO),
+                                     (NSString *)kCFStreamSSLIsServer:@(NO),
+                                     (NSString *)kCFStreamSSLLevel:(NSString *)kCFStreamSocketSecurityLevelTLSv1,
+                                     (NSString *)kCFStreamSSLCertificates:@[self.identityRef]}
                             forKey:(__bridge id)kCFStreamPropertySSLSettings];
     }
-    
+
     _inputStream.delegate = self;
     _outputStream.delegate = self;
-    
+
     [self setupNetworkServiceType:_urlRequest.networkServiceType];
 }
+
+/*
+ !!!: End SocketRocket certificate hack
+ */
 
 - (void)setupNetworkServiceType:(NSURLRequestNetworkServiceType)requestNetworkServiceType
 {
