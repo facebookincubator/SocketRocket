@@ -423,19 +423,21 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
 
     // Uses weak self object in the block, otherwise Consumers will retain SRWebSocket instance,
     // and SRWebSocket instance also hold consumers, cycle reference will occur.
-    __weak __typeof(self) wself = self;
+    __weak typeof(self) wself = self;
 
     [self _readUntilHeaderCompleteWithCallback:^(SRWebSocket *socket,  NSData *data) {
-        if (wself == nil)
+
+        __strong typeof(wself) sself = wself;
+        if (sself == nil)
             return;
 
-        CFHTTPMessageAppendBytes(wself.receivedHTTPHeaders, (const UInt8 *)data.bytes, data.length);
+        CFHTTPMessageAppendBytes(sself.receivedHTTPHeaders, (const UInt8 *)data.bytes, data.length);
 
-        if (CFHTTPMessageIsHeaderComplete(wself.receivedHTTPHeaders)) {
-            SRDebugLog(@"Finished reading headers %@", CFBridgingRelease(CFHTTPMessageCopyAllHeaderFields(wself.receivedHTTPHeaders)));
-            [wself _HTTPHeadersDidFinish];
+        if (CFHTTPMessageIsHeaderComplete(sself.receivedHTTPHeaders)) {
+            SRDebugLog(@"Finished reading headers %@", CFBridgingRelease(CFHTTPMessageCopyAllHeaderFields(sself.receivedHTTPHeaders)));
+            [sself _HTTPHeadersDidFinish];
         } else {
-            [wself _readHTTPHeader];
+            [sself _readHTTPHeader];
         }
     }];
 }
