@@ -295,6 +295,14 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
     return NO;
 }
 
+-(void)_onTimeout
+{
+    if (self.readyState == SR_CONNECTING) {
+        NSError *error = SRErrorWithDomainCodeDescription(NSURLErrorDomain, NSURLErrorTimedOut, @"Timed out connecting to server.");
+        [self _failWithError:error];
+    }
+}
+
 ///--------------------------------------
 #pragma mark - Open / Close
 ///--------------------------------------
@@ -307,13 +315,7 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
     _selfRetain = self;
 
     if (_urlRequest.timeoutInterval > 0) {
-        dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(_urlRequest.timeoutInterval * NSEC_PER_SEC));
-        dispatch_after(popTime, dispatch_get_main_queue(), ^{
-            if (self.readyState == SR_CONNECTING) {
-                NSError *error = SRErrorWithDomainCodeDescription(NSURLErrorDomain, NSURLErrorTimedOut, @"Timed out connecting to server.");
-                [self _failWithError:error];
-            }
-        });
+        [self performSelector:@selector(_onTimeout) withObject:nil afterDelay:_urlRequest.timeoutInterval];
     }
 
     _proxyConnect = [[SRProxyConnect alloc] initWithURL:_url];
@@ -419,14 +421,21 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
         _receivedHTTPHeaders = CFHTTPMessageCreateEmpty(NULL, NO);
     }
 
-    [self _readUntilHeaderCompleteWithCallback:^(SRWebSocket *socket,  NSData *data) {
-        CFHTTPMessageAppendBytes(_receivedHTTPHeaders, (const UInt8 *)data.bytes, data.length);
+    // Uses weak self object in the block, otherwise Consumers will retain SRWebSocket instance,
+    // and SRWebSocket instance also hold consumers, cycle reference will occur.
+    __weak __typeof(self) wself = self;
 
-        if (CFHTTPMessageIsHeaderComplete(_receivedHTTPHeaders)) {
-            SRDebugLog(@"Finished reading headers %@", CFBridgingRelease(CFHTTPMessageCopyAllHeaderFields(_receivedHTTPHeaders)));
-            [self _HTTPHeadersDidFinish];
+    [self _readUntilHeaderCompleteWithCallback:^(SRWebSocket *socket,  NSData *data) {
+        if (wself == nil)
+            return;
+
+        CFHTTPMessageAppendBytes(wself.receivedHTTPHeaders, (const UInt8 *)data.bytes, data.length);
+
+        if (CFHTTPMessageIsHeaderComplete(wself.receivedHTTPHeaders)) {
+            SRDebugLog(@"Finished reading headers %@", CFBridgingRelease(CFHTTPMessageCopyAllHeaderFields(wself.receivedHTTPHeaders)));
+            [wself _HTTPHeadersDidFinish];
         } else {
-            [self _readHTTPHeader];
+            [wself _readHTTPHeader];
         }
     }];
 }
@@ -1126,6 +1135,16 @@ static const uint8_t SRPayloadLenMask   = 0x7F;
         }
 
         _cleanupScheduled = YES;
+
+        // _consumers retain SRWebSocket instance by block copy, if there are consumers here, clear them.
+        [_consumers removeAllObjects];
+        [_consumerPool clear];
+
+        // Cancel the timer which retains SRWebSocket instance.
+        // If we don't cancel the timer, the 'dealloc' method will be invoked only after the time (default: 60s) have come, which may cause memory increase.
+        dispatch_async(dispatch_get_main_queue(), ^(){
+            [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(_onTimeout) object:nil];
+        });
 
         // Cleanup NSStream delegate's in the same RunLoop used by the streams themselves:
         // This way we'll prevent race conditions between handleEvent and SRWebsocket's dealloc
