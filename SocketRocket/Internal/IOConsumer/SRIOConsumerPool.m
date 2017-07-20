@@ -61,4 +61,10 @@
     }
 }
 
+- (void)clear
+{
+    _poolSize = 0;
+    _bufferedConsumers = nil;
+}
+
 @end
