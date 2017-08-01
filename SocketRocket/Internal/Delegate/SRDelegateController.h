@@ -14,15 +14,15 @@
 NS_ASSUME_NONNULL_BEGIN
 
 struct SRDelegateAvailableMethods {
-    BOOL didReceiveMessage : 1;
-    BOOL didReceiveMessageWithString : 1;
-    BOOL didReceiveMessageWithData : 1;
-    BOOL didOpen : 1;
-    BOOL didFailWithError : 1;
-    BOOL didCloseWithCode : 1;
-    BOOL didReceivePing : 1;
-    BOOL didReceivePong : 1;
-    BOOL shouldConvertTextFrameToString : 1;
+    BOOL didReceiveMessage;
+    BOOL didReceiveMessageWithString;
+    BOOL didReceiveMessageWithData;
+    BOOL didOpen;
+    BOOL didFailWithError;
+    BOOL didCloseWithCode;
+    BOOL didReceivePing;
+    BOOL didReceivePong;
+    BOOL shouldConvertTextFrameToString;
 };
 typedef struct SRDelegateAvailableMethods SRDelegateAvailableMethods;
 
