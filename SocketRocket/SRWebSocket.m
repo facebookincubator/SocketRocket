@@ -1073,6 +1073,8 @@ static const uint8_t SRPayloadLenMask   = 0x7F;
         !_sentClose) {
         _sentClose = YES;
         
+        [self _scheduleCleanup];
+        
         if (!_failed) {
             [self.delegateController performDelegateBlock:^(id<SRWebSocketDelegate>  _Nullable delegate, SRDelegateAvailableMethods availableMethods) {
                 if (availableMethods.didCloseWithCode) {
@@ -1080,8 +1082,6 @@ static const uint8_t SRPayloadLenMask   = 0x7F;
                 }
             }];
         }
-
-        [self _scheduleCleanup];
     }
 }
 
