@@ -1134,24 +1134,33 @@ static const uint8_t SRPayloadLenMask   = 0x7F;
     }
 }
 
+- (void)removeAllFromRunLoops {
+    for (NSArray *runLoop in [_scheduledRunloops copy]) {
+        [self unscheduleFromRunLoop:[runLoop objectAtIndex:0] forMode:[runLoop objectAtIndex:1]];
+    }
+}
+
 - (void)_cleanupSelfReference:(NSTimer *)timer
 {
-    @synchronized(self) {
-        // Nuke NSStream delegate's
-        _inputStream.delegate = nil;
-        _outputStream.delegate = nil;
+    [_inputStream close];
+    [_outputStream close];
+    
+    [self removeAllFromRunLoops];
+    
+    _inputStream.delegate = nil;
+    _outputStream.delegate = nil;
+    
+    //this is done to make sure that last request in the loop, is for setting _selfRetain to nil
+    NSTimer *selfRefTimer = [NSTimer timerWithTimeInterval:(0.0f) target:self selector:@selector(releaseSelRef) userInfo:nil repeats:NO];
+    [[NSRunLoop SR_networkRunLoop] addTimer:selfRefTimer forMode:NSDefaultRunLoopMode];
+}
 
-        // Remove the streams, right now, from the networkRunLoop
-        [_inputStream close];
-        [_outputStream close];
-    }
-
-    // Cleanup selfRetain in the same GCD queue as usual
+- (void)releaseSelRef {
+    
     dispatch_async(_workQueue, ^{
         _selfRetain = nil;
     });
 }
-
 
 static const char CRLFCRLFBytes[] = {'\r', '\n', '\r', '\n'};
 
