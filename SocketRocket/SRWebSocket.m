@@ -1072,17 +1072,7 @@ static const uint8_t SRPayloadLenMask   = 0x7F;
          _inputStream.streamStatus != NSStreamStatusClosed) &&
         !_sentClose) {
         _sentClose = YES;
-
-        @synchronized(self) {
-            [_outputStream close];
-            [_inputStream close];
-
-
-            for (NSArray *runLoop in [_scheduledRunloops copy]) {
-                [self unscheduleFromRunLoop:[runLoop objectAtIndex:0] forMode:[runLoop objectAtIndex:1]];
-            }
-        }
-
+        
         if (!_failed) {
             [self.delegateController performDelegateBlock:^(id<SRWebSocketDelegate>  _Nullable delegate, SRDelegateAvailableMethods availableMethods) {
                 if (availableMethods.didCloseWithCode) {
@@ -1151,11 +1141,11 @@ static const uint8_t SRPayloadLenMask   = 0x7F;
     _outputStream.delegate = nil;
     
     //this is done to make sure that last request in the loop, is for setting _selfRetain to nil
-    NSTimer *selfRefTimer = [NSTimer timerWithTimeInterval:(0.0f) target:self selector:@selector(releaseSelRef) userInfo:nil repeats:NO];
+    NSTimer *selfRefTimer = [NSTimer timerWithTimeInterval:(0.0f) target:self selector:@selector(releaseSelfRef) userInfo:nil repeats:NO];
     [[NSRunLoop SR_networkRunLoop] addTimer:selfRefTimer forMode:NSDefaultRunLoopMode];
 }
 
-- (void)releaseSelRef {
+- (void)releaseSelfRef {
     
     dispatch_async(_workQueue, ^{
         _selfRetain = nil;
