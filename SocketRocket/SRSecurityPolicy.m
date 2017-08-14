@@ -27,7 +27,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (instancetype)pinnningPolicyWithCertificates:(NSArray *)pinnedCertificates
 {
-    return [[SRPinningSecurityPolicy alloc] initWithCertificates:pinnedCertificates];
+    [NSException raise:NSInvalidArgumentException
+                format:@"Using pinned certificates is neither secure nor supported in SocketRocket, "
+                        "and leads to security issues. Please use a proper, trust chain validated certificate."];
+
+    return nil;
 }
 
 - (instancetype)initWithCertificateChainValidationEnabled:(BOOL)enabled
@@ -42,7 +46,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)init
 {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated"
+
     return [self initWithCertificateChainValidationEnabled:YES];
+
+#pragma clang diagnostic pop
 }
 
 - (void)updateSecurityOptionsInStream:(NSStream *)stream

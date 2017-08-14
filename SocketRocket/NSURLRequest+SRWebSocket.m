@@ -23,21 +23,18 @@ static NSString *const SRSSLPinnnedCertificatesKey = @"SocketRocket_SSLPinnedCer
 
 - (nullable NSArray *)SR_SSLPinnedCertificates
 {
-    return [NSURLProtocol propertyForKey:SRSSLPinnnedCertificatesKey inRequest:self];
+    return nil;
 }
 
 @end
 
 @implementation NSMutableURLRequest (SRWebSocket)
 
-- (nullable NSArray *)SR_SSLPinnedCertificates
-{
-    return [NSURLProtocol propertyForKey:SRSSLPinnnedCertificatesKey inRequest:self];
-}
-
 - (void)setSR_SSLPinnedCertificates:(nullable NSArray *)SR_SSLPinnedCertificates
 {
-    [NSURLProtocol setProperty:[SR_SSLPinnedCertificates copy] forKey:SRSSLPinnnedCertificatesKey inRequest:self];
+    [NSException raise:NSInvalidArgumentException
+                format:@"Using pinned certificates is neither secure nor supported in SocketRocket, "
+                        "and leads to security issues. Please use a proper, trust chain validated certificate."];
 }
 
 @end

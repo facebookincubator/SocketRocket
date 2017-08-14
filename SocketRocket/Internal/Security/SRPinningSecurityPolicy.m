@@ -25,8 +25,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithCertificates:(NSArray *)pinnedCertificates
 {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated"
+
     // Do not validate certificate chain since we're pinning to specific certificates.
     self = [super initWithCertificateChainValidationEnabled:NO];
+
+#pragma clang diagnostic pop
+
     if (!self) { return self; }
 
     if (pinnedCertificates.count == 0) {
