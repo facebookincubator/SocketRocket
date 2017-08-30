@@ -186,13 +186,14 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
 - (instancetype)initWithURLRequest:(NSURLRequest *)request protocols:(NSArray<NSString *> *)protocols allowsUntrustedSSLCertificates:(BOOL)allowsUntrustedSSLCertificates
 {
     SRSecurityPolicy *securityPolicy;
-    NSArray *pinnedCertificates = request.SR_SSLPinnedCertificates;
-    if (pinnedCertificates) {
-        securityPolicy = [SRSecurityPolicy pinnningPolicyWithCertificates:pinnedCertificates];
-    } else {
-        BOOL certificateChainValidationEnabled = !allowsUntrustedSSLCertificates;
-        securityPolicy = [[SRSecurityPolicy alloc] initWithCertificateChainValidationEnabled:certificateChainValidationEnabled];
-    }
+    BOOL certificateChainValidationEnabled = !allowsUntrustedSSLCertificates;
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated"
+
+    securityPolicy = [[SRSecurityPolicy alloc] initWithCertificateChainValidationEnabled:certificateChainValidationEnabled];
+
+#pragma clang diagnostic pop
 
     return [self initWithURLRequest:request protocols:protocols securityPolicy:securityPolicy];
 }
@@ -204,7 +205,12 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
 
 - (instancetype)initWithURLRequest:(NSURLRequest *)request protocols:(NSArray<NSString *> *)protocols
 {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated"
+
     return [self initWithURLRequest:request protocols:protocols allowsUntrustedSSLCertificates:NO];
+
+#pragma clang diagnostic pop
 }
 
 - (instancetype)initWithURLRequest:(NSURLRequest *)request
@@ -219,7 +225,12 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
 
 - (instancetype)initWithURL:(NSURL *)url protocols:(NSArray<NSString *> *)protocols;
 {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated"
+
     return [self initWithURL:url protocols:protocols allowsUntrustedSSLCertificates:NO];
+
+#pragma clang diagnostic pop
 }
 
 - (instancetype)initWithURL:(NSURL *)url securityPolicy:(SRSecurityPolicy *)securityPolicy
