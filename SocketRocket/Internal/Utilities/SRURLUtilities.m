@@ -43,8 +43,16 @@ extern BOOL SRURLRequiresSSL(NSURL *url)
 
 extern NSString *_Nullable SRBasicAuthorizationHeaderFromURL(NSURL *url)
 {
-    NSData *data = [[NSString stringWithFormat:@"%@:%@", url.user, url.password] dataUsingEncoding:NSUTF8StringEncoding];
-    return [NSString stringWithFormat:@"Basic %@", SRBase64EncodedStringFromData(data)];
+    NSString *user = url.user;
+    NSString *password = url.password;
+    NSString *authorizationHeader = nil;
+    
+    if (user.length > 0 && password.length > 0) {
+        NSData *data = [[NSString stringWithFormat:@"%@:%@", user, password] dataUsingEncoding:NSUTF8StringEncoding];
+        authorizationHeader = [NSString stringWithFormat:@"Basic %@", SRBase64EncodedStringFromData(data)];
+    }
+    
+    return authorizationHeader;
 }
 
 extern NSString *_Nullable SRStreamNetworkServiceTypeFromURLRequest(NSURLRequest *request)
