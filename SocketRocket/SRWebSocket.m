@@ -138,6 +138,8 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
 
     // proxy support
     SRProxyConnect *_proxyConnect;
+
+    NSCondition *__txQueueSizeCond;
 }
 
 @synthesize readyState = _readyState;
@@ -179,6 +181,8 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
     _consumerPool = [[SRIOConsumerPool alloc] init];
 
     _scheduledRunloops = [[NSMutableSet alloc] init];
+    _maxTxQueueSize = 0;
+    __txQueueSizeCond = [[NSCondition alloc] init];
 
     return self;
 }
@@ -248,6 +252,11 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
 - (void)assertOnWorkQueue;
 {
     assert(dispatch_get_specific((__bridge void *)self) == (__bridge void *)_workQueue);
+}
+
+- (void)assertNotOnWorkQueue;
+{
+    assert(dispatch_get_specific((__bridge void *)self) != (__bridge void *)_workQueue);
 }
 
 ///--------------------------------------
@@ -606,6 +615,39 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
     }
 }
 
+- (void)setMaxTxQueueSize:(NSUInteger)maxTxQueueSize
+{
+    if (maxTxQueueSize > 0)
+        assert(maxTxQueueSize > SRDefaultBufferSize());
+    _maxTxQueueSize = maxTxQueueSize;
+    [__txQueueSizeCond lock];
+    [__txQueueSizeCond signal];
+    [__txQueueSizeCond unlock];
+}
+
+- (void)checkTxQueue
+{
+    if (!_maxTxQueueSize) {
+        /* no limit on the tx queue size */
+        return;
+    }
+
+    [self assertNotOnWorkQueue];
+
+    /* check internal queue size */
+    [__txQueueSizeCond lock];
+    while (true) {
+        /* check queue size */
+        NSUInteger txQueueSize = dispatch_data_get_size(_outputBuffer);
+        if (txQueueSize < _maxTxQueueSize)
+            break;
+
+        /* need to block until data is effectively sent over ws connection */
+        [__txQueueSizeCond wait];
+    }
+    [__txQueueSizeCond unlock];
+}
+
 - (BOOL)sendString:(NSString *)string error:(NSError **)error
 {
     if (self.readyState != SR_OPEN) {
@@ -616,6 +658,8 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
         SRDebugLog(message);
         return NO;
     }
+
+    [self checkTxQueue];
 
     string = [string copy];
     dispatch_async(_workQueue, ^{
@@ -640,6 +684,8 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
         SRDebugLog(message);
         return NO;
     }
+
+    [self checkTxQueue];
 
     dispatch_async(_workQueue, ^{
         if (data) {
@@ -1074,6 +1120,9 @@ static const uint8_t SRPayloadLenMask   = 0x7F;
         if (_outputBufferOffset > SRDefaultBufferSize() && _outputBufferOffset > dataLength / 2) {
             _outputBuffer = dispatch_data_create_subrange(_outputBuffer, _outputBufferOffset, dataLength - _outputBufferOffset);
             _outputBufferOffset = 0;
+            [__txQueueSizeCond lock];
+            [__txQueueSizeCond signal];
+            [__txQueueSizeCond unlock];
         }
     }
 
