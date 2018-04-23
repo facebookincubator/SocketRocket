@@ -13,6 +13,22 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+#if OBJC_BOOL_IS_BOOL
+
+struct SRDelegateAvailableMethods {
+    BOOL didReceiveMessage : 1;
+    BOOL didReceiveMessageWithString : 1;
+    BOOL didReceiveMessageWithData : 1;
+    BOOL didOpen : 1;
+    BOOL didFailWithError : 1;
+    BOOL didCloseWithCode : 1;
+    BOOL didReceivePing : 1;
+    BOOL didReceivePong : 1;
+    BOOL shouldConvertTextFrameToString : 1;
+};
+
+#else
+
 struct SRDelegateAvailableMethods {
     BOOL didReceiveMessage;
     BOOL didReceiveMessageWithString;
@@ -24,6 +40,9 @@ struct SRDelegateAvailableMethods {
     BOOL didReceivePong;
     BOOL shouldConvertTextFrameToString;
 };
+
+#endif
+
 typedef struct SRDelegateAvailableMethods SRDelegateAvailableMethods;
 
 typedef void(^SRDelegateBlock)(id<SRWebSocketDelegate> _Nullable delegate, SRDelegateAvailableMethods availableMethods);
