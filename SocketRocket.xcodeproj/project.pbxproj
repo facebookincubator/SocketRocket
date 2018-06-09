@@ -184,6 +184,70 @@
 		81DCD1241D2D9235002501A2 /* libicucore.A.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 81C68D0D1D2CBFA800A1D005 /* libicucore.A.tbd */; };
 		81E8A6A21D4C41E000916C7E /* SocketRocket.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 81D6478D1D2CA78800690609 /* SocketRocket.framework */; };
 		81E8A6A31D4C41E000916C7E /* SocketRocket.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 81D6478D1D2CA78800690609 /* SocketRocket.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		D39C1CB72108C590008A7207 /* SRPinningSecurityPolicy.m in Sources */ = {isa = PBXBuildFile; fileRef = 454FEA7A1D2570D400073768 /* SRPinningSecurityPolicy.m */; };
+		D39C1CB82108C590008A7207 /* SRProxyConnect.m in Sources */ = {isa = PBXBuildFile; fileRef = 4861E7741D022211002FAB1D /* SRProxyConnect.m */; };
+		D39C1CB92108C590008A7207 /* SRDelegateController.m in Sources */ = {isa = PBXBuildFile; fileRef = 817995851CE139700084DA37 /* SRDelegateController.m */; };
+		D39C1CBA2108C590008A7207 /* SRIOConsumer.m in Sources */ = {isa = PBXBuildFile; fileRef = 81B31C101CDC404100D86D43 /* SRIOConsumer.m */; };
+		D39C1CBB2108C590008A7207 /* SRIOConsumerPool.m in Sources */ = {isa = PBXBuildFile; fileRef = 81B31C121CDC404100D86D43 /* SRIOConsumerPool.m */; };
+		D39C1CBC2108C590008A7207 /* SRRunLoopThread.m in Sources */ = {isa = PBXBuildFile; fileRef = 81B31C5E1CDC444900D86D43 /* SRRunLoopThread.m */; };
+		D39C1CBD2108C590008A7207 /* SRError.m in Sources */ = {isa = PBXBuildFile; fileRef = 81B22EC41CE42D7E0073C636 /* SRError.m */; };
+		D39C1CBE2108C590008A7207 /* SRHash.m in Sources */ = {isa = PBXBuildFile; fileRef = 81B31C2C1CDC406B00D86D43 /* SRHash.m */; };
+		D39C1CBF2108C590008A7207 /* SRHTTPConnectMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 81C22BC11D124168007BFDDF /* SRHTTPConnectMessage.m */; };
+		D39C1CC02108C590008A7207 /* SRLog.m in Sources */ = {isa = PBXBuildFile; fileRef = 81900A4B1D18C9CC0015A290 /* SRLog.m */; };
+		D39C1CC12108C590008A7207 /* SRMutex.m in Sources */ = {isa = PBXBuildFile; fileRef = 817491A71D1C8C33006E09DF /* SRMutex.m */; };
+		D39C1CC22108C590008A7207 /* SRRandom.m in Sources */ = {isa = PBXBuildFile; fileRef = 81C22BF71D1256E1007BFDDF /* SRRandom.m */; };
+		D39C1CC32108C590008A7207 /* SRConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = 815FE7251D497D720085FDA5 /* SRConstants.m */; };
+		D39C1CC42108C590008A7207 /* SRURLUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 81B22EE31CE43ECC0073C636 /* SRURLUtilities.m */; };
+		D39C1CC52108C590008A7207 /* SRSIMDHelpers.m in Sources */ = {isa = PBXBuildFile; fileRef = F5391CBD1D2F4B4700606A81 /* SRSIMDHelpers.m */; };
+		D39C1CC62108C590008A7207 /* SRSecurityPolicy.m in Sources */ = {isa = PBXBuildFile; fileRef = 454FEA831D25717C00073768 /* SRSecurityPolicy.m */; };
+		D39C1CC72108C590008A7207 /* SRWebSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = F6A12CD0145119B700C1D980 /* SRWebSocket.m */; };
+		D39C1CC82108C590008A7207 /* NSURLRequest+SRWebSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 81CD05D61CEEC47300497F47 /* NSURLRequest+SRWebSocket.m */; };
+		D39C1CC92108C590008A7207 /* NSRunLoop+SRWebSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 81CD05FC1CEEC65D00497F47 /* NSRunLoop+SRWebSocket.m */; };
+		D39C1CCA2108C5AB008A7207 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F6B208301450F597009315AF /* Foundation.framework */; };
+		D39C1CCB2108C5B1008A7207 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F6A12CD3145122FC00C1D980 /* Security.framework */; };
+		D39C1CCC2108C601008A7207 /* SRProxyConnect.h in Headers */ = {isa = PBXBuildFile; fileRef = 4861E7731D022211002FAB1D /* SRProxyConnect.h */; };
+		D39C1CCD2108C604008A7207 /* SRPinningSecurityPolicy.h in Headers */ = {isa = PBXBuildFile; fileRef = 454FEA791D2570D400073768 /* SRPinningSecurityPolicy.h */; };
+		D39C1CCE2108C608008A7207 /* SRDelegateController.h in Headers */ = {isa = PBXBuildFile; fileRef = 817995841CE139700084DA37 /* SRDelegateController.h */; };
+		D39C1CCF2108C60E008A7207 /* SRIOConsumer.h in Headers */ = {isa = PBXBuildFile; fileRef = 81B31C0F1CDC404100D86D43 /* SRIOConsumer.h */; };
+		D39C1CD02108C60E008A7207 /* SRIOConsumerPool.h in Headers */ = {isa = PBXBuildFile; fileRef = 81B31C111CDC404100D86D43 /* SRIOConsumerPool.h */; };
+		D39C1CD12108C61C008A7207 /* SRRunLoopThread.h in Headers */ = {isa = PBXBuildFile; fileRef = 81B31C5D1CDC444900D86D43 /* SRRunLoopThread.h */; };
+		D39C1CD22108C620008A7207 /* SRError.h in Headers */ = {isa = PBXBuildFile; fileRef = 81B22EC31CE42D7E0073C636 /* SRError.h */; };
+		D39C1CD32108C620008A7207 /* SRHash.h in Headers */ = {isa = PBXBuildFile; fileRef = 81B31C2B1CDC406B00D86D43 /* SRHash.h */; };
+		D39C1CD42108C620008A7207 /* SRHTTPConnectMessage.h in Headers */ = {isa = PBXBuildFile; fileRef = 81C22BC01D124168007BFDDF /* SRHTTPConnectMessage.h */; };
+		D39C1CD52108C629008A7207 /* SRLog.h in Headers */ = {isa = PBXBuildFile; fileRef = 81900A4A1D18C9CC0015A290 /* SRLog.h */; };
+		D39C1CD62108C629008A7207 /* SRMutex.h in Headers */ = {isa = PBXBuildFile; fileRef = 817491A61D1C8C33006E09DF /* SRMutex.h */; };
+		D39C1CD72108C629008A7207 /* SRRandom.h in Headers */ = {isa = PBXBuildFile; fileRef = 81C22BF61D1256E1007BFDDF /* SRRandom.h */; };
+		D39C1CD82108C630008A7207 /* SRConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 815FE7241D497D720085FDA5 /* SRConstants.h */; };
+		D39C1CD92108C630008A7207 /* SRURLUtilities.h in Headers */ = {isa = PBXBuildFile; fileRef = 81B22EE21CE43ECC0073C636 /* SRURLUtilities.h */; };
+		D39C1CDA2108C630008A7207 /* SRSIMDHelpers.h in Headers */ = {isa = PBXBuildFile; fileRef = F5391CBC1D2F4B4700606A81 /* SRSIMDHelpers.h */; };
+		D39C1CDB2108C634008A7207 /* SocketRocket.h in Headers */ = {isa = PBXBuildFile; fileRef = 555E0EB11C51E56D00E6BB92 /* SocketRocket.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D39C1CDC2108C639008A7207 /* SRSecurityPolicy.h in Headers */ = {isa = PBXBuildFile; fileRef = 454A02D41D0FAD010060DFB2 /* SRSecurityPolicy.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D39C1CDD2108C63E008A7207 /* SRWebSocket.h in Headers */ = {isa = PBXBuildFile; fileRef = F6A12CCF145119B700C1D980 /* SRWebSocket.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D39C1CDE2108C642008A7207 /* NSURLRequest+SRWebSocket.h in Headers */ = {isa = PBXBuildFile; fileRef = 81CD05D51CEEC47300497F47 /* NSURLRequest+SRWebSocket.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D39C1CDF2108C64B008A7207 /* NSURLRequest+SRWebSocketPrivate.h in Headers */ = {isa = PBXBuildFile; fileRef = 8117C4221D3076DF00784D79 /* NSURLRequest+SRWebSocketPrivate.h */; };
+		D39C1CE02108C64E008A7207 /* NSRunLoop+SRWebSocket.h in Headers */ = {isa = PBXBuildFile; fileRef = 81CD05FB1CEEC65D00497F47 /* NSRunLoop+SRWebSocket.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D39C1CE12108C654008A7207 /* NSRunLoop+SRWebSocketPrivate.h in Headers */ = {isa = PBXBuildFile; fileRef = 8117C42F1D30779900784D79 /* NSRunLoop+SRWebSocketPrivate.h */; };
+		D3DA2E0420CBAF8A0086447B /* NSRunLoop+SRWebSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 81CD05FC1CEEC65D00497F47 /* NSRunLoop+SRWebSocket.m */; };
+		D3DA2E0520CBAF940086447B /* NSURLRequest+SRWebSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 81CD05D61CEEC47300497F47 /* NSURLRequest+SRWebSocket.m */; };
+		D3DA2E0620CBAF980086447B /* SRWebSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = F6A12CD0145119B700C1D980 /* SRWebSocket.m */; };
+		D3DA2E0720CBAF9B0086447B /* SRSecurityPolicy.m in Sources */ = {isa = PBXBuildFile; fileRef = 454FEA831D25717C00073768 /* SRSecurityPolicy.m */; };
+		D3DA2E0820CBAFAE0086447B /* SRPinningSecurityPolicy.m in Sources */ = {isa = PBXBuildFile; fileRef = 454FEA7A1D2570D400073768 /* SRPinningSecurityPolicy.m */; };
+		D3DA2E0920CBAFAE0086447B /* SRProxyConnect.m in Sources */ = {isa = PBXBuildFile; fileRef = 4861E7741D022211002FAB1D /* SRProxyConnect.m */; };
+		D3DA2E0A20CBAFAE0086447B /* SRDelegateController.m in Sources */ = {isa = PBXBuildFile; fileRef = 817995851CE139700084DA37 /* SRDelegateController.m */; };
+		D3DA2E0B20CBAFAE0086447B /* SRIOConsumer.m in Sources */ = {isa = PBXBuildFile; fileRef = 81B31C101CDC404100D86D43 /* SRIOConsumer.m */; };
+		D3DA2E0C20CBAFAE0086447B /* SRIOConsumerPool.m in Sources */ = {isa = PBXBuildFile; fileRef = 81B31C121CDC404100D86D43 /* SRIOConsumerPool.m */; };
+		D3DA2E0D20CBAFAE0086447B /* SRRunLoopThread.m in Sources */ = {isa = PBXBuildFile; fileRef = 81B31C5E1CDC444900D86D43 /* SRRunLoopThread.m */; };
+		D3DA2E0E20CBAFAE0086447B /* SRError.m in Sources */ = {isa = PBXBuildFile; fileRef = 81B22EC41CE42D7E0073C636 /* SRError.m */; };
+		D3DA2E0F20CBAFAE0086447B /* SRHash.m in Sources */ = {isa = PBXBuildFile; fileRef = 81B31C2C1CDC406B00D86D43 /* SRHash.m */; };
+		D3DA2E1020CBAFAE0086447B /* SRHTTPConnectMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 81C22BC11D124168007BFDDF /* SRHTTPConnectMessage.m */; };
+		D3DA2E1120CBAFAE0086447B /* SRLog.m in Sources */ = {isa = PBXBuildFile; fileRef = 81900A4B1D18C9CC0015A290 /* SRLog.m */; };
+		D3DA2E1220CBAFAE0086447B /* SRMutex.m in Sources */ = {isa = PBXBuildFile; fileRef = 817491A71D1C8C33006E09DF /* SRMutex.m */; };
+		D3DA2E1320CBAFAE0086447B /* SRRandom.m in Sources */ = {isa = PBXBuildFile; fileRef = 81C22BF71D1256E1007BFDDF /* SRRandom.m */; };
+		D3DA2E1420CBAFAE0086447B /* SRConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = 815FE7251D497D720085FDA5 /* SRConstants.m */; };
+		D3DA2E1520CBAFAE0086447B /* SRURLUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 81B22EE31CE43ECC0073C636 /* SRURLUtilities.m */; };
+		D3DA2E1620CBAFAE0086447B /* SRSIMDHelpers.m in Sources */ = {isa = PBXBuildFile; fileRef = F5391CBD1D2F4B4700606A81 /* SRSIMDHelpers.m */; };
+		D3DA2E1820CBAFD60086447B /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D3DA2E1720CBAFD60086447B /* Security.framework */; };
+		D3DA2E1A20CBAFDA0086447B /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D3DA2E1920CBAFDA0086447B /* Foundation.framework */; };
 		F5391CBE1D2F4B4700606A81 /* SRSIMDHelpers.h in Headers */ = {isa = PBXBuildFile; fileRef = F5391CBC1D2F4B4700606A81 /* SRSIMDHelpers.h */; };
 		F5391CBF1D2F4B4700606A81 /* SRSIMDHelpers.h in Headers */ = {isa = PBXBuildFile; fileRef = F5391CBC1D2F4B4700606A81 /* SRSIMDHelpers.h */; };
 		F5391CC01D2F4B4700606A81 /* SRSIMDHelpers.h in Headers */ = {isa = PBXBuildFile; fileRef = F5391CBC1D2F4B4700606A81 /* SRSIMDHelpers.h */; };
@@ -244,6 +308,15 @@
 				81E8A6A31D4C41E000916C7E /* SocketRocket.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D3DA2DF920CBAF630086447B /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "include/$(PRODUCT_NAME)";
+			dstSubfolderSpec = 16;
+			files = (
+			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
@@ -323,6 +396,10 @@
 		81D6475D1D2CA6A100690609 /* SocketRocketTests-iOS.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "SocketRocketTests-iOS.xcconfig"; sourceTree = "<group>"; };
 		81D6478D1D2CA78800690609 /* SocketRocket.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SocketRocket.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		81E8A69A1D4C417A00916C7E /* TestChat-iOS.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "TestChat-iOS.xcconfig"; sourceTree = "<group>"; };
+		D39C1CAE2108C53F008A7207 /* libSocketRocket-macOS-Static.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libSocketRocket-macOS-Static.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		D3DA2DFB20CBAF630086447B /* libSocketRocket-iOS-Static.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libSocketRocket-iOS-Static.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		D3DA2E1720CBAFD60086447B /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS12.0.sdk/System/Library/Frameworks/Security.framework; sourceTree = DEVELOPER_DIR; };
+		D3DA2E1920CBAFDA0086447B /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS12.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		F5391CBC1D2F4B4700606A81 /* SRSIMDHelpers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SRSIMDHelpers.h; sourceTree = "<group>"; };
 		F5391CBD1D2F4B4700606A81 /* SRSIMDHelpers.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SRSIMDHelpers.m; sourceTree = "<group>"; };
 		F61A0DC71625F44D00365EBD /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Default-568h@2x.png"; path = "en.lproj/Default-568h@2x.png"; sourceTree = "<group>"; };
@@ -376,6 +453,24 @@
 			files = (
 				81D647741D2CA78800690609 /* Security.framework in Frameworks */,
 				81D647751D2CA78800690609 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D39C1CAC2108C53F008A7207 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D39C1CCB2108C5B1008A7207 /* Security.framework in Frameworks */,
+				D39C1CCA2108C5AB008A7207 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D3DA2DF820CBAF630086447B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D3DA2E1A20CBAFDA0086447B /* Foundation.framework in Frameworks */,
+				D3DA2E1820CBAFD60086447B /* Security.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -687,6 +782,8 @@
 				2D4227621BB4358C000C1A6C /* SocketRocket.framework */,
 				3345DC901C52ACD70083CCB8 /* SocketRocket.framework */,
 				81D6478D1D2CA78800690609 /* SocketRocket.framework */,
+				D3DA2DFB20CBAF630086447B /* libSocketRocket-iOS-Static.a */,
+				D39C1CAE2108C53F008A7207 /* libSocketRocket-macOS-Static.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -694,6 +791,8 @@
 		F6B2082F1450F597009315AF /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				D3DA2E1920CBAFDA0086447B /* Foundation.framework */,
+				D3DA2E1720CBAFD60086447B /* Security.framework */,
 				81AFCD651D4C431C00B3AFC9 /* libicucore.tbd */,
 				81C68CF41D2CBEBD00A1D005 /* macOS */,
 				81C68CFD1D2CBF1800A1D005 /* tvOS */,
@@ -812,6 +911,35 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		D39C1CAA2108C53F008A7207 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D39C1CCC2108C601008A7207 /* SRProxyConnect.h in Headers */,
+				D39C1CD82108C630008A7207 /* SRConstants.h in Headers */,
+				D39C1CCF2108C60E008A7207 /* SRIOConsumer.h in Headers */,
+				D39C1CD52108C629008A7207 /* SRLog.h in Headers */,
+				D39C1CD42108C620008A7207 /* SRHTTPConnectMessage.h in Headers */,
+				D39C1CDE2108C642008A7207 /* NSURLRequest+SRWebSocket.h in Headers */,
+				D39C1CDF2108C64B008A7207 /* NSURLRequest+SRWebSocketPrivate.h in Headers */,
+				D39C1CDB2108C634008A7207 /* SocketRocket.h in Headers */,
+				D39C1CCE2108C608008A7207 /* SRDelegateController.h in Headers */,
+				D39C1CCD2108C604008A7207 /* SRPinningSecurityPolicy.h in Headers */,
+				D39C1CDA2108C630008A7207 /* SRSIMDHelpers.h in Headers */,
+				D39C1CDD2108C63E008A7207 /* SRWebSocket.h in Headers */,
+				D39C1CE12108C654008A7207 /* NSRunLoop+SRWebSocketPrivate.h in Headers */,
+				D39C1CD22108C620008A7207 /* SRError.h in Headers */,
+				D39C1CD02108C60E008A7207 /* SRIOConsumerPool.h in Headers */,
+				D39C1CD12108C61C008A7207 /* SRRunLoopThread.h in Headers */,
+				D39C1CD92108C630008A7207 /* SRURLUtilities.h in Headers */,
+				D39C1CE02108C64E008A7207 /* NSRunLoop+SRWebSocket.h in Headers */,
+				D39C1CD62108C629008A7207 /* SRMutex.h in Headers */,
+				D39C1CDC2108C639008A7207 /* SRSecurityPolicy.h in Headers */,
+				D39C1CD72108C629008A7207 /* SRRandom.h in Headers */,
+				D39C1CD32108C620008A7207 /* SRHash.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		F668C87D153E91210044DBAC /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
@@ -895,6 +1023,40 @@
 			productReference = 81D6478D1D2CA78800690609 /* SocketRocket.framework */;
 			productType = "com.apple.product-type.framework";
 		};
+		D39C1CAD2108C53F008A7207 /* SocketRocket-macOS-Static */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D39C1CB62108C53F008A7207 /* Build configuration list for PBXNativeTarget "SocketRocket-macOS-Static" */;
+			buildPhases = (
+				D39C1CAB2108C53F008A7207 /* Sources */,
+				D39C1CAC2108C53F008A7207 /* Frameworks */,
+				D39C1CAA2108C53F008A7207 /* Headers */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "SocketRocket-macOS-Static";
+			productName = "SocketRocket-macOS-Static";
+			productReference = D39C1CAE2108C53F008A7207 /* libSocketRocket-macOS-Static.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		D3DA2DFA20CBAF630086447B /* SocketRocket-iOS-Static */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D3DA2E0320CBAF640086447B /* Build configuration list for PBXNativeTarget "SocketRocket-iOS-Static" */;
+			buildPhases = (
+				D3DA2DF720CBAF630086447B /* Sources */,
+				D3DA2DF820CBAF630086447B /* Frameworks */,
+				D3DA2DF920CBAF630086447B /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "SocketRocket-iOS-Static";
+			productName = "SocketRocket-iOS-Static";
+			productReference = D3DA2DFB20CBAF630086447B /* libSocketRocket-iOS-Static.a */;
+			productType = "com.apple.product-type.library.static";
+		};
 		F62417E214D52F3C003CE997 /* TestChat */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = F62417FC14D52F3C003CE997 /* Build configuration list for PBXNativeTarget "TestChat" */;
@@ -957,7 +1119,17 @@
 			isa = PBXProject;
 			attributes = {
 				LastTestingUpgradeCheck = 0640;
-				LastUpgradeCheck = 0800;
+				LastUpgradeCheck = 1000;
+				TargetAttributes = {
+					D39C1CAD2108C53F008A7207 = {
+						CreatedOnToolsVersion = 10.0;
+						ProvisioningStyle = Automatic;
+					};
+					D3DA2DFA20CBAF630086447B = {
+						CreatedOnToolsVersion = 10.0;
+						ProvisioningStyle = Automatic;
+					};
+				};
 			};
 			buildConfigurationList = F6B208271450F597009315AF /* Build configuration list for PBXProject "SocketRocket" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -977,6 +1149,8 @@
 				3345DC821C52ACD70083CCB8 /* SocketRocket-tvOS */,
 				F6BDA801145900D200FE3253 /* SocketRocketTests-iOS */,
 				F62417E214D52F3C003CE997 /* TestChat */,
+				D3DA2DFA20CBAF630086447B /* SocketRocket-iOS-Static */,
+				D39C1CAD2108C53F008A7207 /* SocketRocket-macOS-Static */,
 			);
 		};
 /* End PBXProject section */
@@ -1078,6 +1252,58 @@
 				81D6476F1D2CA78800690609 /* SRLog.m in Sources */,
 				81D647701D2CA78800690609 /* SRHash.m in Sources */,
 				81D647711D2CA78800690609 /* SRDelegateController.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D39C1CAB2108C53F008A7207 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D39C1CC12108C590008A7207 /* SRMutex.m in Sources */,
+				D39C1CBD2108C590008A7207 /* SRError.m in Sources */,
+				D39C1CB82108C590008A7207 /* SRProxyConnect.m in Sources */,
+				D39C1CC92108C590008A7207 /* NSRunLoop+SRWebSocket.m in Sources */,
+				D39C1CC32108C590008A7207 /* SRConstants.m in Sources */,
+				D39C1CC72108C590008A7207 /* SRWebSocket.m in Sources */,
+				D39C1CB72108C590008A7207 /* SRPinningSecurityPolicy.m in Sources */,
+				D39C1CBC2108C590008A7207 /* SRRunLoopThread.m in Sources */,
+				D39C1CBE2108C590008A7207 /* SRHash.m in Sources */,
+				D39C1CC52108C590008A7207 /* SRSIMDHelpers.m in Sources */,
+				D39C1CBA2108C590008A7207 /* SRIOConsumer.m in Sources */,
+				D39C1CBF2108C590008A7207 /* SRHTTPConnectMessage.m in Sources */,
+				D39C1CC82108C590008A7207 /* NSURLRequest+SRWebSocket.m in Sources */,
+				D39C1CC62108C590008A7207 /* SRSecurityPolicy.m in Sources */,
+				D39C1CC02108C590008A7207 /* SRLog.m in Sources */,
+				D39C1CB92108C590008A7207 /* SRDelegateController.m in Sources */,
+				D39C1CC42108C590008A7207 /* SRURLUtilities.m in Sources */,
+				D39C1CBB2108C590008A7207 /* SRIOConsumerPool.m in Sources */,
+				D39C1CC22108C590008A7207 /* SRRandom.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D3DA2DF720CBAF630086447B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D3DA2E0520CBAF940086447B /* NSURLRequest+SRWebSocket.m in Sources */,
+				D3DA2E0620CBAF980086447B /* SRWebSocket.m in Sources */,
+				D3DA2E0B20CBAFAE0086447B /* SRIOConsumer.m in Sources */,
+				D3DA2E0E20CBAFAE0086447B /* SRError.m in Sources */,
+				D3DA2E1420CBAFAE0086447B /* SRConstants.m in Sources */,
+				D3DA2E0D20CBAFAE0086447B /* SRRunLoopThread.m in Sources */,
+				D3DA2E1320CBAFAE0086447B /* SRRandom.m in Sources */,
+				D3DA2E1620CBAFAE0086447B /* SRSIMDHelpers.m in Sources */,
+				D3DA2E0420CBAF8A0086447B /* NSRunLoop+SRWebSocket.m in Sources */,
+				D3DA2E0C20CBAFAE0086447B /* SRIOConsumerPool.m in Sources */,
+				D3DA2E0820CBAFAE0086447B /* SRPinningSecurityPolicy.m in Sources */,
+				D3DA2E0F20CBAFAE0086447B /* SRHash.m in Sources */,
+				D3DA2E0A20CBAFAE0086447B /* SRDelegateController.m in Sources */,
+				D3DA2E1520CBAFAE0086447B /* SRURLUtilities.m in Sources */,
+				D3DA2E0920CBAFAE0086447B /* SRProxyConnect.m in Sources */,
+				D3DA2E1220CBAFAE0086447B /* SRMutex.m in Sources */,
+				D3DA2E1120CBAFAE0086447B /* SRLog.m in Sources */,
+				D3DA2E0720CBAF9B0086447B /* SRSecurityPolicy.m in Sources */,
+				D3DA2E1020CBAFAE0086447B /* SRHTTPConnectMessage.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1207,6 +1433,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 81D6475A1D2CA6A100690609 /* SocketRocket-iOS.xcconfig */;
 			buildSettings = {
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 			};
 			name = Debug;
 		};
@@ -1214,6 +1441,220 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 81D6475A1D2CA6A100690609 /* SocketRocket-iOS.xcconfig */;
 			buildSettings = {
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+			};
+			name = Release;
+		};
+		D39C1CB42108C53F008A7207 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				EXECUTABLE_PREFIX = lib;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+			};
+			name = Debug;
+		};
+		D39C1CB52108C53F008A7207 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				EXECUTABLE_PREFIX = lib;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+			};
+			name = Release;
+		};
+		D3DA2E0120CBAF630086447B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		D3DA2E0220CBAF630086447B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
 		};
@@ -1251,6 +1692,12 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 81D647561D2CA6A100690609 /* Debug.xcconfig */;
 			buildSettings = {
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 			};
 			name = Debug;
 		};
@@ -1258,6 +1705,12 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 81D647571D2CA6A100690609 /* Release.xcconfig */;
 			buildSettings = {
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 			};
 			name = Release;
 		};
@@ -1265,6 +1718,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 81D6475D1D2CA6A100690609 /* SocketRocketTests-iOS.xcconfig */;
 			buildSettings = {
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 			};
 			name = Debug;
 		};
@@ -1272,6 +1726,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 81D6475D1D2CA6A100690609 /* SocketRocketTests-iOS.xcconfig */;
 			buildSettings = {
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 			};
 			name = Release;
 		};
@@ -1301,6 +1756,24 @@
 			buildConfigurations = (
 				81D6478B1D2CA78800690609 /* Debug */,
 				81D6478C1D2CA78800690609 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		D39C1CB62108C53F008A7207 /* Build configuration list for PBXNativeTarget "SocketRocket-macOS-Static" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D39C1CB42108C53F008A7207 /* Debug */,
+				D39C1CB52108C53F008A7207 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		D3DA2E0320CBAF640086447B /* Build configuration list for PBXNativeTarget "SocketRocket-iOS-Static" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D3DA2E0120CBAF630086447B /* Debug */,
+				D3DA2E0220CBAF630086447B /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

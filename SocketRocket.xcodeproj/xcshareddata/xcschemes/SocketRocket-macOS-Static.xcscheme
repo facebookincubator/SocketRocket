@@ -14,9 +14,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "3345DC821C52ACD70083CCB8"
-               BuildableName = "SocketRocket.framework"
-               BlueprintName = "SocketRocket-tvOS"
+               BlueprintIdentifier = "D39C1CAD2108C53F008A7207"
+               BuildableName = "libSocketRocket-macOS-Static.a"
+               BlueprintName = "SocketRocket-macOS-Static"
                ReferencedContainer = "container:SocketRocket.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -29,15 +29,6 @@
       shouldUseLaunchSchemeArgsEnv = "YES">
       <Testables>
       </Testables>
-      <MacroExpansion>
-         <BuildableReference
-            BuildableIdentifier = "primary"
-            BlueprintIdentifier = "2D4227611BB4358C000C1A6C"
-            BuildableName = "SocketRocket.framework"
-            BlueprintName = "SocketRocket-iOS-Dynamic"
-            ReferencedContainer = "container:SocketRocket.xcodeproj">
-         </BuildableReference>
-      </MacroExpansion>
       <AdditionalOptions>
       </AdditionalOptions>
    </TestAction>
@@ -54,9 +45,9 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "3345DC821C52ACD70083CCB8"
-            BuildableName = "SocketRocket.framework"
-            BlueprintName = "SocketRocket-tvOS"
+            BlueprintIdentifier = "D39C1CAD2108C53F008A7207"
+            BuildableName = "libSocketRocket-macOS-Static.a"
+            BlueprintName = "SocketRocket-macOS-Static"
             ReferencedContainer = "container:SocketRocket.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -69,6 +60,15 @@
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
       debugDocumentVersioning = "YES">
+      <MacroExpansion>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "D39C1CAD2108C53F008A7207"
+            BuildableName = "libSocketRocket-macOS-Static.a"
+            BlueprintName = "SocketRocket-macOS-Static"
+            ReferencedContainer = "container:SocketRocket.xcodeproj">
+         </BuildableReference>
+      </MacroExpansion>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">
