@@ -1207,6 +1207,8 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 81D6475A1D2CA6A100690609 /* SocketRocket-iOS.xcconfig */;
 			buildSettings = {
+				CURRENT_PROJECT_VERSION = 1.0;
+				DYLIB_CURRENT_VERSION = 1.0;
 			};
 			name = Debug;
 		};
@@ -1214,6 +1216,8 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 81D6475A1D2CA6A100690609 /* SocketRocket-iOS.xcconfig */;
 			buildSettings = {
+				CURRENT_PROJECT_VERSION = 1.0;
+				DYLIB_CURRENT_VERSION = 1.0;
 			};
 			name = Release;
 		};
