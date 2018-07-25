@@ -131,7 +131,7 @@ extern NSString *const SRHTTPResponseErrorKey;
 
  @param request Request to initialize with.
  */
-- (instancetype)initWithURLRequest:(NSURLRequest *)request;
+- (instancetype)initWithSRURLRequest:(NSURLRequest *)request;
 
 /**
  Initializes a web socket with a given `NSURLRequest`, specifying a transport security policy (e.g. SSL configuration).

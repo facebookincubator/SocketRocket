@@ -213,7 +213,7 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
 #pragma clang diagnostic pop
 }
 
-- (instancetype)initWithURLRequest:(NSURLRequest *)request
+- (instancetype)initWithSRURLRequest:(NSURLRequest *)request
 {
     return [self initWithURLRequest:request protocols:nil];
 }
