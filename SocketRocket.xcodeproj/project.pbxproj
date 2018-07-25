@@ -1173,6 +1173,8 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 81D647591D2CA6A100690609 /* SocketRocket-iOS-Dynamic.xcconfig */;
 			buildSettings = {
+				CURRENT_PROJECT_VERSION = 1.0;
+				DYLIB_CURRENT_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = YES;
 			};
 			name = Debug;
@@ -1181,6 +1183,8 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 81D647591D2CA6A100690609 /* SocketRocket-iOS-Dynamic.xcconfig */;
 			buildSettings = {
+				CURRENT_PROJECT_VERSION = 1.0;
+				DYLIB_CURRENT_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 			};
 			name = Release;
