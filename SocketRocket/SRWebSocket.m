@@ -1380,12 +1380,10 @@ static const size_t SRFrameHeaderOverhead = 32;
 
     const uint8_t *unmaskedPayloadBuffer = (uint8_t *)data.bytes;
     uint8_t *maskKey = frameBuffer + frameBufferSize;
-
+    
     size_t randomBytesSize = sizeof(uint32_t);
-    int result = SecRandomCopyBytes(kSecRandomDefault, randomBytesSize, maskKey);
-    if (result != 0) {
-        //TODO: (nlutsenko) Check if there was an error.
-    }
+    NSData *randomData = SRRandomData(randomBytesSize);
+    [randomData getBytes:maskKey range:NSMakeRange(0, randomBytesSize)];
     frameBufferSize += randomBytesSize;
 
     // Copy and unmask the buffer
