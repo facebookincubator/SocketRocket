@@ -35,12 +35,6 @@ CFHTTPMessageRef SRHTTPConnectMessageCreate(NSURLRequest *request,
     // Set host first so it defaults
     CFHTTPMessageSetHeaderFieldValue(message, CFSTR("Host"), (__bridge CFStringRef)_SRHTTPConnectMessageHost(url));
 
-    NSMutableData *keyBytes = [[NSMutableData alloc] initWithLength:16];
-    int result = SecRandomCopyBytes(kSecRandomDefault, keyBytes.length, keyBytes.mutableBytes);
-    if (result != 0) {
-        //TODO: (nlutsenko) Check if there was an error.
-    }
-
     // Apply cookies if any have been provided
     if (cookies) {
         NSDictionary<NSString *, NSString *> *messageCookies = [NSHTTPCookie requestHeaderFieldsWithCookies:cookies];
