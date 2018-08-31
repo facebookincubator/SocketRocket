@@ -30,7 +30,7 @@ CFHTTPMessageRef SRHTTPConnectMessageCreate(NSURLRequest *request,
 {
     NSURL *url = request.URL;
 
-    CFHTTPMessageRef message = CFHTTPMessageCreateRequest(NULL, CFSTR("GET"), (__bridge CFURLRef)url, kCFHTTPVersion1_1);
+    CFHTTPMessageRef message = CFHTTPMessageCreateRequest(NULL, (__bridge CFStringRef)request.HTTPMethod, (__bridge CFURLRef)url, kCFHTTPVersion1_1);
 
     // Set host first so it defaults
     CFHTTPMessageSetHeaderFieldValue(message, CFSTR("Host"), (__bridge CFStringRef)_SRHTTPConnectMessageHost(url));
