@@ -368,6 +368,8 @@ extern NSString *const SRHTTPResponseErrorKey;
  */
 - (void)webSocketDidOpen:(SRWebSocket *)webSocket;
 
+- (NSURLRequest *)webSocketWillOpen:(NSURLRequest *)request;
+
 /**
  Called when a given web socket encountered an error.
 
