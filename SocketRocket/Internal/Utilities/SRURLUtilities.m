@@ -43,6 +43,10 @@ extern BOOL SRURLRequiresSSL(NSURL *url)
 
 extern NSString *_Nullable SRBasicAuthorizationHeaderFromURL(NSURL *url)
 {
+    if (!url.user || !url.password) {
+        return nil;
+    }
+
     NSData *data = [[NSString stringWithFormat:@"%@:%@", url.user, url.password] dataUsingEncoding:NSUTF8StringEncoding];
     return [NSString stringWithFormat:@"Basic %@", SRBase64EncodedStringFromData(data)];
 }
