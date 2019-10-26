@@ -16,7 +16,7 @@
 #endif
 
 #ifdef HAS_ICU
-#import <unicode/utf8.h>
+#include <unicode/utf8.h>
 #endif
 
 #import <libkern/OSAtomic.h>
