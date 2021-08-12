@@ -12,7 +12,7 @@ Pod::Spec.new do |s|
   s.public_header_files = 'SocketRocket/*.h'
 
   s.ios.deployment_target  = '9.0'
-  s.osx.deployment_target  = '10.8'
+  s.osx.deployment_target  = '10.9'
   s.tvos.deployment_target = '9.0'
 
   s.ios.frameworks     = 'CFNetwork', 'Security'
