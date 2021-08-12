@@ -46,9 +46,10 @@
 - (void)start;
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        _webSocket = [[SRWebSocket alloc] initWithURLRequest:[NSURLRequest requestWithURL:_url]];
-        _webSocket.delegate = self;
-        [_webSocket open];
+        SRWebSocket *socket  = [[SRWebSocket alloc] initWithURLRequest:[NSURLRequest requestWithURL:self->_url]];
+        socket.delegate = self;
+        self->_webSocket = socket;
+        [socket open];
     });
     self.isExecuting = YES;
 }

@@ -29,7 +29,7 @@ extern BOOL SRAutobahnIsValidResultBehavior(NSString *caseIdentifier, NSString *
 #pragma mark - Utilities
 ///--------------------------------------
 
-extern BOOL SRRunLoopRunUntil(BOOL (^predicate)(), NSTimeInterval timeout);
+extern BOOL SRRunLoopRunUntil(BOOL (^predicate)(void), NSTimeInterval timeout);
 
 ///--------------------------------------
 #pragma mark - Setup
