@@ -130,7 +130,8 @@ The first time this is run, it may take a while to install the dependencies. It 
 
 You can also run tests inside Xcode, which runs the same thing, but makes it easier to debug.
 
-- Choose the `SocketRocket` target
+- Choose the `SocketRocketTests` target
+- Make sure your running destination is either your Mac or any Simulator
 - Run the test action (`⌘+U`)
 
 ### TestChat Demo Application
