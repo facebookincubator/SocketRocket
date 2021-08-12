@@ -47,7 +47,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)setDelegate:(id<SRWebSocketDelegate> _Nullable)delegate
 {
     dispatch_barrier_async(self.accessQueue, ^{
-        _delegate = delegate;
+        self->_delegate = delegate;
 
         self.availableDelegateMethods = (SRDelegateAvailableMethods){
             .didReceiveMessage = [delegate respondsToSelector:@selector(webSocket:didReceiveMessage:)],
@@ -67,7 +67,7 @@ NS_ASSUME_NONNULL_BEGIN
 {
     __block id<SRWebSocketDelegate> delegate = nil;
     dispatch_sync(self.accessQueue, ^{
-        delegate = _delegate;
+        delegate = self->_delegate;
     });
     return delegate;
 }
@@ -75,8 +75,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)setDispatchQueue:(dispatch_queue_t _Nullable)queue
 {
     dispatch_barrier_async(self.accessQueue, ^{
-        _dispatchQueue = queue ?: dispatch_get_main_queue();
-        _operationQueue = nil;
+        self->_dispatchQueue = queue ?: dispatch_get_main_queue();
+        self->_operationQueue = nil;
     });
 }
 
@@ -84,7 +84,7 @@ NS_ASSUME_NONNULL_BEGIN
 {
     __block dispatch_queue_t queue = nil;
     dispatch_sync(self.accessQueue, ^{
-        queue = _dispatchQueue;
+        queue = self->_dispatchQueue;
     });
     return queue;
 }
@@ -92,8 +92,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)setOperationQueue:(NSOperationQueue *_Nullable)queue
 {
     dispatch_barrier_async(self.accessQueue, ^{
-        _dispatchQueue = queue ? nil : dispatch_get_main_queue();
-        _operationQueue = queue;
+        self->_dispatchQueue = queue ? nil : dispatch_get_main_queue();
+        self->_operationQueue = queue;
     });
 }
 
@@ -101,7 +101,7 @@ NS_ASSUME_NONNULL_BEGIN
 {
     __block NSOperationQueue *queue = nil;
     dispatch_sync(self.accessQueue, ^{
-        queue = _operationQueue;
+        queue = self->_operationQueue;
     });
     return queue;
 }
@@ -115,7 +115,7 @@ NS_ASSUME_NONNULL_BEGIN
     __block __strong id<SRWebSocketDelegate> delegate = nil;
     __block SRDelegateAvailableMethods availableMethods = {};
     dispatch_sync(self.accessQueue, ^{
-        delegate = _delegate; // Not `OK` to go through `self`, since queue sync.
+        delegate = self->_delegate; // Not `OK` to go through `self`, since queue sync.
         availableMethods = self.availableDelegateMethods; // `OK` to call through `self`, since no queue sync.
     });
     [self performDelegateQueueBlock:^{
