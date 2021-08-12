@@ -68,9 +68,11 @@ extern NSString *_Nullable SRStreamNetworkServiceTypeFromURLRequest(NSURLRequest
         case NSURLNetworkServiceTypeVoice:
             networkServiceType = NSStreamNetworkServiceTypeVoice;
             break;
-        case NSURLNetworkServiceTypeCallSignaling:
-            networkServiceType = NSStreamNetworkServiceTypeCallSignaling;
-            break;
+        case NSURLNetworkServiceTypeCallSignaling: {
+            if (@available(iOS 10.0, tvOS 10.0, macOS 10.12, *)) {
+                networkServiceType = NSStreamNetworkServiceTypeCallSignaling;
+            }
+        } break;
     }
     return networkServiceType;
 }
