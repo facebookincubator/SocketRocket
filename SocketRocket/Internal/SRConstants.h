@@ -9,7 +9,7 @@
 
 #import <Foundation/Foundation.h>
 
-typedef NS_ENUM(NSInteger, SROpCode)
+typedef NS_ENUM(uint8_t, SROpCode)
 {
     SROpCodeTextFrame = 0x1,
     SROpCodeBinaryFrame = 0x2,
