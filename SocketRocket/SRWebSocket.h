@@ -59,6 +59,8 @@ extern NSString *const SRHTTPResponseErrorKey;
 
 @protocol SRWebSocketDelegate;
 
+typedef void (^SRSendCompletionBlock)(NSError * _Nullable error);
+
 ///--------------------------------------
 #pragma mark - SRWebSocket
 ///--------------------------------------
@@ -283,6 +285,17 @@ extern NSString *const SRHTTPResponseErrorKey;
 - (BOOL)sendString:(NSString *)string error:(NSError **)error NS_SWIFT_NAME(send(string:));
 
 /**
+ Send a UTF-8 String to the server.
+ 
+ @param string     String to send.
+ @param completion The call back of send result.
+ If an error occurs, this block will invoked with an `NSError` object containing information about the error, otherwise this block will be invoked with `nil`.
+ 
+ @return `YES` if the string was scheduled to send, otherwise - `NO`.
+ */
+- (BOOL)sendString:(NSString *)string completion:(nullable SRSendCompletionBlock)completion NS_SWIFT_NAME(send(string:completion:));
+
+/**
  Send binary data to the server.
 
  @param data  Data to send.
@@ -305,6 +318,17 @@ extern NSString *const SRHTTPResponseErrorKey;
  @return `YES` if the string was scheduled to send, otherwise - `NO`.
  */
 - (BOOL)sendDataNoCopy:(nullable NSData *)data error:(NSError **)error NS_SWIFT_NAME(send(dataNoCopy:));
+
+/**
+ Send binary data to the server, without making a defensive copy of it first.
+ 
+ @param data       Data to send.
+ @param completion The call back of send result.
+ If an error occurs, this block will invoked with an `NSError` object containing information about the error, otherwise this block will be invoked with `nil`.
+ 
+ @return `YES` if the string was scheduled to send, otherwise - `NO`.
+ */
+- (BOOL)sendDataNoCopy:(nullable NSData *)data completion:(nullable SRSendCompletionBlock)completion NS_SWIFT_NAME(send(dataNoCopy:completion:));
 
 /**
  Send Ping message to the server with optional data.
