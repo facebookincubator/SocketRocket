@@ -18,8 +18,8 @@
 #ifdef HAS_ICU
 #import <unicode/utf8.h>
 #endif
-
-#import <libkern/OSAtomic.h>
+#import <os/lock.h>
+//#import <libkern/OSAtomic.h>
 
 #import "SRDelegateController.h"
 #import "SRIOConsumer.h"
@@ -80,12 +80,12 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
 @property (nonatomic, assign, readwrite) BOOL allowsUntrustedSSLCertificates;
 
 @property (nonatomic, strong, readonly) SRDelegateController *delegateController;
-
+@property (assign, nonatomic) os_unfair_lock mLock;
 @end
 
 @implementation SRWebSocket {
     SRMutex _kvoLock;
-    OSSpinLock _propertyLock;
+//    OSSpinLock _propertyLock;
 
     dispatch_queue_t _workQueue;
     NSMutableArray<SRIOConsumer *> *_consumers;
@@ -160,7 +160,8 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
 
     _readyState = SR_CONNECTING;
 
-    _propertyLock = OS_SPINLOCK_INIT;
+//    _propertyLock = OS_SPINLOCK_INIT;
+    self.mLock = OS_UNFAIR_LOCK_INIT;
     _kvoLock = SRMutexInitRecursive();
     _workQueue = dispatch_queue_create(NULL, DISPATCH_QUEUE_SERIAL);
 
@@ -268,11 +269,11 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
     }
 
     SRMutexDestroy(_kvoLock);
+//    pthread_mutex_destroy(&_lock);
 }
 
 ///--------------------------------------
 #pragma mark - Accessors
-///--------------------------------------
 
 #pragma mark readyState
 
@@ -282,9 +283,11 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
         SRMutexLock(_kvoLock);
         if (_readyState != readyState) {
             [self willChangeValueForKey:@"readyState"];
-            OSSpinLockLock(&_propertyLock);
+//            OSSpinLockLock(&_propertyLock);
+            os_unfair_lock_lock(&_mLock);
             _readyState = readyState;
-            OSSpinLockUnlock(&_propertyLock);
+//            OSSpinLockUnlock(&_propertyLock);
+            os_unfair_lock_unlock(&_mLock);
             [self didChangeValueForKey:@"readyState"];
         }
     }
@@ -296,9 +299,11 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
 - (SRReadyState)readyState
 {
     SRReadyState state = 0;
-    OSSpinLockLock(&_propertyLock);
+//    OSSpinLockLock(&_propertyLock);
+    os_unfair_lock_lock(&_mLock);
     state = _readyState;
-    OSSpinLockUnlock(&_propertyLock);
+//    OSSpinLockUnlock(&_propertyLock);
+    os_unfair_lock_unlock(&_mLock);
     return state;
 }
 
