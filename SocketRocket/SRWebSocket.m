@@ -427,14 +427,18 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
     }
 
     [self _readUntilHeaderCompleteWithCallback:^(SRWebSocket *socket,  NSData *data) {
-        CFHTTPMessageRef receivedHeaders = self->_receivedHTTPHeaders;
-        CFHTTPMessageAppendBytes(receivedHeaders, (const UInt8 *)data.bytes, data.length);
+        if (!socket) {
+            return;
+        }
+        CFHTTPMessageRef receivedHTTPHeaders = socket->_receivedHTTPHeaders;
 
-        if (CFHTTPMessageIsHeaderComplete(receivedHeaders)) {
-            SRDebugLog(@"Finished reading headers %@", CFBridgingRelease(CFHTTPMessageCopyAllHeaderFields(receivedHeaders)));
-            [self _HTTPHeadersDidFinish];
+        CFHTTPMessageAppendBytes(receivedHTTPHeaders, (const UInt8 *)data.bytes, data.length);
+
+        if (CFHTTPMessageIsHeaderComplete(receivedHTTPHeaders)) {
+            SRDebugLog(@"Finished reading headers %@", CFBridgingRelease(CFHTTPMessageCopyAllHeaderFields(receivedHTTPHeaders)));
+            [socket _HTTPHeadersDidFinish];
         } else {
-            [self _readHTTPHeader];
+            [socket _readHTTPHeader];
         }
     }];
 }
