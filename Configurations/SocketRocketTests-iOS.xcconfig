@@ -14,6 +14,6 @@ PRODUCT_NAME = SocketRocketTests-iOS
 PRODUCT_MODULE_NAME = SocketRocketTests
 PRODUCT_BUNDLE_IDENTIFIER = com.facebook.socketrocket.tests.ios
 
-IPHONEOS_DEPLOYMENT_TARGET = 9.0
+IPHONEOS_DEPLOYMENT_TARGET = 11.0
 
 INFOPLIST_FILE = $(SRCROOT)/Tests/Resources/Info.plist
