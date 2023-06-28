@@ -186,14 +186,16 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
 - (instancetype)initWithURLRequest:(NSURLRequest *)request protocols:(NSArray<NSString *> *)protocols allowsUntrustedSSLCertificates:(BOOL)allowsUntrustedSSLCertificates
 {
     SRSecurityPolicy *securityPolicy;
-    BOOL certificateChainValidationEnabled = !allowsUntrustedSSLCertificates;
-
+    NSArray *pinnedCertificates = request.SR_SSLPinnedCertificates;
+    if (pinnedCertificates) {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated"
-
-    securityPolicy = [[SRSecurityPolicy alloc] initWithCertificateChainValidationEnabled:certificateChainValidationEnabled];
-
+        securityPolicy = [SRSecurityPolicy pinnningPolicyWithCertificates:pinnedCertificates];
 #pragma clang diagnostic pop
+    } else {
+        BOOL certificateChainValidationEnabled = !allowsUntrustedSSLCertificates;
+    securityPolicy = [[SRSecurityPolicy alloc] initWithCertificateChainValidationEnabled:certificateChainValidationEnabled];
+    }
 
     return [self initWithURLRequest:request protocols:protocols securityPolicy:securityPolicy];
 }
