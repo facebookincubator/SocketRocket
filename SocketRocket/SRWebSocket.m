@@ -499,19 +499,24 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
 - (void)closeWithCode:(NSInteger)code reason:(NSString *)reason
 {
     assert(code);
+    __weak typeof(self) wself = self;
     dispatch_async(_workQueue, ^{
-        if (self.readyState == SR_CLOSING || self.readyState == SR_CLOSED) {
+        __strong SRWebSocket *sself = wself;
+        if (!sself) {
+          return;
+        }
+        if (sself.readyState == SR_CLOSING || sself.readyState == SR_CLOSED) {
             return;
         }
 
-        BOOL wasConnecting = self.readyState == SR_CONNECTING;
+        BOOL wasConnecting = sself.readyState == SR_CONNECTING;
 
-        self.readyState = SR_CLOSING;
+        sself.readyState = SR_CLOSING;
 
         SRDebugLog(@"Closing with code %d reason %@", code, reason);
 
         if (wasConnecting) {
-            [self closeConnection];
+            [sself closeConnection];
             return;
         }
 
@@ -538,7 +543,7 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
         }
 
 
-        [self _sendFrameWithOpcode:SROpCodeConnectionClose data:payload];
+        [sself _sendFrameWithOpcode:SROpCodeConnectionClose data:payload];
     });
 }
 
