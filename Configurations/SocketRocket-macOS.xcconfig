@@ -12,6 +12,6 @@
 
 PRODUCT_NAME = SocketRocket
 PRODUCT_BUNDLE_IDENTIFIER = com.facebook.socketrocket.macos
-MACOSX_DEPLOYMENT_TARGET = 10.9
+MACOSX_DEPLOYMENT_TARGET = 10.13
 
 INFOPLIST_FILE = $(SRCROOT)/SocketRocket/Resources/Info.plist
