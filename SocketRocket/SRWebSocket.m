@@ -315,10 +315,15 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
 
     if (_urlRequest.timeoutInterval > 0) {
         dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(_urlRequest.timeoutInterval * NSEC_PER_SEC));
+        __weak typeof(self) wself = self;
         dispatch_after(popTime, dispatch_get_main_queue(), ^{
-            if (self.readyState == SR_CONNECTING) {
+            __strong SRWebSocket *sself = wself;
+            if (!sself) {
+                return;
+            }
+            if (sself.readyState == SR_CONNECTING) {
                 NSError *error = SRErrorWithDomainCodeDescription(NSURLErrorDomain, NSURLErrorTimedOut, @"Timed out connecting to server.");
-                [self _failWithError:error];
+                [sself _failWithError:error];
             }
         });
     }
