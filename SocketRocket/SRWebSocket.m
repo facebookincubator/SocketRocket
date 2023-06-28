@@ -11,7 +11,7 @@
 
 #import "SRWebSocket.h"
 
-#if TARGET_OS_IPHONE
+#if __has_include(<unicode/utf8.h>)
 #define HAS_ICU
 #endif
 
