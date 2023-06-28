@@ -68,7 +68,7 @@ BOOL SRAutobahnIsValidResultBehavior(NSString *caseIdentifier, NSString *behavio
 #pragma mark - Utilities
 ///--------------------------------------
 
-BOOL SRRunLoopRunUntil(BOOL (^predicate)(void), NSTimeInterval timeout)
+BOOL SRRunLoopRunUntil(BOOL (^predicate)(), NSTimeInterval timeout)
 {
     NSDate *timeoutDate = [NSDate dateWithTimeIntervalSinceNow:timeout];
 
