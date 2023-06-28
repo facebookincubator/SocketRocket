@@ -586,6 +586,7 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
     dispatch_data_t newData = dispatch_data_create(data.bytes, data.length, nil, ^{
         strongData = nil;
     });
+    (void)strongData;
     _outputBuffer = dispatch_data_create_concat(_outputBuffer, newData);
     [self _pumpWriting];
 }
