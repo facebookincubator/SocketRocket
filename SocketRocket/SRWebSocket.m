@@ -457,6 +457,8 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
     _secKey = SRBase64EncodedStringFromData(SRRandomData(16));
     assert([_secKey length] == 24);
 
+    _urlRequest = [self.delegate webSocketWillOpen:_urlRequest];
+
     CFHTTPMessageRef message = SRHTTPConnectMessageCreate(_urlRequest,
                                                           _secKey,
                                                           SRWebSocketProtocolVersion,
