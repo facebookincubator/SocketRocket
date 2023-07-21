@@ -23,7 +23,13 @@ NSString *SRURLOrigin(NSURL *url)
     } else if ([scheme isEqualToString:@"ws"]) {
         scheme = @"http";
     }
-    [origin appendFormat:@"%@://%@", scheme, url.host];
+
+    NSString * host = url.host;
+    if ([host containsString:@":"]) {
+        host = [NSString stringWithFormat:@"[%@]", host];
+    }
+
+    [origin appendFormat:@"%@://%@", scheme, host];
 
     NSNumber *port = url.port;
     BOOL portIsDefault = (!port ||
