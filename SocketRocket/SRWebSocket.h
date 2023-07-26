@@ -122,6 +122,14 @@ extern NSString *const SRHTTPResponseErrorKey;
  */
 @property (nonatomic, assign, readonly) BOOL allowsUntrustedSSLCertificates;
 
+/**
+ Allow limiting the internal tx queue size to a specific bytes count limit
+ Once the tx queue size is reached the following calls to send: will block until data is sent
+ over the websocket connection.
+ Setting this to 0 does not limit the tx queue size (default)
+ */
+@property (nonatomic, assign) NSUInteger maxTxQueueSize;
+
 ///--------------------------------------
 #pragma mark - Constructors
 ///--------------------------------------
