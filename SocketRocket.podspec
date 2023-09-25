@@ -14,6 +14,7 @@ Pod::Spec.new do |s|
   s.ios.deployment_target  = '11.0'
   s.osx.deployment_target  = '10.13'
   s.tvos.deployment_target = '11.0'
+  s.visionos.deployment_target = '1.0'
 
   s.ios.frameworks     = 'CFNetwork', 'Security'
   s.osx.frameworks     = 'CoreServices', 'Security'
