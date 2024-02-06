@@ -12,7 +12,8 @@
 @import XCTest;
 @import ObjectiveC;
 
-#import <SocketRocket/SRWebSocket.h>
+// #import <SocketRocket/SRWebSocket.h>
+#import "SRWebSocket.h"
 
 #import "SRTWebSocketOperation.h"
 #import "SRAutobahnOperation.h"
