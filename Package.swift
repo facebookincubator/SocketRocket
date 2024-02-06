@@ -3,15 +3,16 @@ import PackageDescription
 
 let package = Package(
     name: "SocketRocket",
-    platforms: [
-        .iOS(.v11),
-        .macOS(.v10_13),
-        .tvOS(.v11)
-    ],
+    platforms: [.iOS(.v9)],
     products: [
         .library(
             name: "SocketRocket",
-            targets: ["SocketRocket"]),
+            targets: ["SocketRocket"]
+        ),
+    ],
+    dependencies: [
+        // Dependencies declare other packages that this package depends on.
+        // .package(url: /* package url */, from: "1.0.0"),
     ],
     targets: [
         .target(
