@@ -1,1 +1,0 @@
-./SocketRocket/Internal/RunLoop/SRRunLoopThread.h

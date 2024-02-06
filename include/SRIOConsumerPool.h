@@ -1,1 +1,0 @@
-./SocketRocket/Internal/IOConsumer/SRIOConsumerPool.h
