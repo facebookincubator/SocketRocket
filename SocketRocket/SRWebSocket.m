@@ -19,7 +19,7 @@
 #import <unicode/utf8.h>
 #endif
 
-#import <libkern/OSAtomic.h>
+#import <os/lock.h>
 
 #import "SRDelegateController.h"
 #import "SRIOConsumer.h"
@@ -85,7 +85,7 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
 
 @implementation SRWebSocket {
     SRMutex _kvoLock;
-    OSSpinLock _propertyLock;
+    os_unfair_lock _propertyLock;
 
     dispatch_queue_t _workQueue;
     NSMutableArray<SRIOConsumer *> *_consumers;
@@ -160,7 +160,7 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
 
     _readyState = SR_CONNECTING;
 
-    _propertyLock = OS_SPINLOCK_INIT;
+    _propertyLock = OS_UNFAIR_LOCK_INIT;
     _kvoLock = SRMutexInitRecursive();
     _workQueue = dispatch_queue_create(NULL, DISPATCH_QUEUE_SERIAL);
 
@@ -280,9 +280,9 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
         SRMutexLock(_kvoLock);
         if (_readyState != readyState) {
             [self willChangeValueForKey:@"readyState"];
-            OSSpinLockLock(&_propertyLock);
+            os_unfair_lock_lock(&_propertyLock);
             _readyState = readyState;
-            OSSpinLockUnlock(&_propertyLock);
+            os_unfair_lock_unlock(&_propertyLock);
             [self didChangeValueForKey:@"readyState"];
         }
     }
@@ -294,9 +294,9 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
 - (SRReadyState)readyState
 {
     SRReadyState state = 0;
-    OSSpinLockLock(&_propertyLock);
+    os_unfair_lock_lock(&_propertyLock);
     state = _readyState;
-    OSSpinLockUnlock(&_propertyLock);
+    os_unfair_lock_unlock(&_propertyLock);
     return state;
 }
 
