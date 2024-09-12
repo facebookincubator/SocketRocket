@@ -8,7 +8,7 @@
 
 [![Build Status][build-status-svg]][build-status-link]
 
-A conforming WebSocket ([RFC 6455](https://tools.ietf.org/html/rfc6455>)) client library for iOS, macOS and tvOS.
+A conforming WebSocket ([RFC 6455](https://tools.ietf.org/html/rfc6455>)) client library for iOS, macOS, tvOS and visionOS.
 
 Test results for SocketRocket [here](http://facebook.github.io/SocketRocket/results/).
 You can compare to what modern browsers look like [here](http://autobahn.ws/testsuite/reports/clients/index.html).
