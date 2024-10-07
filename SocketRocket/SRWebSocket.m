@@ -1113,6 +1113,8 @@ static const uint8_t SRPayloadLenMask   = 0x7F;
             }
         }
 
+        self.readyState = SR_CLOSED;
+
         if (!_failed) {
             [self.delegateController performDelegateBlock:^(id<SRWebSocketDelegate>  _Nullable delegate, SRDelegateAvailableMethods availableMethods) {
                 if (availableMethods.didCloseWithCode) {
