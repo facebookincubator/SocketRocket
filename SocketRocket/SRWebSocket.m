@@ -1114,6 +1114,7 @@ static const uint8_t SRPayloadLenMask   = 0x7F;
         }
 
         if (!_failed) {
+            self.readyState = SR_CLOSED;
             [self.delegateController performDelegateBlock:^(id<SRWebSocketDelegate>  _Nullable delegate, SRDelegateAvailableMethods availableMethods) {
                 if (availableMethods.didCloseWithCode) {
                     [delegate webSocket:self didCloseWithCode:self->_closeCode reason:self->_closeReason wasClean:YES];
