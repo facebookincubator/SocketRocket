@@ -772,7 +772,7 @@ static inline BOOL closeCodeIsValid(int closeCode) {
             }
         }
     } else {
-        _closeCode = SRStatusNoStatusReceived;
+        _closeCode = SRStatusCodeNoStatusReceived;
     }
 
     [self assertOnWorkQueue];
