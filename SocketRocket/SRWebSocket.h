@@ -27,7 +27,8 @@ typedef NS_ENUM(NSInteger, SRStatusCode) {
     SRStatusCodeProtocolError = 1002,
     SRStatusCodeUnhandledType = 1003,
     // 1004 reserved.
-    SRStatusNoStatusReceived = 1005,
+    SRStatusCodeNoStatusReceived = 1005,
+    SRStatusNoStatusReceived __deprecated_enum_msg("Use SRStatusCodeNoStatusReceived") = SRStatusCodeNoStatusReceived,
     SRStatusCodeAbnormal = 1006,
     SRStatusCodeInvalidUTF8 = 1007,
     SRStatusCodePolicyViolated = 1008,
