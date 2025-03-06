@@ -56,7 +56,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)updateSecurityOptionsInStream:(NSStream *)stream
 {
-    // Enforce TLS 1.2
+    // Enforce TLS >= 1.2
     [stream setProperty:(__bridge id)kCFStreamSocketSecurityLevelNegotiatedSSL forKey:(__bridge id)kCFStreamPropertySocketSecurityLevel];
 
     // Validate certificate chain for this stream if enabled.
