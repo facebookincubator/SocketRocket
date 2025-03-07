@@ -17,8 +17,6 @@ void import_NSURLRequest_SRWebSocket(void) { }
 
 NS_ASSUME_NONNULL_BEGIN
 
-static NSString *const SRSSLPinnnedCertificatesKey = @"SocketRocket_SSLPinnedCertificates";
-
 @implementation NSURLRequest (SRWebSocket)
 
 - (nullable NSArray *)SR_SSLPinnedCertificates
