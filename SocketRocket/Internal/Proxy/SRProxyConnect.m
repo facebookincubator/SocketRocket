@@ -347,18 +347,22 @@
                     [self _didConnect];
                 }
             }
-        }  break;
+            break;
+        }
         case NSStreamEventErrorOccurred: {
             [self _failWithError:aStream.streamError];
-        } break;
+            break;
+        }
         case NSStreamEventEndEncountered: {
             [self _failWithError:aStream.streamError];
-        } break;
+            break;
+        }
         case NSStreamEventHasBytesAvailable: {
             if (aStream == _inputStream) {
                 [self _processInputStream];
             }
-        } break;
+            break;
+        }
         case NSStreamEventHasSpaceAvailable:
         case NSStreamEventNone:
             SRDebugLog(@"(default)  %@", aStream);
