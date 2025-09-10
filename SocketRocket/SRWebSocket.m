@@ -778,7 +778,7 @@ static inline BOOL closeCodeIsValid(int closeCode) {
     [self assertOnWorkQueue];
 
     if (self.readyState == SR_OPEN) {
-        [self closeWithCode:1000 reason:nil];
+        [self closeWithCode:SRStatusCodeNormal reason:nil];
     }
     dispatch_async(_workQueue, ^{
         [self closeConnection];
