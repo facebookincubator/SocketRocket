@@ -124,7 +124,7 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
     BOOL _sentClose;
     BOOL _didFail;
     BOOL _cleanupScheduled;
-    int _closeCode;
+    SRStatusCode _closeCode;
 
     BOOL _isPumping;
 
@@ -512,7 +512,7 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
     [self closeWithCode:SRStatusCodeNormal reason:nil];
 }
 
-- (void)closeWithCode:(NSInteger)code reason:(NSString *)reason
+- (void)closeWithCode:(SRStatusCode)code reason:(NSString *)reason
 {
     assert(code);
     __weak typeof(self) wself = self;
@@ -778,7 +778,7 @@ static inline BOOL closeCodeIsValid(int closeCode) {
     [self assertOnWorkQueue];
 
     if (self.readyState == SR_OPEN) {
-        [self closeWithCode:1000 reason:nil];
+        [self closeWithCode:SRStatusCodeNormal reason:nil];
     }
     dispatch_async(_workQueue, ^{
         [self closeConnection];

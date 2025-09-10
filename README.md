@@ -103,7 +103,7 @@ You implement this
 - (void)webSocket:(SRWebSocket *)webSocket didReceiveMessageWithData:(NSData *)data;
 
 - (void)webSocket:(SRWebSocket *)webSocket didFailWithError:(NSError *)error;
-- (void)webSocket:(SRWebSocket *)webSocket didCloseWithCode:(NSInteger)code reason:(nullable NSString *)reason wasClean:(BOOL)wasClean;
+- (void)webSocket:(SRWebSocket *)webSocket didCloseWithCode:(SRStatusCode)code reason:(nullable NSString *)reason wasClean:(BOOL)wasClean;
 
 @end
 ```
