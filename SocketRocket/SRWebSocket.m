@@ -66,6 +66,9 @@ static inline int32_t validate_dispatch_data_partial_string(NSData *data);
 
 static uint8_t const SRWebSocketProtocolVersion = 13;
 
+// Max frame payload length for all frames is 256MB, which is reasonable max.
+static const uint32_t SRWebSocketMaxFramePayloadLength = 256 * 1024 * 1024;
+
 NSString *const SRWebSocketErrorDomain = @"SRWebSocketErrorDomain";
 NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
 
@@ -907,7 +910,10 @@ static inline BOOL closeCodeIsValid(int closeCode) {
             }
         }
     } else {
-        assert(frame_header.payload_length <= SIZE_T_MAX);
+        if (frame_header.payload_length > SRWebSocketMaxFramePayloadLength) {
+            [self _closeWithProtocolError:@"Payload length too large."];
+            return;
+        }
         [self _addConsumerWithDataLength:(size_t)frame_header.payload_length callback:^(SRWebSocket *sself, NSData *newData) {
             if (isControlFrame) {
                 [sself _handleFrameWithData:newData opCode:frame_header.opcode];
