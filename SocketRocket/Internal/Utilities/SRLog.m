@@ -20,7 +20,7 @@ extern void SRErrorLog(NSString *format, ...)
 
     va_end(arg_list);
 
-    NSLog(@"[SocketRocket] %@", formattedString);
+    // NSLog(@"[SocketRocket] %@", formattedString);
 }
 
 extern void SRDebugLog(NSString *format, ...)

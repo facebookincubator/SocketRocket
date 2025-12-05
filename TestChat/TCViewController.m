@@ -9,7 +9,8 @@
 
 #import "TCViewController.h"
 
-#import <SocketRocket/SocketRocket.h>
+// #import <SocketRocket/SocketRocket.h>
+#import "SocketRocket.h"
 
 #import "TCChatCell.h"
 
@@ -142,13 +143,13 @@
 
 - (void)webSocketDidOpen:(SRWebSocket *)webSocket;
 {
-    NSLog(@"Websocket Connected");
+    // NSLog(@"Websocket Connected");
     self.title = @"Connected!";
 }
 
 - (void)webSocket:(SRWebSocket *)webSocket didFailWithError:(NSError *)error;
 {
-    NSLog(@":( Websocket Failed With Error %@", error);
+    // NSLog(@":( Websocket Failed With Error %@", error);
 
     self.title = @"Connection Failed! (see logs)";
     _webSocket = nil;
@@ -156,20 +157,20 @@
 
 - (void)webSocket:(SRWebSocket *)webSocket didReceiveMessageWithString:(nonnull NSString *)string
 {
-    NSLog(@"Received \"%@\"", string);
+    // NSLog(@"Received \"%@\"", string);
     [self _addMessage:[[TCMessage alloc] initWithMessage:string incoming:YES]];
 }
 
 - (void)webSocket:(SRWebSocket *)webSocket didCloseWithCode:(NSInteger)code reason:(NSString *)reason wasClean:(BOOL)wasClean;
 {
-    NSLog(@"WebSocket closed");
+    // NSLog(@"WebSocket closed");
     self.title = @"Connection Closed! (see logs)";
     _webSocket = nil;
 }
 
 - (void)webSocket:(SRWebSocket *)webSocket didReceivePong:(NSData *)pongPayload;
 {
-    NSLog(@"WebSocket received pong");
+    // NSLog(@"WebSocket received pong");
 }
 
 ///--------------------------------------
