@@ -256,7 +256,7 @@ extern NSString *const SRHTTPResponseErrorKey;
  @param code   Code to close the socket with.
  @param reason Reason to send to the server or `nil`.
  */
-- (void)closeWithCode:(NSInteger)code reason:(nullable NSString *)reason;
+- (void)closeWithCode:(SRStatusCode)code reason:(nullable NSString *)reason;
 
 ///--------------------------------------
 #pragma mark Send
@@ -385,7 +385,7 @@ extern NSString *const SRHTTPResponseErrorKey;
  @param reason    Reason in a form of a String that was reported by the server or `nil`.
  @param wasClean  Boolean value indicating whether a socket was closed in a clean state.
  */
-- (void)webSocket:(SRWebSocket *)webSocket didCloseWithCode:(NSInteger)code reason:(nullable NSString *)reason wasClean:(BOOL)wasClean;
+- (void)webSocket:(SRWebSocket *)webSocket didCloseWithCode:(SRStatusCode)code reason:(nullable NSString *)reason wasClean:(BOOL)wasClean;
 
 /**
  Called on receive of a ping message from the server.
