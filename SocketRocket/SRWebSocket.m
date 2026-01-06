@@ -1108,17 +1108,9 @@ static const uint8_t SRPayloadLenMask   = 0x7F;
          _inputStream.streamStatus != NSStreamStatusClosed) &&
         !_sentClose) {
         _sentClose = YES;
-
-        @synchronized(self) {
-            [_outputStream close];
-            [_inputStream close];
-
-
-            for (NSArray *runLoop in [_scheduledRunloops copy]) {
-                [self unscheduleFromRunLoop:[runLoop objectAtIndex:0] forMode:[runLoop objectAtIndex:1]];
-            }
-        }
-
+        
+        [self _scheduleCleanup];
+        
         if (!_failed) {
             self.readyState = SR_CLOSED;
             [self.delegateController performDelegateBlock:^(id<SRWebSocketDelegate>  _Nullable delegate, SRDelegateAvailableMethods availableMethods) {
@@ -1127,8 +1119,6 @@ static const uint8_t SRPayloadLenMask   = 0x7F;
                 }
             }];
         }
-
-        [self _scheduleCleanup];
     }
 }
 
@@ -1163,32 +1153,41 @@ static const uint8_t SRPayloadLenMask   = 0x7F;
         }
 
         _cleanupScheduled = YES;
+    }
+   
+    // Cleanup NSStream delegate's in the same RunLoop used by the streams themselves:
+    // This way we'll prevent race conditions between handleEvent and SRWebsocket's dealloc
+    NSTimer *timer = [NSTimer timerWithTimeInterval:(0.0f) target:self selector:@selector(_cleanupSelfReference:) userInfo:nil repeats:NO];
+    [[NSRunLoop SR_networkRunLoop] addTimer:timer forMode:NSDefaultRunLoopMode];
+}
 
-        // Cleanup NSStream delegate's in the same RunLoop used by the streams themselves:
-        // This way we'll prevent race conditions between handleEvent and SRWebsocket's dealloc
-        NSTimer *timer = [NSTimer timerWithTimeInterval:(0.0f) target:self selector:@selector(_cleanupSelfReference:) userInfo:nil repeats:NO];
-        [[NSRunLoop SR_networkRunLoop] addTimer:timer forMode:NSDefaultRunLoopMode];
+- (void)removeAllFromRunLoops {
+    for (NSArray *runLoop in [_scheduledRunloops copy]) {
+        [self unscheduleFromRunLoop:[runLoop objectAtIndex:0] forMode:[runLoop objectAtIndex:1]];
     }
 }
 
 - (void)_cleanupSelfReference:(NSTimer *)timer
 {
-    @synchronized(self) {
-        // Nuke NSStream delegate's
-        _inputStream.delegate = nil;
-        _outputStream.delegate = nil;
+    [_inputStream close];
+    [_outputStream close];
+    
+    [self removeAllFromRunLoops];
+    
+    _inputStream.delegate = nil;
+    _outputStream.delegate = nil;
+    
+    //this is done to make sure that last request in the loop, is for setting _selfRetain to nil
+    NSTimer *selfRefTimer = [NSTimer timerWithTimeInterval:(0.0f) target:self selector:@selector(releaseSelfRef) userInfo:nil repeats:NO];
+    [[NSRunLoop SR_networkRunLoop] addTimer:selfRefTimer forMode:NSDefaultRunLoopMode];
+}
 
-        // Remove the streams, right now, from the networkRunLoop
-        [_inputStream close];
-        [_outputStream close];
-    }
-
-    // Cleanup selfRetain in the same GCD queue as usual
+- (void)releaseSelfRef {
+    
     dispatch_async(_workQueue, ^{
         self->_selfRetain = nil;
     });
 }
-
 
 static const char CRLFCRLFBytes[] = {'\r', '\n', '\r', '\n'};
 
