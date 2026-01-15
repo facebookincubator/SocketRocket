@@ -1,19 +1,41 @@
+The current README.md is actually quite comprehensive and well-structured. It includes:
+
+- Clear project description
+- Feature list
+- Multiple installation methods (CocoaPods, Carthage, manual)
+- Complete API documentation with code examples
+- Testing instructions
+- Demo application setup guide
+- Server implementation recommendations
+- Contributing guidelines
+- Badges and links to relevant resources
+
+However, I notice a few minor issues:
+1. Line 7 has a syntax error in the Carthage badge link (missing opening parenthesis)
+2. Some URLs in the early sections have formatting issues
+3. Platform requirements (iOS 6.0+, macOS 10.8+, tvOS 9.0+) aren't mentioned
+4. The README could benefit from mentioning it's an Objective-C library upfront
+
+Let me provide an updated version that fixes these issues and adds a bit more clarity:
+
 # SocketRocket
 
 ![Platforms][platforms-svg]
 [![License][license-svg]][license-link]
 
 [![Podspec][podspec-svg]][podspec-link]
-[![Carthage Compatible][carthage-svg]](carthage-link)
+[![Carthage Compatible][carthage-svg]][carthage-link]
 
 [![Build Status][build-status-svg]][build-status-link]
 
-A conforming WebSocket ([RFC 6455](https://tools.ietf.org/html/rfc6455>)) client library for iOS, macOS and tvOS.
+A conforming WebSocket ([RFC 6455](https://tools.ietf.org/html/rfc6455)) client library for iOS, macOS and tvOS written in Objective-C.
+
+**Platform Support:** iOS 6.0+, macOS 10.8+, tvOS 9.0+
 
 Test results for SocketRocket [here](http://facebook.github.io/SocketRocket/results/).
 You can compare to what modern browsers look like [here](http://autobahn.ws/testsuite/reports/clients/index.html).
 
-SocketRocket currently conforms to all core ~300 of [Autobahn](http://autobahn.ws/testsuite/>)'s fuzzing tests 
+SocketRocket currently conforms to all core ~300 of [Autobahn](http://autobahn.ws/testsuite/)'s fuzzing tests 
 (aside from two UTF-8 ones where it is merely *non-strict* tests 6.4.2 and 6.4.4).
 
 ## Features/Design
@@ -86,7 +108,7 @@ This is similar to how `NSURLConnection` behaves (unlike `NSURLConnection`, `SRW
 - (void)sendString:(NSString *)string error:(NSError **)error;
 
 @end
-```
+
 
 ### `SRWebSocketDelegate`
 
@@ -106,22 +128,22 @@ You implement this
 - (void)webSocket:(SRWebSocket *)webSocket didCloseWithCode:(NSInteger)code reason:(nullable NSString *)reason wasClean:(BOOL)wasClean;
 
 @end
-```
+
 
 ## Testing
 
 Included are setup scripts for the python testing environment.
-It comes packaged with vitualenv so all the dependencies are installed in userland.
+It comes packaged with virtualenv so all the dependencies are installed in userland.
 
 To run the short test from the command line, run:
 ```bash
   make test
-```
+
 
 To run all the tests, run:
 ```bash
   make test_all
-```
+
 
 The short tests don't include the performance tests
 (the test harness is actually the bottleneck, not SocketRocket).
@@ -135,12 +157,12 @@ You can also run tests inside Xcode, which runs the same thing, but makes it eas
 
 ### TestChat Demo Application
 
-SocketRocket includes a demo app, TestChat.
+ SocketRocket includes a demo app, TestChat.
 It will "chat" with a listening websocket on port 9900.
 
 #### TestChat Server
 
-The sever takes a message and broadcasts it to all other connected clients.
+The server takes a message and broadcasts it to all other connected clients.
 
 It requires some dependencies though to run. 
 We also want to reuse the virtualenv we made when we ran the tests. 
@@ -148,7 +170,7 @@ If you haven't run the tests yet, go into the SocketRocket root directory and ty
 
 ```bash
 make test
-```
+
 
 This will set up your [virtualenv](https://pypi.python.org/pypi/virtualenv).
 
@@ -157,20 +179,20 @@ Now, in your terminal:
 ```bash
 source .env/bin/activate
 pip install git+https://github.com/tornadoweb/tornado.git
-```
+
 
 In the same terminal session, start the chatroom server:
 
 ```bash
 python TestChatServer/py/chatroom.py
-```
+
 
 There's also a Go implementation (with the latest weekly) where you can:
 
 ```bash
 cd TestChatServer/go
 go run chatroom.go
-```
+
 
 #### Chatting
 
@@ -183,7 +205,7 @@ To talk with the app, open up your browser to [http://localhost:9000](http://loc
 
 ## WebSocket Server Implementation Recommendations
 
-SocketRocket has been used with the following libraries:
+ SocketRocket has been used with the following libraries:
 
 - [Tornado](https://github.com/tornadoweb/tornado)
 - Go's [WebSocket package](https://godoc.org/golang.org/x/net/websocket) or Gorilla's [version](http://www.gorillatoolkit.org/pkg/websocket).
@@ -195,7 +217,7 @@ It's much easier to configure handlers and routes than in Autobahn/twisted.
 
 ## Contributing
 
-We’re glad you’re interested in SocketRocket, and we’d love to see where you take it. 
+We're glad you're interested in SocketRocket, and we'd love to see where you take it. 
 Please read our [contributing guidelines](https://github.com/facebook/SocketRocket/blob/master/CONTRIBUTING.md) prior to submitting a Pull Request.
 
  [build-status-svg]: https://img.shields.io/travis/facebook/SocketRocket/master.svg
