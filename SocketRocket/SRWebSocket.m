@@ -582,13 +582,12 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
     dispatch_async(_workQueue, ^{
         if (self.readyState != SR_CLOSED) {
             self->_failed = YES;
+            self.readyState = SR_CLOSED;
             [self.delegateController performDelegateBlock:^(id<SRWebSocketDelegate>  _Nullable delegate, SRDelegateAvailableMethods availableMethods) {
                 if (availableMethods.didFailWithError) {
                     [delegate webSocket:self didFailWithError:error];
                 }
             }];
-
-            self.readyState = SR_CLOSED;
 
             SRDebugLog(@"Failing with error %@", error.localizedDescription);
 
